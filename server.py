@@ -291,6 +291,6 @@ if __name__ == '__main__': #메인? 기본설정같은 칸지
         clnt_cnt += 1
         print(clnt_sock)
         lock.release()
-
+#tt
         t = threading.Thread(target=handle_clnt, args=(clnt_sock,))
         t.start()
