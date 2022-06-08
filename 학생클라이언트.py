@@ -46,12 +46,19 @@ class WindowClass(QMainWindow, form_class):
         text_check_2 += self.lineEdit_new_pw.text()
         text_check_3 += self.lineEdit_new_pw_check.text()
         # text() 메서드는 lineEdit 에 입력된 글자를 가져옵니다
-        if text_check_1 and text_check_2 and text_check_3:  # 셋중하나ㅂ라도 문자가 없다면(Faise) 문자를 입력해달라고합니다
-            self.SignUpLabel.setText("아이디와 비밀번호를 입력해주세요")
-        else:
+        # 셋중하나라도 문자가 없다면(Faise) 문자를 입력해달라고합니다
+        if text_check_1 and text_check_2 and text_check_3:
             self.SignUpLabel.setText("회원가입 버튼을 눌러주세요")
-    def SignUpPushButton_2_event(self):
+        else:
+            self.SignUpLabel.setText("아이디와 비밀번호를 입력해주세요")
+    def SignUpPushButton_2_event(self):  # 회원가입 버튼
         self.stackedWidget.setCurrentIndex(0)
+        # 회원가입이 끝나고 로그인페이지로 이동하면서 입력창을 빈칸으로 만든다
+        self.lineEdit_new_id.setText("")
+        self.lineEdit_new_pw.setText("")
+        self.lineEdit_new_pw_check.setText("")
+        self.lineEdit_email.setText("")
+        self.lineEdit_email_check.setText("")
     def BackButton_event(self):
         self.stackedWidget.setCurrentIndex(0)
 if __name__ == "__main__":
