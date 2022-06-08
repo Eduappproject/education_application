@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>620</width>
-    <height>592</height>
+    <width>854</width>
+    <height>675</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,14 +19,14 @@
   <widget class="QStackedWidget" name="stackedWidget">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>30</y>
-     <width>571</width>
-     <height>541</height>
+     <x>10</x>
+     <y>10</y>
+     <width>531</width>
+     <height>641</height>
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="page">
     <widget class="QLabel" name="label_3">
@@ -42,7 +42,7 @@
       <string>비밀번호</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_2">
+    <widget class="QLineEdit" name="loginLineEdit_2">
      <property name="geometry">
       <rect>
        <x>183</x>
@@ -75,7 +75,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>학생용 클라이언트 (로그인)</string>
+      <string>로그인</string>
      </property>
     </widget>
     <widget class="QPushButton" name="loginPushButton">
@@ -96,15 +96,15 @@
       <rect>
        <x>121</x>
        <y>131</y>
-       <width>28</width>
-       <height>23</height>
+       <width>51</width>
+       <height>31</height>
       </rect>
      </property>
      <property name="text">
-      <string>이름</string>
+      <string>아이디</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit">
+    <widget class="QLineEdit" name="loginLineEdit">
      <property name="geometry">
       <rect>
        <x>183</x>
@@ -165,26 +165,30 @@
      <property name="geometry">
       <rect>
        <x>50</x>
-       <y>200</y>
+       <y>120</y>
        <width>417</width>
-       <height>198</height>
+       <height>206</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="3" column="1">
-       <widget class="QLineEdit" name="lineEdit_email"/>
+      <item row="4" column="1">
+       <widget class="QLineEdit" name="lineEdit_email">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
       </item>
-      <item row="1" column="1">
+      <item row="2" column="1">
        <widget class="QLineEdit" name="lineEdit_new_pw"/>
       </item>
-      <item row="1" column="0">
+      <item row="2" column="0">
        <widget class="QLabel" name="label_11">
         <property name="text">
          <string>비밀번호</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="2">
+      <item row="4" column="2">
        <widget class="QPushButton" name="EmailCheckPushButton">
         <property name="enabled">
          <bool>false</bool>
@@ -194,48 +198,48 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
+      <item row="3" column="1">
        <widget class="QLineEdit" name="lineEdit_new_pw_check"/>
       </item>
-      <item row="0" column="1">
+      <item row="1" column="1">
        <widget class="QLineEdit" name="lineEdit_new_id"/>
       </item>
-      <item row="0" column="0">
+      <item row="1" column="0">
        <widget class="QLabel" name="label_10">
         <property name="text">
-         <string>이름</string>
+         <string>아이디</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
+      <item row="3" column="0">
        <widget class="QLabel" name="label_12">
         <property name="text">
          <string>비밀번호 확인</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
+      <item row="4" column="0">
        <widget class="QLabel" name="label_13">
         <property name="text">
          <string>이메일</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
+      <item row="5" column="0">
        <widget class="QLabel" name="label_14">
         <property name="text">
          <string>인증번호</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
+      <item row="5" column="1">
        <widget class="QLineEdit" name="lineEdit_email_check">
         <property name="enabled">
          <bool>false</bool>
         </property>
        </widget>
       </item>
-      <item row="4" column="2">
+      <item row="5" column="2">
        <widget class="QPushButton" name="EmailCheckNumberPushButton">
         <property name="enabled">
          <bool>false</bool>
@@ -245,10 +249,20 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
-       <widget class="QPushButton" name="SignUpPushButton_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_15">
         <property name="text">
-         <string>회원가입</string>
+         <string>이름</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="lineEdit_new_name"/>
+      </item>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="SignUpPushButton_3">
+        <property name="text">
+         <string>중복확인</string>
         </property>
        </widget>
       </item>
@@ -257,8 +271,8 @@
     <widget class="QPushButton" name="BackButton">
      <property name="geometry">
       <rect>
-       <x>200</x>
-       <y>400</y>
+       <x>30</x>
+       <y>340</y>
        <width>101</width>
        <height>31</height>
       </rect>
@@ -270,14 +284,30 @@
     <widget class="QLabel" name="SignUpLabel">
      <property name="geometry">
       <rect>
-       <x>130</x>
-       <y>450</y>
+       <x>110</x>
+       <y>390</y>
        <width>291</width>
        <height>71</height>
       </rect>
      </property>
      <property name="text">
       <string>아이디와비밀번호를입력해주세요.</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="SignUpPushButton_2">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>340</y>
+       <width>151</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>회원가입</string>
      </property>
     </widget>
    </widget>
@@ -352,6 +382,19 @@
       <string>Q&amp;&amp;A</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="beackButton_2">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>494</y>
+       <width>151</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>뒤로가기</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="page_3">
     <widget class="QLabel" name="label_7">
@@ -383,6 +426,33 @@
      </property>
     </widget>
    </widget>
+  </widget>
+  <widget class="QLabel" name="label_16">
+   <property name="geometry">
+    <rect>
+     <x>550</x>
+     <y>10</y>
+     <width>221</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>테스트 서버 Log</string>
+   </property>
+  </widget>
+  <widget class="QTextBrowser" name="logTextBrowser">
+   <property name="geometry">
+    <rect>
+     <x>550</x>
+     <y>40</y>
+     <width>291</width>
+     <height>631</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(46, 52, 54);
+color: rgb(138, 226, 52);</string>
+   </property>
   </widget>
  </widget>
  <resources/>
