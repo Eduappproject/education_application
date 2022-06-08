@@ -27,10 +27,29 @@ class WindowClass(QMainWindow, form_class):
         # self.mainButton_3.clicked.connect()  # 상담 버튼
         # self.mainButton_4.clicked.connect()  # Q&A 버튼
 
+        # 회원가입화면 lineEdit
+        self.lineEdit_new_id.textChanged[str].connect(self.lineEdit_text_changed)
+        self.lineEdit_new_pw.textChanged[str].connect(self.lineEdit_text_changed)
+        self.lineEdit_new_pw_check.textChanged[str].connect(self.lineEdit_text_changed)
+
+    # 로그인 화면
     def loginPushButton_event(self):
         self.stackedWidget.setCurrentIndex(2)
     def SignUpPushButton_event(self):
         self.stackedWidget.setCurrentIndex(1)
+    # 회원가입 화면
+    def lineEdit_text_changed(self):  # 이름과 비밀번호를 입력할때마다 실행됨
+        text_check_1 = ""
+        text_check_2 = ""
+        text_check_3 = ""
+        text_check_1 += self.lineEdit_new_id.text()
+        text_check_2 += self.lineEdit_new_pw.text()
+        text_check_3 += self.lineEdit_new_pw_check.text()
+        # text() 메서드는 lineEdit 에 입력된 글자를 가져옵니다
+        if text_check_1 and text_check_2 and text_check_3:  # 셋중하나ㅂ라도 문자가 없다면(Faise) 문자를 입력해달라고합니다
+            self.SignUpLabel.setText("아이디와 비밀번호를 입력해주세요")
+        else:
+            self.SignUpLabel.setText("회원가입 버튼을 눌러주세요")
     def SignUpPushButton_2_event(self):
         self.stackedWidget.setCurrentIndex(0)
     def BackButton_event(self):
