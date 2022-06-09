@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>854</width>
-    <height>675</height>
+    <width>1235</width>
+    <height>684</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,7 +26,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="page">
     <widget class="QLabel" name="label_3">
@@ -120,8 +120,8 @@
      </property>
      <property name="geometry">
       <rect>
-       <x>330</x>
-       <y>210</y>
+       <x>331</x>
+       <y>205</y>
        <width>80</width>
        <height>31</height>
       </rect>
@@ -136,8 +136,8 @@
      </property>
      <property name="geometry">
       <rect>
-       <x>320</x>
-       <y>250</y>
+       <x>331</x>
+       <y>242</y>
        <width>80</width>
        <height>31</height>
       </rect>
@@ -194,7 +194,7 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>인증하기(미완)</string>
+         <string>인증 요청</string>
         </property>
        </widget>
       </item>
@@ -202,7 +202,11 @@
        <widget class="QLineEdit" name="lineEdit_new_pw_check"/>
       </item>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="lineEdit_new_id"/>
+       <widget class="QLineEdit" name="lineEdit_new_id">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label_10">
@@ -245,7 +249,7 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>인증(미완성)</string>
+         <string>인증</string>
         </property>
        </widget>
       </item>
@@ -260,7 +264,10 @@
        <widget class="QLineEdit" name="lineEdit_new_name"/>
       </item>
       <item row="1" column="2">
-       <widget class="QPushButton" name="SignUpPushButton_3">
+       <widget class="QPushButton" name="SignUpCheckButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>중복확인</string>
         </property>
@@ -272,7 +279,7 @@
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>340</y>
+       <y>380</y>
        <width>101</width>
        <height>31</height>
       </rect>
@@ -284,10 +291,10 @@
     <widget class="QLabel" name="SignUpLabel">
      <property name="geometry">
       <rect>
-       <x>110</x>
-       <y>390</y>
+       <x>100</x>
+       <y>420</y>
        <width>291</width>
-       <height>71</height>
+       <height>21</height>
       </rect>
      </property>
      <property name="text">
@@ -300,8 +307,8 @@
      </property>
      <property name="geometry">
       <rect>
-       <x>170</x>
-       <y>340</y>
+       <x>160</x>
+       <y>380</y>
        <width>151</width>
        <height>31</height>
       </rect>
@@ -309,6 +316,48 @@
      <property name="text">
       <string>회원가입</string>
      </property>
+    </widget>
+    <widget class="QLabel" name="label_18">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>330</y>
+       <width>87</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>사용자 구분</string>
+     </property>
+    </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>330</y>
+       <width>181</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QRadioButton" name="userCheckButton_1">
+        <property name="text">
+         <string>학생</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="userCheckButton_2">
+        <property name="text">
+         <string>교사</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </widget>
    <widget class="QWidget" name="page_2">
@@ -333,10 +382,10 @@
     <widget class="QPushButton" name="mainButton_1">
      <property name="geometry">
       <rect>
-       <x>60</x>
-       <y>220</y>
-       <width>89</width>
-       <height>25</height>
+       <x>61</x>
+       <y>221</y>
+       <width>80</width>
+       <height>31</height>
       </rect>
      </property>
      <property name="text">
@@ -346,10 +395,10 @@
     <widget class="QPushButton" name="mainButton_2">
      <property name="geometry">
       <rect>
-       <x>180</x>
-       <y>220</y>
-       <width>89</width>
-       <height>25</height>
+       <x>147</x>
+       <y>221</y>
+       <width>80</width>
+       <height>31</height>
       </rect>
      </property>
      <property name="text">
@@ -359,10 +408,10 @@
     <widget class="QPushButton" name="mainButton_3">
      <property name="geometry">
       <rect>
-       <x>320</x>
-       <y>210</y>
-       <width>89</width>
-       <height>25</height>
+       <x>234</x>
+       <y>222</y>
+       <width>80</width>
+       <height>31</height>
       </rect>
      </property>
      <property name="text">
@@ -372,9 +421,9 @@
     <widget class="QPushButton" name="mainButton_4">
      <property name="geometry">
       <rect>
-       <x>420</x>
-       <y>210</y>
-       <width>89</width>
+       <x>320</x>
+       <y>225</y>
+       <width>80</width>
        <height>25</height>
       </rect>
      </property>
@@ -437,7 +486,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>테스트 서버 Log</string>
+    <string>테스트 서버Log</string>
    </property>
   </widget>
   <widget class="QTextBrowser" name="logTextBrowser">
@@ -445,13 +494,40 @@
     <rect>
      <x>550</x>
      <y>40</y>
-     <width>291</width>
-     <height>631</height>
+     <width>331</width>
+     <height>641</height>
     </rect>
    </property>
    <property name="styleSheet">
     <string notr="true">background-color: rgb(46, 52, 54);
 color: rgb(138, 226, 52);</string>
+   </property>
+  </widget>
+  <widget class="QTextBrowser" name="logTextBrowser_2">
+   <property name="geometry">
+    <rect>
+     <x>890</x>
+     <y>40</y>
+     <width>331</width>
+     <height>641</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(85, 87, 83);
+color: rgb(238, 238, 236);</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_17">
+   <property name="geometry">
+    <rect>
+     <x>890</x>
+     <y>10</y>
+     <width>221</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>클라이언트Log</string>
    </property>
   </widget>
  </widget>
