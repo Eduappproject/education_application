@@ -22,24 +22,24 @@ def handle_clnt(clnt_sock): #핸들클라
     for i in range(0, clnt_cnt):
         if clnt_imfor[i][0] == clnt_sock:
             clnt_num = i
-            break
+            break  # 접속한 클라 저장
 
     while True:
-        sys.stdout.flush()
+        sys.stdout.flush()  # 버퍼 비워주는거
         clnt_msg = clnt_sock.recv(BUF_SIZE)
 
         if not clnt_msg:
-            lock.acquire()
+            lock.acquire() #뮤텍스같은거
             delete_imfor(clnt_sock)
             lock.release()
             break
-        clnt_msg = clnt_msg.decode()
+        clnt_msg = clnt_msg.decode()  #숫자->문자열로 바꾸는거 맞나?  데이터 보낼때 incode 로 하고 
 
         sys.stdin.flush()
 
         if 'signup' == clnt_msg:
             sign_up(clnt_sock, clnt_num)
-        elif clnt_msg.startswith('login/'):
+        elif clnt_msg.startswith('login/'):  # startswitch -->문자열중에 특정 문자를 찾고싶거나, 특정문자로 시작하는 문자열, 특정문자로 끝이나는 문자열 등
             clnt_msg = clnt_msg.replace('login/', '')  # clnt_msg에서 login/ 자름
             log_in(clnt_sock, clnt_msg, clnt_num)
         elif clnt_msg.startswith('find_id/'):
@@ -97,7 +97,7 @@ def sign_up(clnt_sock, clnt_num): #회원가입
             break
         c.execute("SELECT userid FROM usertbl")  # usertbl 테이블에서 id 컬럼 추출
         for row in c:  # id 컬럼
-            if imfor in row:       # 클라이언트가 입력한 id가 DB에 있으면
+            if imfor in row:       # 클라이언트가 입력한 id가 DB에 있으면 (중복 제거)
                 clnt_sock.send('!NO'.encode())
                 check = 1
                 break
@@ -108,7 +108,7 @@ def sign_up(clnt_sock, clnt_num): #회원가입
 
         lock.acquire()
         user_data.append(imfor)  # user_data에 id 추가
-        imfor = clnt_sock.recv(BUF_SIZE)  # password/name/email
+        imfor = clnt_sock.recv(BUF_SIZE)  # password/name/email/usertype
         imfor = imfor.decode()
         if imfor == "Q_reg":  # 회원가입 창 닫을 때 함수 종료
             con.close()
@@ -116,8 +116,8 @@ def sign_up(clnt_sock, clnt_num): #회원가입
 
         imfor = imfor.split('/')  # 구분자 /로 잘라서 리스트 생성
         for imfo in imfor:
-            user_data.append(imfor[i])       # user_data 리스트에 추가
-        query = "INSERT INTO usertbl(userid, userpw, username, email) VALUES(?, ?, ?, ?)"
+            user_data.append(imfo)       # user_data 리스트에 추가
+        query = "INSERT INTO usertbl(userid, userpw, username, email, usertype) VALUES(?, ?, ?, ?, ?)"
 
         c.executemany(query, (user_data,))  # DB에 user_data 추가
         con.commit()            # DB에 커밋
@@ -146,8 +146,8 @@ def log_in(clnt_sock, data, clnt_num): # 로그인
         print("login sucess")
         clnt_imfor[clnt_num].append(data[0])
         #c.execute("SELECT book1, book2, book3 FROM usertbl where userid=?", (user_id,))
-        books = c.fetchone()
-        books = list(books)
+        books = c.fetchone() #이거 2개 필요없어보인다?
+        books = list(books)  #이거 2개 필요없어보인다?
         send_user_information(clnt_num)
     else:
         # 로그인실패 시그널
@@ -203,7 +203,7 @@ def send_user_information(clnt_num):  # 유저정보 보낸데
 def find_id(clnt_sock, email):  # 아이디찾기
     con, c = dbcon()
 
-    c.execute("SELECT id FROM usertbl where email=?",
+    c.execute("SELECT userid FROM usertbl where email=?",
               (email,))  # DB에 있는 email과 일치시 id 가져오기
     id = c.fetchone()
     
@@ -220,7 +220,7 @@ def find_id(clnt_sock, email):  # 아이디찾기
         if msg == "Q_id_Find":    # Q_id_Find 전송받으면 find_id 함수 종료
             pass
         elif msg == 'plz_id':     # plz_id 전송받으면 id 전송
-            id = ''.join(id)  # 문자열로 바꾸기
+            id = ''.join(id)  #  ''<- 여기에는 구분자임 ㅇㅇ  리스트->문자열로 바꾸기
             clnt_sock.send(id.encode())
             print('send_id')
         con.close()
@@ -277,6 +277,8 @@ def delete_imfor(clnt_sock): #유저정보 삭제
             break
     clnt_cnt -= 1
 
+#def recv_clnt_msg(clnt_sock):
+
 
 if __name__ == '__main__': #메인? 기본설정같은 칸지
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -291,6 +293,5 @@ if __name__ == '__main__': #메인? 기본설정같은 칸지
         clnt_cnt += 1
         print(clnt_sock)
         lock.release()
-
         t = threading.Thread(target=handle_clnt, args=(clnt_sock,))
         t.start()
