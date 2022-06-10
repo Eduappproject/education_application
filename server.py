@@ -167,25 +167,16 @@ def send_user_information(clnt_num):  # 유저정보 보낸데
     con, c = dbcon()
     id = clnt_imfor[clnt_num][1]
     clnt_sock = clnt_imfor[clnt_num][0]
-    books = []
 
     c.execute(
-        "SELECT username FROM usertbl where id=?", (id,))  # 이름, 대여한 책 찾기
+        "SELECT username FROM usertbl where id=?", (id,))  # 이름
     row = c.fetchone()
     row = list(row)
     for i in range(0, len(row)):     # None인 항목 찾기
         if row[i] == None:
             row[i] = 'X'
 
-    c.execute("SELECT book_name FROM Return where id=?", (id,))  # 반납한 책
-    while 1:
-        book = c.fetchone()        # 반납한 책 한 권씩 찾기
-        if book is None:
-            break
-        book = list(book)         # 리스트로 변환
-        books = books + book      # books 리스트에 추가
-
-    user_data = row + books  # 이름,대여한 책 + 반납한 책
+    user_data = row  # 이름
     user_data = '/'.join(user_data)
     # 버퍼 비우기
 
