@@ -67,14 +67,14 @@ def edit_data(clnt_num, clnt_msg): #데이터 베이스 정보변경
     if clnt_msg.startswith('_name/'):
         clnt_msg = clnt_msg.replace('_name/', '')
         lock.acquire()
-        c.execute("UPDATE usertbl SET name = ? WHERE id = ?", (clnt_msg, id))
+        c.execute("UPDATE usertbl SET username = ? WHERE userid = ?", (clnt_msg, id))
         con.commit()
         lock.release()
         con.close()
     elif clnt_msg.startswith('_pw/'):
         clnt_msg = clnt_msg.replace('_pw/', '')
         lock.acquire()
-        c.execute("UPDATE usertbl SET password = ? WHERE id = ?", (clnt_msg, id))
+        c.execute("UPDATE usertbl SET userpw = ? WHERE userid = ?", (clnt_msg, id))
         con.commit()
         lock.release()
         con.close()
@@ -85,24 +85,21 @@ def edit_data(clnt_num, clnt_msg): #데이터 베이스 정보변경
 
 def sign_up(clnt_sock, clnt_num): #회원가입
     con, c = dbcon()
-    check = 0
     user_data = []
 
     while True:
-        check = 0
         imfor = clnt_sock.recv(BUF_SIZE)
         imfor = imfor.decode()
         if imfor == "Q_reg":      # 회원가입 창 닫을 때 함수 종료
             con.close()
             break
-        c.execute("SELECT userid FROM usertbl")  # usertbl 테이블에서 id 컬럼 추출
-        for row in c:  # id 컬럼
-            if imfor in row:       # 클라이언트가 입력한 id가 DB에 있으면 (중복 제거)
-                clnt_sock.send('!NO'.encode())
-                check = 1
-                break
-        if check == 1:
-            continue
+        c.execute("SELECT userid FROM usertbl where userid = ?", (imfor, ))  # usertbl 테이블에서 id 컬럼 추출
+        row = c.fetchone()
+        if row == None:                      # DB에 없는 id면 None
+            clnt_sock.send('!NO'.encode())
+            print('id_found_error')
+            con.close()
+            return
 
         clnt_sock.send('!OK'.encode())  # 중복된 id 없으면 !OK 전송
 
@@ -133,7 +130,6 @@ def log_in(clnt_sock, data, clnt_num): # 로그인
 
     c.execute("SELECT userpw FROM usertbl where userid=?",
               (user_id,))  # DB에서 id 같은 password 컬럼 선택
-
     user_pw = c.fetchone()             # 한 행 추출
 
     if not user_pw:  # DB에 없는 id 입력시
@@ -145,9 +141,6 @@ def log_in(clnt_sock, data, clnt_num): # 로그인
         # 로그인성공 시그널
         print("login sucess")
         clnt_imfor[clnt_num].append(data[0])
-        #c.execute("SELECT book1, book2, book3 FROM usertbl where userid=?", (user_id,))
-        books = c.fetchone() #이거 2개 필요없어보인다?
-        books = list(books)  #이거 2개 필요없어보인다?
         send_user_information(clnt_num)
     else:
         # 로그인실패 시그널
@@ -162,8 +155,8 @@ def remove(clnt_num): # 회원탈퇴
     con, c = dbcon()
     id = clnt_imfor[clnt_num][1]
     lock.acquire()
-    c.execute("DELETE FROM usertbl WHERE id = ?", (id,))
-    c.execute("DELETE FROM Return WHERE id = ?", (id,))
+    c.execute("DELETE FROM usertbl WHERE userid = ?", (id,))
+    c.execute("DELETE FROM Return WHERE userid = ?", (id,))
     clnt_imfor[clnt_num].remove(id)
     con.commit()
     lock.release()
@@ -177,7 +170,7 @@ def send_user_information(clnt_num):  # 유저정보 보낸데
     books = []
 
     c.execute(
-        "SELECT name FROM usertbl where id=?", (id,))  # 이름, 대여한 책 찾기
+        "SELECT username FROM usertbl where id=?", (id,))  # 이름, 대여한 책 찾기
     row = c.fetchone()
     row = list(row)
     for i in range(0, len(row)):     # None인 항목 찾기
@@ -229,7 +222,7 @@ def find_id(clnt_sock, email):  # 아이디찾기
 
 def find_pw(clnt_sock, id):  #비번찾기
     con, c = dbcon()
-    c.execute("SELECT userpw, email FROM usertbl where id=?",
+    c.execute("SELECT userpw, email FROM usertbl where userid=?",
               (id,))    # DB에 있는 id와 일치하면 비밀번호, 이메일 정보 가져오기
     row = c.fetchone()
     print(row)
