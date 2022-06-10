@@ -10,16 +10,14 @@ from email.mime.text import MIMEText  # 이메일 전송을 위한 라이브러�
 import smtplib
 import re  # 정규 표현식
 
-form_class = uic.loadUiType("student_client.ui")[0]
+form_class = uic.loadUiType("student_untitled.ui")[0]
 port_num = 2090
 
-
-# 상담 채팅 클라이언트 스레드
+# 클라이언트 스레드
 class ClientWorker(QThread):
     client_data_emit = pyqtSignal(str)
 
     def run(self):
-        print("Q스레드 실행됨")
         while True:
             try:
                 msg = self.sock.recv(1024).decode()
@@ -32,7 +30,52 @@ class ClientWorker(QThread):
                 break
             else:
                 self.client_data_emit.emit(f"{msg}")
+        # 서버에서 오는 값을 받을 준비 해야한다
 
+
+# 서버 스레드(테스트 용)
+class AcceptWorker(QThread):
+    # 메인 스레드에 보낼 시그널 설정 (emit 로 데이터를 메인스레드에 전달)
+    server_data_emit = pyqtSignal(str)
+
+    def run(self):
+        # 여기서 서버열기(서버 소켓 생성)
+        self.sock = socket(AF_INET, SOCK_STREAM)
+        # 유저 소켓 리스트 관리
+        self.user_list = []
+        # 포트 번호 8500 ~ 8599 사이에 서버를 연다
+        # port_num = 8500
+
+        self.sock.bind(('', port_num))
+        self.server_data_emit.emit(f'포트번호 {port_num} 에 서버 생성됨')
+        self.port_num = port_num
+
+        self.sock.listen(5)
+        while True:
+            # c 에 소켓 객체를 넣고 a 에 주소를 넣는다
+            c, a = self.sock.accept()
+            while True:
+                try:
+                    msg = c.recv(1024).decode()
+                    # 받은 메시지를 화면에 표현한다(디버그 용)
+                    self.server_data_emit.emit(f"{msg}")
+                    if msg == "signup":
+                        while True:
+                            id_check = c.recv(1024).decode()
+                            if id_check == "Q_reg":
+                                self.server_data_emit.emit(f"{id_check}")
+                                break
+                            self.server_data_emit.emit(f"{id_check}")
+                            if id_check in ["qqq", "www", "eee"]:
+                                c.send("!NO".encode())
+                            else:
+                                c.send("!OK".encode())
+
+                except:
+                    break
+
+
+# 여기서 서버와 연결할 클라이언트 실행하기(클라이언트 소켓 생성)
 
 class WindowClass(QMainWindow, form_class):
 
@@ -49,29 +92,12 @@ class WindowClass(QMainWindow, form_class):
         self.SignUpCheckButton.clicked.connect(self.SignUpCheckButton_event)
         self.EmailCheckPushButton.clicked.connect(self.EmailCheckPushButton_event)  # 이메일 인증요청 버튼
         self.EmailCheckNumberPushButton.clicked.connect(self.EmailCheckNumberPushButton_event)  # 이메일에 도착한 인증번호 확인 버튼
-        self.backButton_2.clicked.connect(self.backButton_2_event)
-        self.idFindButton.clicked.connect(self.idFindButton_event)
-        self.pwFindButton.clicked.connect(self.pwFindButton_event)
-        self.idFindPageEmailButton.clicked.connect(self.idFindPageEmailButton_event)
-        self.pwFindPageIdButton.clicked.connect(self.pwFindPageIdButton_event)
-        self.pwFindPageEmailButton.clicked.connect(self.pwFindPageEmailButton_event)
-
-
-        self.chatLineEdit.returnPressed.connect(self.chat_msg_input)  # 상담방에서 채팅메시지 입력시
-        self.chatBackButton.clicked.connect(self.chatBackButton_event)  # 상담방에서 나가기 버튼 누를시
-        # 아이디 비밀번호 미리 입력(디버그 용,삭제해도 상관없음)
-        self.loginLineEdit.setText("wwdS")
-        self.loginLineEdit_2.setText("ppp")
-        # 메인 화면
-        self.mainPageCounselButton.clicked.connect(self.mainPageCounselButton_event)  # 상담 버튼
-        self.mainPageQuestionButton.clicked.connect(self.mainPageQuestionButton_event)  # 문제 풀기 버튼
-        # 커밋
-        # 문제 풀기 페이지
-        self.questionListWidget.itemClicked.connect(self.questionListWidget_event)  # 문제 주제 리스트를 클릭했을때 실행되는 함수
-        self.questionChoiceButton.clicked.connect(self.questionChoiceButton_event)  # 문제의 주제를 선택하면 실행되는 함수
-        self.answerLineEdit.returnPressed.connect(self.answerLineEdit_event) # 답을 입력하고 엔터를 누르면 실행되는 함수
-        # 문제 문답 결과 페이지
-        self.goMainPageButton.clicked.connect(lambda : self.stackedWidget.setCurrentIndex(4))
+        self.beackButton_2.clicked.connect(self.beackButton_2_event)
+        # # 메인 화면
+        # self.mainButton_1.clicked.connect()  # 등급 버튼
+        # self.mainButton_2.clicked.connect()  # 퀴즈 버튼
+        # self.mainButton_3.clicked.connect()  # 상담 버튼
+        # self.mainButton_4.clicked.connect()  # Q&A 버튼
 
         # 회원가입화면 lineEdit
         self.lineEdit_text_changed()
@@ -81,40 +107,45 @@ class WindowClass(QMainWindow, form_class):
         self.lineEdit_new_pw_check.textChanged[str].connect(self.lineEdit_text_changed)
         self.lineEdit_email.textChanged[str].connect(self.lineEdit_text_changed)
 
+
+        # 서버 스레드 선언
+        self.T = AcceptWorker()
+        self.T.server_data_emit.connect(self.server_log)
+        self.T.start()  # 서버 스레드 실행
+        time.sleep(1)
+        # 메모
+        # from pprint import pprint  # 보기 편하게 프린트 해주는 함수
+        # pprint(self.__dict__)  # 접근 가능한 객체의 변수를 표시(해당 변수에 접근해 메서드를 쓸수있다
+        # self.__dict__['label'].setText("학생용 클라이이언트 로그인 화면")  # 예시
+        # # 이를 이용해서 여러개의 이벤트 핸들러를 설정하거나 수십개의 라벨을 원하는 텍스트로 바꿀수 있다
+
         # 소켓 생성
         self.sock = socket(AF_INET, SOCK_STREAM)
-        i = 0
-        while True:
-            try:
-                self.sock.connect(('127.0.0.1', port_num + i))
-                print(f'클라이언트에서 포트번호 {port_num + i} 에 서버 연결 성공')
-                break  # 서버 생성에 성공하면 반복문 멈춤
-            except:
-                pass
-                print(f'클라이언트에서 포트번호 {port_num + i} 에 서버 연결 실패')
-                # 생성에 실패(오류)하면 반복문 멈추지 않음
-            i += 1
-            if i > 3:
-                print("서버 연결에 실패했습니다.")
-                input("엔터키를 누를시 재시도 합니다")
-                i = 0
+        # 포트 번호 8500 ~ 8599 사이에 서버를 찾는다
 
-        # self.user = ClientWorker()
-        # self.user.sock = self.sock
-        # self.user.client_data_emit.connect(self.sock_msg)
-        # self.user.start()
+        self.sock.connect(('127.0.0.1', port_num))
+        self.logTextBrowser.append(f'클라이언트에서 포트번호 {port_num} 에 서버 연결 성공')
+
+        self.user = ClientWorker()
+        self.user.sock = self.sock
+        self.user.client_data_emit.connect(self.sock_msg)
+        self.user.start()
+        # self.sock.recv(1024)
 
     # 로그인 화면
     def loginPushButton_event(self):
-        if not self.loginLineEdit.text() or not self.loginLineEdit_2.text():
-            print("아이디와 비밀번호를 입력하세요.")
-            return
-        self.sock.send(f"login/{self.loginLineEdit.text()}/{self.loginLineEdit_2.text()}/student".encode())
+        # id = self.loginLineEdit.text()
+        # pw = self.loginLineEdit_2.text()
+        # if id == "":
+        #     id = "아이디"
+        # if pw == "":
+        #     pw = "비밀번호"
+
+        self.sock.send(f"{id},{pw}".encode())
+
+        self.stackedWidget.setCurrentIndex(2)
         self.loginLineEdit.setText("")
         self.loginLineEdit_2.setText("")
-
-        msg = self.sock.recv(1024).decode()
-        self.sock_msg(msg)
 
     # 회원가입 페이지로 이동
     def SignUpPushButton_event(self):
@@ -165,28 +196,27 @@ class WindowClass(QMainWindow, form_class):
         self.SignUpLabel.adjustSize()  # 라벨에 적힌 글자에맞춰서 라벨 사이즈를 조절해주는 메서드
 
     def SignUpPushButton_2_event(self):  # 회원가입 버튼
-        user_data = [self.lineEdit_new_pw.text()
-            , self.lineEdit_new_name.text()
-            , self.lineEdit_email.text()
-            , "student"]  # 서버로 보낼 가입자 데이터를 순서에 맞게 리스트로 만든다
+        user_data = [f"{self.lineEdit_new_name.text()}"
+            ,f"{self.lineEdit_new_pw.text()}"
+            ,f"{self.lineEdit_new_name.text()}"
+            ,f"{self.lineEdit_email.text()}"
+            ,f"student"]  # 서버로 보낼 가입자 데이터를 순서에 맞게 리스트로 만든다
         # 서버에서 "/" 를 기준으로 구분하기때문에 그에 맞춰서 "/".join 을 이용해서 각데이터 사이에 "/" 넣고 보낸다
         self.sock.send("/".join(user_data).encode())
-        self.login_page()
+        self.sign_up_back()
 
     # 회원가입 창을 닫는 버튼
     def BackButton_event(self):
         self.sock.send("Q_reg".encode())
-        self.login_page()
+        self.sign_up_back()
 
     # 아이디 중복확인 버튼
     def SignUpCheckButton_event(self):
         input_id = self.lineEdit_new_id.text()
         self.sock.send(input_id.encode())
 
-        msg = self.sock.recv(1024).decode()
-        self.sock_msg(msg)
 
-    def backButton_2_event(self):
+    def beackButton_2_event(self):
         self.stackedWidget.setCurrentIndex(0)
 
     # 이메일 인증 요청 버튼을 눌렀을때
@@ -204,16 +234,17 @@ class WindowClass(QMainWindow, form_class):
             print("잘못된 이메일")
             return
 
+        ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
+        ses.starttls()
+        # 이메일을 보낼 gmail 계정에 접속
+        ses.login('uihyeon.bookstore@gmail.com', 'ttqe mztd lljo tguh')
+
         self.check_msg = str(random.randrange(1000, 10000))
-        print(f"인증번호:{self.check_msg}")
-        # ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
-        # ses.starttls()
-        # # 이메일을 보낼 gmail 계정에 접속
-        # ses.login('uihyeon.bookstore@gmail.com', 'ttqe mztd lljo tguh')
-        # msg = MIMEText('인증번호: ' + self.check_msg)  # 보낼 메세지 내용을 적는다
-        # msg['subject'] = 'PyQt5 에서 인증코드를 발송했습니다.'  # 보낼 이메일의 제목을 적는다
-        # # 앞에는 위에서 설정한 계정, 두번째에는 이메일을 보낼 계정을 입력
-        # ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
+        msg = MIMEText('인증번호: ' + self.check_msg)  # 보낼 메세지 내용을 적는다
+        msg['subject'] = 'PyQt5 에서 인증코드를 발송했습니다.'  # 보낼 이메일의 제목을 적는다
+        # 앞에는 위에서 설정한 계정, 두번째에는 이메일을 보낼 계정을 입력
+        ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
+
         # 꺼야하는 버튼 끄기
         self.lineEdit_email.setEnabled(False)
         self.EmailCheckPushButton.setEnabled(False)
@@ -228,7 +259,7 @@ class WindowClass(QMainWindow, form_class):
             self.EmailCheckNumberPushButton.setEnabled(False)
             self.SignUpPushButton_2.setEnabled(True)
 
-    def login_page(self):
+    def sign_up_back(self):
         self.stackedWidget.setCurrentIndex(0)
         # 회원가입이 끝나고 로그인페이지로 이동하면서 입력창을 빈칸으로 만든다
         self.lineEdit_new_name.setText("")
@@ -246,268 +277,25 @@ class WindowClass(QMainWindow, form_class):
         self.SignUpPushButton_2.setEnabled(False)
         self.check_msg = ""
 
-    def idFindButton_event(self):
-        """
-        이메일 전송 find_id/email
-        """
-        print("id 찾기 버튼 누름")
-        self.stackedWidget.setCurrentIndex(2)
-
-    def pwFindButton_event(self):
-        """
-        아이디 확인 find_pw/id
-        이메일 전송 email
-        """
-        print("pw 찾기 버튼 누름")
-        self.stackedWidget.setCurrentIndex(3)
-        self.pwFindPageIdLineEdit.setEnabled(True)
-        self.pwFindPageEmailLineEdit.setEnabled(False)
-        self.pwFindPageIdButton.setEnabled(True)
-        self.pwFindPageEmailButton.setEnabled(False)
-
-    def idFindPageEmailButton_event(self):
-        id_find_page_email = self.idFindPageEmailLineEdit.text()
-        self.sock.send(f"find_id/{id_find_page_email}".encode())
-
-        msg = self.sock.recv(1024).decode()
-        self.sock_msg(msg)
-
-    def pwFindPageIdButton_event(self):
-        pw_find_id_text = self.pwFindPageIdLineEdit.text()
-        self.sock.send(f"find_pw/{pw_find_id_text}".encode())
-        recv_msg = self.sock.recv(1024).decode()
-        if "!NO" == recv_msg:
-            print("iderror")
-        else:  # !NO 가 아니라면 무조건 !OK 로 판정한다
-            self.pwFindPageIdLineEdit.setEnabled(False)
-            self.pwFindPageEmailLineEdit.setEnabled(True)
-            self.pwFindPageIdButton.setEnabled(False)
-            self.pwFindPageEmailButton.setEnabled(True)
-
-    def pwFindPageEmailButton_event(self):
-        pw_find_email_text = self.pwFindPageEmailLineEdit.text()
-        self.sock.send(pw_find_email_text.encode())
-        recv_msg = self.sock.recv(1024).decode()
-        if "!NO" == recv_msg:
-            print("iderror")
-        else:
-            self.sock.send("plz_pw".encode())
-            pw_find_pw_text = self.sock.recv(1024).decode()
-            print(f"이메일로 보낸 비밀번호{pw_find_pw_text}")
-            email = self.pwFindPageEmailLineEdit.text()
-            self.pwFindPageIdLineEdit.setText("")
-            self.pwFindPageEmailLineEdit.setText("")
-            self.stackedWidget.setCurrentIndex(0)
-            self.loginLabel.setText(f"이메일로 비밀번호가 전송되었습니다.")
-
-            # # 이메일로 아이디 보내기
-            # ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
-            # ses.starttls()
-            # # 이메일을 보낼 gmail 계정에 접속
-            # ses.login('uihyeon.bookstore@gmail.com', 'ttqe mztd lljo tguh')
-            # self.check_msg = pw_find_pw_text
-            # msg = MIMEText('찾으시는 비밀번호: ' + self.check_msg)  # 보낼 메세지 내용을 적는다
-            # msg['subject'] = 'PyQt5 에서 찾으시는 비밀번호를 발송했습니다.'  # 보낼 이메일의 제목을 적는다
-            # # 앞에는 위에서 설정한 계정, 두번째에는 이메일을 보낼 계정을 입력
-            # ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
-            # # 이메일로 아이디 보냈다
-
-    def mainPageCounselButton_event(self):
-        # 상담버튼을 눌렀다
-        self.stackedWidget.setCurrentIndex(5)
-        self.sock.send(f"chat_request/{self.userNameLabel.text()}/student".encode())
-        self.T = ClientWorker()
-        self.T.client_data_emit.connect(self.chat_msg)
-        self.T.sock = self.sock
-        self.T.start()
-
-    def chatBackButton_event(self):
-        self.chatTextBrowser.clear()
-        self.chatLineEdit.setText("")
-        self.sock.send("/나가기".encode())
-        self.stackedWidget.setCurrentIndex(4)
-
-    def chat_msg_input(self):
-        msg = self.chatLineEdit.text()
-        if msg == "/나가기":
-            self.chatTextBrowser.clear()
-            self.chatLineEdit.setText("")
-            self.sock.send("/나가기".encode())
-            self.stackedWidget.setCurrentIndex(4)
-            return
-        self.chatLineEdit.setText("")
-        self.sock.send(msg.encode())
-
-    # 문제 풀기 주제 선택 실행되는 함수
-    def questionListWidget_event(self):
-        text_data = self.questionListWidget.currentItem().text()
-        self.questionChoiceButton.setText(text_data)
-        self.questionChoiceButton.setEnabled(True)
-
-    def mainPageQuestionButton_event(self):
-        self.stackedWidget.setCurrentIndex(6)
-        self.questionChoiceButton.setText("주제를 선택해주세요.")
-        self.questionChoiceButton.setEnabled(False)
-
-    # 문제 주제를 선택하고 문제 푸는 페이지로 넘어가는 버튼을 눌렀을때 실행되는 함수
-    def questionChoiceButton_event(self):
-        self.question_num = 0
-        print(self.questionChoiceButton.text(), "주제 선택됨\n해당 주제를 서버로 보내서 문제를 받아옴")
-        self.stackedWidget.setCurrentIndex(7)
-        self.question_request_dict = {  # 객채 변수 선언을 매번 반복해 컴퓨터 자원낭비지만 구현목적으로 여기 작성하곘습니다.
-            "조류": "bird"
-            , "포유류": "mammal"
-        }  # 리스트에 적힌 주제명에 따라서 서버로 보낼 메시지
-        self.question_request = self.questionChoiceButton.text()
-        self.questionChoiceButton.setText("서버에서 문제 불러오는중")
-        self.answerLineEdit.setEnabled(False)
-
-        self.sock.send(f"question_request/{self.question_request_dict[self.question_request]}".encode())
-        question_data = self.sock.recv(16384).decode()
-        question_data_1 = question_data[len("!Question//"):question_data.find("!Answer//")]
-        question_data_2 = question_data[question_data.find("!Answer//") + len("!Answer//"):]
-        question_data_1 = question_data_1.split("//")
-        question_data_2 = question_data_2.split("//")
-        print(len(question_data_1), len(question_data_2))
-        self.question_data_base = list(zip(question_data_1, question_data_2))
-        self.answerLineEdit.setEnabled(True)
-        self.answerLineEdit.setText("")
-        for q, a in self.question_data_base:  # 받은 문제 프린트로 보기
-            print(f"문제:{q}\n정답:{a}")
-        random.shuffle(self.question_data_base)  # 문제 섞어 버리기ㅣㅣㅣㅣ
-        print("len self.question_data_base", len(self.question_data_base))
-        self.questions_completion_list = [] # 정답과 오답을 기록할 리스트
-        self.question_page()
-
-    def question_page(self):
-        if len(self.question_data_base) <= self.question_num:
-            print("축하합니다 모든문제를 풀었습니다\n이제 서버로 푼문제의 개수와 원래있던 포인트를 전송합니다")
-            return False
-        Q, A = self.question_data_base[self.question_num]
-        split_n = 35
-        for i in range(1, (len(Q) // split_n) + 1):
-            Q = f"{Q[:i * split_n]}\n{Q[i * split_n:]}"  # 단어가 화면을 삐져나오는걸 방지하기위해 일정간격으로 줄바꿈을 줌
-        self.questionLabel.setText(Q)
-        self.questionLabel.adjustSize()
-        self.answerLabel.setText(A)
-        self.answerLabel.adjustSize()
-
-        # 화면에 표시된 문제 라벨의 세로 위치 + 높이
-        question_height = self.questionLabel.height() + self.questionLabel.y()
-        self.answerLabel_3.move(self.answerLabel.x() - 30, question_height) # '정답'이라 적힌 라벨
-        self.answerLabel.move(self.answerLabel.x(), question_height + 5) # 정답이 적히는 라벨
-        self.answerLabel_4.move(self.answerLineEdit.x() - 30, question_height + 50) # '답'이라 적힌 라벨
-        self.answerLineEdit.move(self.answerLineEdit.x(), question_height + 50) # 답을 입력하는 라인에딧
-        self.questionNumLabel.setText(f"남은 문제 {self.question_num + 1}/{len(self.question_data_base)}")
-        self.questionNumLabel.adjustSize()
-        self.question_num += 1
-        return True
-
-    # 답 제출 버튼(답을 입력한 다음에 엔터입력)
-    def answerLineEdit_event(self):
-        stident_result = self.answerLineEdit.text()
-        question_answer = self.answerLabel.text()
-        self.answerLineEdit.setText("")
-        # 답과 정답을 비교
-        print(f"학생 답: {stident_result} == 정답: {question_answer}:{stident_result == question_answer}")
-        # 정답이면 정답으로 저장
-        if stident_result == question_answer:
-            print("정답입니다")
-            self.questions_completion_list.append(True)
-        else:  # 아니면 오답
-            print("오답입니다")
-            self.questions_completion_list.append(False)
-        # 모든 문제를 풀었다면
-        if not self.question_page():
-            self.stackedWidget.setCurrentIndex(8) # 문제 결과 보기
-            print(self.question_request)
-            print(self.question_request_dict)
-            print(self.question_request_dict[self.question_request])
-            print([i for i in self.questions_completion_list if i == True])
-            print(len([i for i in self.questions_completion_list if i == True]))
-            print(self.user_point)
-            print("427")
-
-            self.questionsCompletionLabel_1.setText(f"주제:{self.question_request}({self.question_request_dict[self.question_request]})")
-            self.questionsCompletionLabel_1.adjustSize()
-            self.questionsCompletionLabel_2.setText(f"총 문제 {len(self.questions_completion_list)}개 중 {len([i for i in self.questions_completion_list if i == True])}개 정답")
-            self.questionsCompletionLabel_2.adjustSize()
-            msg = f"quesiton_complete/{self.question_request_dict[self.question_request]}/{len([i for i in self.questions_completion_list if i])}/{self.user_point}"
-            self.sock.send(msg.encode())
-            print(f"문제 풀이완료 서버로 다음과 같은 메시지 전송:{msg}") # quetion_complete/과목명/점수/포인트
-            self.questionsCompletionLabel_3.setText("수고하셧습니다")
-            self.questionsCompletionLabel_3.adjustSize()
-            point = self.sock.recv(1024).decode() # 메인메뉴에 표시할 나의 포인트를 받음 를 받음
-            self.user_point = point
-            self.userPointLabel.setText(self.user_point)
-
-
-
+    # 테스트용 서버의 동작읋 확인하기 위해서 만든 함수
     @pyqtSlot(str)
-    def chat_msg(self, msg):
-        self.chatTextBrowser.append(msg)
+    def server_log(self, data):
+        self.logTextBrowser.append(data)
 
     # 클라이언트가 서버로 받은 메시지를 메인스레드 에서 처리하기 위해 만든 함수
+    @pyqtSlot(str)
     def sock_msg(self, msg):
-        if "!OK" in msg:
+        self.logTextBrowser_2.append(msg)
+        if msg == "!OK":
             page_index = self.stackedWidget.currentIndex()
-            if 0 == page_index:  # 로그인 페이지
-                user_data = msg.split("/")
-                print(f"로그인해서 받은 유저정보 {user_data}")
-                self.loginLabel.setText("")
-                self.user_name = user_data[1]
-                self.userNameLabel.setText(self.user_name)
-                self.user_point = user_data[2]
-                self.userPointLabel.setText(self.user_point)
-                self.stackedWidget.setCurrentIndex(4)  # 메인 화면
-            if 1 == page_index:  # 회원가입 페이지
+            if 1 == page_index:
                 self.lineEdit_new_id.setEnabled(False)
                 self.SignUpCheckButton.setEnabled(False)
                 self.lineEdit_email.setEnabled(True)
-            if 2 == page_index:  # 아이디 찾기 페이지
-                print("id 찾기 페이지 이메일 전송")
-                self.sock.send("plz_id".encode())
-                find_id = self.sock.recv(1024).decode()
-                print(f"이메일로 보내질 아이디:{find_id}")
-                email = self.idFindPageEmailLineEdit.text()
-                self.idFindPageEmailLineEdit.setText("")
-                self.stackedWidget.setCurrentIndex(0)
-                self.loginLabel.setText(f"이메일로 아이디가 전송되었습니다.")
-                self.loginLabel.adjustSize()
-
-                # # 이메일로 아이디 보내기
-                # ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
-                # ses.starttls()
-                # # 이메일을 보낼 gmail 계정에 접속
-                # ses.login('uihyeon.bookstore@gmail.com', 'ttqe mztd lljo tguh')
-                #
-                # self.check_msg = find_id
-                # msg = MIMEText('찾으시는 아이디: ' + self.check_msg)  # 보낼 메세지 내용을 적는다
-                # msg['subject'] = 'PyQt5 에서 찾으시는 아이디를 발송했습니다.'  # 보낼 이메일의 제목을 적는다
-                # # 앞에는 위에서 설정한 계정, 두번째에는 이메일을 보낼 계정을 입력
-                # ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
-                # # 이메일로 아이디 보냈다
-
-            if 3 == page_index:  # 비밀번호 찾기 페이지
-                print("pw 찾기 페이지 id 찾기 성공")
-
         if msg == "!NO":
             page_index = self.stackedWidget.currentIndex()
-            if 0 == page_index:  # 로그인 페이지
-                self.loginLabel.setText(f"로그인에 실패했습니다.")
-                self.loginLabel.adjustSize()
-            if 1 == page_index:  # 회원가입 페이지
-                print("중복된 아이디가 있습니다")
-            if 2 == page_index:  # 아이디 찾기 페이지
-                print("id 찾기 페이지 실패")
-                self.stackedWidget.setCurrentIndex(0)
-                self.loginLabel.setText(f"아이디를 찾을수없습니다.")
-                self.loginLabel.adjustSize()
-            if 3 == page_index:  # 비밀번호 찾기 페이지
-                print("pw 찾기 페이지 실패")
-                self.stackedWidget.setCurrentIndex(0)
-                self.loginLabel.setText(f"비밀번호를 찾을수없습니다.")
-                self.loginLabel.adjustSize()
+            if 1 == page_index:
+                self.logTextBrowser_2.append("중복된 아이디가 있습니다")
 
 
 if __name__ == "__main__":

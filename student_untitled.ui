@@ -26,7 +26,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="page">
     <widget class="QLabel" name="label_3">
@@ -68,14 +68,14 @@
     <widget class="QLabel" name="label">
      <property name="geometry">
       <rect>
-       <x>130</x>
-       <y>40</y>
+       <x>200</x>
+       <y>100</y>
        <width>231</width>
        <height>17</height>
       </rect>
      </property>
      <property name="text">
-      <string>로그인</string>
+      <string>학생 로그인</string>
      </property>
     </widget>
     <widget class="QPushButton" name="loginPushButton">
@@ -316,48 +316,6 @@
      <property name="text">
       <string>회원가입</string>
      </property>
-    </widget>
-    <widget class="QLabel" name="label_18">
-     <property name="geometry">
-      <rect>
-       <x>50</x>
-       <y>330</y>
-       <width>87</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>사용자 구분</string>
-     </property>
-    </widget>
-    <widget class="QWidget" name="layoutWidget">
-     <property name="geometry">
-      <rect>
-       <x>150</x>
-       <y>330</y>
-       <width>181</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QRadioButton" name="userCheckButton_1">
-        <property name="text">
-         <string>학생</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="userCheckButton_2">
-        <property name="text">
-         <string>교사</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
     </widget>
    </widget>
    <widget class="QWidget" name="page_2">
