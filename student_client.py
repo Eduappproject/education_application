@@ -252,8 +252,8 @@ class WindowClass(QMainWindow, form_class):
 
     def idFindPageEmailButton_event(self):
         id_find_page_email = self.idFindPageEmailLineEdit.text()
-        self.sock.send(f"find_id/id_find_page_email".encode())
-        self.logTextBrowser_2.append(f"보냄:find_id/id_find_page_email")
+        self.sock.send(f"find_id/{id_find_page_email}".encode())
+        self.logTextBrowser_2.append(f"보냄:find_id/{id_find_page_email}")
     def pwFindPageEmailButton_event(self):
         pass
 
