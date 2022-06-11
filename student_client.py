@@ -14,23 +14,23 @@ form_class = uic.loadUiType("student_untitled.ui")[0]
 port_num = 2090
 
 
-# 클라이언트 스레드
-class ClientWorker(QThread):
-    client_data_emit = pyqtSignal(str)
-
-    def run(self):
-        while True:
-            try:
-                msg = self.sock.recv(1024).decode()
-                print(msg)
-                if not msg:
-                    print("연결 종료(메시지 없음)")
-                    break
-            except:
-                print("연결 종료(예외 처리)")
-                break
-            else:
-                self.client_data_emit.emit(f"{msg}")
+# # 채팅 클라이언트 스레드
+# class ClientWorker(QThread):
+#     client_data_emit = pyqtSignal(str)
+#
+#     def run(self):
+#         while True:
+#             try:
+#                 msg = self.sock.recv(1024).decode()
+#                 print(msg)
+#                 if not msg:
+#                     print("연결 종료(메시지 없음)")
+#                     break
+#             except:
+#                 print("연결 종료(예외 처리)")
+#                 break
+#             else:
+#                 self.client_data_emit.emit(f"{msg}")
 
 
 class WindowClass(QMainWindow, form_class):
@@ -87,11 +87,10 @@ class WindowClass(QMainWindow, form_class):
                 input("엔터키를 누를시 재시도 합니다")
                 i = 0
 
-        self.user = ClientWorker()
-        self.user.sock = self.sock
-        self.user.client_data_emit.connect(self.sock_msg)
-        self.user.start()
-        # self.sock.recv(1024)
+        # self.user = ClientWorker()
+        # self.user.sock = self.sock
+        # self.user.client_data_emit.connect(self.sock_msg)
+        # self.user.start()
 
     # 로그인 화면
     def loginPushButton_event(self):
@@ -103,6 +102,9 @@ class WindowClass(QMainWindow, form_class):
         self.loginLineEdit.setText("")
         self.loginLineEdit_2.setText("")
 
+        msg = self.sock.recv(1024).decode()
+        self.sock_msg(msg)
+
     # 회원가입 페이지로 이동
     def SignUpPushButton_event(self):
         self.sock.send("signup".encode())  # 서버에게 회원가입 하겠다고 보냄
@@ -110,6 +112,7 @@ class WindowClass(QMainWindow, form_class):
         self.loginLineEdit.setText("")
         self.loginLineEdit_2.setText("")
         self.stackedWidget.setCurrentIndex(1)
+
 
     # 회원가입 화면
     def lineEdit_text_changed(self):  # 이름과 비밀번호를 입력할때마다 실행됨
@@ -173,6 +176,9 @@ class WindowClass(QMainWindow, form_class):
         input_id = self.lineEdit_new_id.text()
         self.sock.send(input_id.encode())
         self.logTextBrowser_2.append(f"보냄:{input_id}")
+
+        msg = self.sock.recv(1024).decode()
+        self.sock_msg(msg)
 
     def beackButton_2_event(self):
         self.stackedWidget.setCurrentIndex(0)
@@ -249,16 +255,65 @@ class WindowClass(QMainWindow, form_class):
         """
         print("pw 찾기 버튼 누름")
         self.stackedWidget.setCurrentIndex(3)
+        self.pwFindPageIdLineEdit.setEnabled(True)
+        self.pwFindPageEmailLineEdit.setEnabled(False)
+        self.pwFindPageIdButton.setEnabled(True)
+        self.pwFindPageEmailButton.setEnabled(False)
 
     def idFindPageEmailButton_event(self):
         id_find_page_email = self.idFindPageEmailLineEdit.text()
         self.sock.send(f"find_id/{id_find_page_email}".encode())
         self.logTextBrowser_2.append(f"보냄:find_id/{id_find_page_email}")
-    def pwFindPageEmailButton_event(self):
-        pass
+
+        msg = self.sock.recv(1024).decode()
+        self.sock_msg(msg)
 
     def pwFindPageIdButton_event(self):
-        pass
+        pw_find_id_text = self.pwFindPageIdLineEdit.text()
+        self.sock.send(f"find_pw/{pw_find_id_text}".encode())
+        self.logTextBrowser_2.append(f"보냄:find_pw/{pw_find_id_text}")
+        recv_msg = self.sock.recv(1024).decode()
+        if "!NO" == recv_msg:
+            print("iderror")
+            self.logTextBrowser_2.append(f"오류:iderror")
+        else:  # !NO 가 아니라면 무조건 !OK 로 판정한다
+            self.logTextBrowser_2.append(f"받음:!OK")
+            self.pwFindPageIdLineEdit.setEnabled(False)
+            self.pwFindPageEmailLineEdit.setEnabled(True)
+            self.pwFindPageIdButton.setEnabled(False)
+            self.pwFindPageEmailButton.setEnabled(True)
+
+    def pwFindPageEmailButton_event(self):
+        pw_find_email_text = self.pwFindPageEmailLineEdit.text()
+        self.sock.send(pw_find_email_text.encode())
+        recv_msg = self.sock.recv(1024).decode()
+        if "!NO" == recv_msg:
+            print("iderror")
+            self.logTextBrowser_2.append("오류:emailerror")
+        else:
+            self.logTextBrowser_2.append("받음:!OK")
+            self.sock.send("plz_pw".encode())
+            pw_find_pw_text = self.sock.recv(1024).decode()
+            self.logTextBrowser_2.append(f"받음:{pw_find_pw_text}")
+            print(f"이메일로 보낸 비밀번호{pw_find_pw_text}")
+            self.pwFindPageIdLineEdit.setText("")
+            self.pwFindPageEmailLineEdit.setText("")
+            self.stackedWidget.setCurrentIndex(0)
+
+            # # 이메일로 아이디 보내기
+            # ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
+            # ses.starttls()
+            # # 이메일을 보낼 gmail 계정에 접속
+            # ses.login('uihyeon.bookstore@gmail.com', 'ttqe mztd lljo tguh')
+            #
+            # self.check_msg = pw_find_pw_text
+            # msg = MIMEText('찾으시는 비밀번호: ' + self.check_msg)  # 보낼 메세지 내용을 적는다
+            # msg['subject'] = 'PyQt5 에서 찾으시는 비밀번호를 발송했습니다.'  # 보낼 이메일의 제목을 적는다
+            # # 앞에는 위에서 설정한 계정, 두번째에는 이메일을 보낼 계정을 입력
+            # ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
+            # # 이메일로 아이디 보냈다
+
+
 
     # 클라이언트가 서버로 받은 메시지를 메인스레드 에서 처리하기 위해 만든 함수
     @pyqtSlot(str)
@@ -278,9 +333,36 @@ class WindowClass(QMainWindow, form_class):
                 self.lineEdit_email.setEnabled(True)
             if 2 == page_index:  # 아이디 찾기 페이지
                 print("id 찾기 페이지 이메일 전송")
+                self.sock.send("plz_id".encode())
+                find_id = self.sock.recv(1024).decode()
+                self.logTextBrowser_2.append(f"받음:{find_id}")
+                print(f"이메일로 보내질 아이디:{find_id}")
+                email = self.idFindPageEmailLineEdit.text()
+                self.idFindPageEmailLineEdit.setText("")
                 self.stackedWidget.setCurrentIndex(0)
                 self.loginLabel.setText(f"이메일로 아이디가 전송되었습니다.")
                 self.loginLabel.adjustSize()
+
+                # # 이메일로 아이디 보내기
+                # ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
+                # ses.starttls()
+                # # 이메일을 보낼 gmail 계정에 접속
+                # ses.login('uihyeon.bookstore@gmail.com', 'ttqe mztd lljo tguh')
+                #
+                # self.check_msg = find_id
+                # msg = MIMEText('찾으시는 아이디: ' + self.check_msg)  # 보낼 메세지 내용을 적는다
+                # msg['subject'] = 'PyQt5 에서 찾으시는 아이디를 발송했습니다.'  # 보낼 이메일의 제목을 적는다
+                # # 앞에는 위에서 설정한 계정, 두번째에는 이메일을 보낼 계정을 입력
+                # ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
+                # # 이메일로 아이디 보냈다
+
+
+            if 3 == page_index:  # 비밀번호 찾기 페이지
+                print("pw 찾기 페이지 id 찾기 성공")
+
+                # self.stackedWidget.setCurrentIndex(0)
+                # self.loginLabel.setText(f"비밀번호호호를 찾을수없습니다.")
+                # self.loginLabel.adjustSize()
         if msg == "!NO":
             page_index = self.stackedWidget.currentIndex()
             if 0 == page_index:  # 로그인 페이지
@@ -293,6 +375,12 @@ class WindowClass(QMainWindow, form_class):
                 self.stackedWidget.setCurrentIndex(0)
                 self.loginLabel.setText(f"아이디를 찾을수없습니다.")
                 self.loginLabel.adjustSize()
+            if 3 == page_index:  # 비밀번호 찾기 페이지
+                print("pw 찾기 페이지 실패")
+                self.stackedWidget.setCurrentIndex(0)
+                self.loginLabel.setText(f"비밀번호호호를 찾을수없습니다.")
+                self.loginLabel.adjustSize()
+
 
 
 if __name__ == "__main__":

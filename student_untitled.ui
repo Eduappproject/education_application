@@ -26,7 +26,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>3</number>
    </property>
    <widget class="QWidget" name="page">
     <widget class="QLabel" name="label_3">
@@ -355,7 +355,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>아이디 전송</string>
+      <string>이메일 확인</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="idFindPageEmailLineEdit">
@@ -409,7 +409,7 @@
       <string>비밀번호 찾기</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_3">
+    <widget class="QLineEdit" name="pwFindPageEmailLineEdit">
      <property name="enabled">
       <bool>false</bool>
      </property>
@@ -422,7 +422,7 @@
       </rect>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_2">
+    <widget class="QLineEdit" name="pwFindPageIdLineEdit">
      <property name="geometry">
       <rect>
        <x>160</x>
