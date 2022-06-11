@@ -89,16 +89,12 @@ class WindowClass(QMainWindow, form_class):
 
     # 로그인 화면
     def loginPushButton_event(self):
-        # id = self.loginLineEdit.text()
-        # pw = self.loginLineEdit_2.text()
-        # if id == "":
-        #     id = "아이디"
-        # if pw == "":
-        #     pw = "비밀번호"
-
-        self.sock.send(f"{id},{pw}".encode())
-
-        self.stackedWidget.setCurrentIndex(2)
+        if not self.loginLineEdit.text() or not self.loginLineEdit_2.text():
+            print("아이디와 비밀번호를 입력하세요.")
+            return
+        self.sock.send(f"login/{self.loginLineEdit.text()}/{self.loginLineEdit_2.text()}".encode())
+        self.logTextBrowser_2.append(f'보냄:{f"login/{self.loginLineEdit.text()}/{self.loginLineEdit_2.text()}"}')
+        self.stackedWidget.setCurrentIndex(4)
         self.loginLineEdit.setText("")
         self.loginLineEdit_2.setText("")
 
