@@ -20,7 +20,7 @@ def dbcon(): #db연결
 def handle_clnt(clnt_sock): #핸들클라
     for clnt_imfo in clnt_imfor:
         if clnt_imfo[0] == clnt_sock:
-            clnt_num = clnt_imfor.index(clnt_imfo[0])
+            clnt_num = clnt_imfor.index(clnt_imfo)
             break  # 접속한 클라 저장
 
     while True:
