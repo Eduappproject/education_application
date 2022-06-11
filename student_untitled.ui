@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1235</width>
+    <width>886</width>
     <height>684</height>
    </rect>
   </property>
@@ -434,37 +434,10 @@
     </widget>
    </widget>
   </widget>
-  <widget class="QLabel" name="label_16">
-   <property name="geometry">
-    <rect>
-     <x>550</x>
-     <y>10</y>
-     <width>221</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>테스트 서버Log</string>
-   </property>
-  </widget>
-  <widget class="QTextBrowser" name="logTextBrowser">
-   <property name="geometry">
-    <rect>
-     <x>550</x>
-     <y>40</y>
-     <width>331</width>
-     <height>641</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">background-color: rgb(46, 52, 54);
-color: rgb(138, 226, 52);</string>
-   </property>
-  </widget>
   <widget class="QTextBrowser" name="logTextBrowser_2">
    <property name="geometry">
     <rect>
-     <x>890</x>
+     <x>550</x>
      <y>40</y>
      <width>331</width>
      <height>641</height>
@@ -478,7 +451,7 @@ color: rgb(238, 238, 236);</string>
   <widget class="QLabel" name="label_17">
    <property name="geometry">
     <rect>
-     <x>890</x>
+     <x>550</x>
      <y>10</y>
      <width>221</width>
      <height>21</height>

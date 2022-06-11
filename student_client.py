@@ -30,52 +30,7 @@ class ClientWorker(QThread):
                 break
             else:
                 self.client_data_emit.emit(f"{msg}")
-        # 서버에서 오는 값을 받을 준비 해야한다
 
-
-# 서버 스레드(테스트 용)
-class AcceptWorker(QThread):
-    # 메인 스레드에 보낼 시그널 설정 (emit 로 데이터를 메인스레드에 전달)
-    server_data_emit = pyqtSignal(str)
-
-    def run(self):
-        # 여기서 서버열기(서버 소켓 생성)
-        self.sock = socket(AF_INET, SOCK_STREAM)
-        # 유저 소켓 리스트 관리
-        self.user_list = []
-        # 포트 번호 8500 ~ 8599 사이에 서버를 연다
-        # port_num = 8500
-
-        self.sock.bind(('', port_num))
-        self.server_data_emit.emit(f'포트번호 {port_num} 에 서버 생성됨')
-        self.port_num = port_num
-
-        self.sock.listen(5)
-        while True:
-            # c 에 소켓 객체를 넣고 a 에 주소를 넣는다
-            c, a = self.sock.accept()
-            while True:
-                try:
-                    msg = c.recv(1024).decode()
-                    # 받은 메시지를 화면에 표현한다(디버그 용)
-                    self.server_data_emit.emit(f"{msg}")
-                    if msg == "signup":
-                        while True:
-                            id_check = c.recv(1024).decode()
-                            if id_check == "Q_reg":
-                                self.server_data_emit.emit(f"{id_check}")
-                                break
-                            self.server_data_emit.emit(f"{id_check}")
-                            if id_check in ["qqq", "www", "eee"]:
-                                c.send("!NO".encode())
-                            else:
-                                c.send("!OK".encode())
-
-                except:
-                    break
-
-
-# 여기서 서버와 연결할 클라이언트 실행하기(클라이언트 소켓 생성)
 
 class WindowClass(QMainWindow, form_class):
 
@@ -107,24 +62,24 @@ class WindowClass(QMainWindow, form_class):
         self.lineEdit_new_pw_check.textChanged[str].connect(self.lineEdit_text_changed)
         self.lineEdit_email.textChanged[str].connect(self.lineEdit_text_changed)
 
-
-        # 서버 스레드 선언
-        self.T = AcceptWorker()
-        self.T.server_data_emit.connect(self.server_log)
-        self.T.start()  # 서버 스레드 실행
-        time.sleep(1)
-        # 메모
-        # from pprint import pprint  # 보기 편하게 프린트 해주는 함수
-        # pprint(self.__dict__)  # 접근 가능한 객체의 변수를 표시(해당 변수에 접근해 메서드를 쓸수있다
-        # self.__dict__['label'].setText("학생용 클라이이언트 로그인 화면")  # 예시
-        # # 이를 이용해서 여러개의 이벤트 핸들러를 설정하거나 수십개의 라벨을 원하는 텍스트로 바꿀수 있다
-
         # 소켓 생성
         self.sock = socket(AF_INET, SOCK_STREAM)
-        # 포트 번호 8500 ~ 8599 사이에 서버를 찾는다
-
-        self.sock.connect(('127.0.0.1', port_num))
-        self.logTextBrowser.append(f'클라이언트에서 포트번호 {port_num} 에 서버 연결 성공')
+        port_num = 2090
+        i = 0
+        while i < 100:
+            try:
+                self.sock.connect(('127.0.0.1', port_num))
+                print(f'클라이언트에서 포트번호 {port_num + i} 에 서버 연결 성공')
+                break  # 서버 생성에 성공하면 반복문 멈춤
+            except:
+                pass
+                print(f'클라이언트에서 포트번호 {port_num + i} 에 서버 연결 실패')
+                # 생성에 실패(오류)하면 반복문 멈추지 않음
+            i += 1
+            if i >= 100:
+                print("서버 연결에 실패했습니다.")
+                input("엔터키를 누를시 재시도 합니다")
+                i = 0
 
         self.user = ClientWorker()
         self.user.sock = self.sock
@@ -196,25 +151,24 @@ class WindowClass(QMainWindow, form_class):
         self.SignUpLabel.adjustSize()  # 라벨에 적힌 글자에맞춰서 라벨 사이즈를 조절해주는 메서드
 
     def SignUpPushButton_2_event(self):  # 회원가입 버튼
-        user_data = [f"{self.lineEdit_new_name.text()}"
-            ,f"{self.lineEdit_new_pw.text()}"
-            ,f"{self.lineEdit_new_name.text()}"
-            ,f"{self.lineEdit_email.text()}"
-            ,f"student"]  # 서버로 보낼 가입자 데이터를 순서에 맞게 리스트로 만든다
+        user_data = [self.lineEdit_new_name.text()
+            ,self.lineEdit_new_pw.text()
+            ,self.lineEdit_new_name.text()
+            ,self.lineEdit_email.text()
+            ,"student"]  # 서버로 보낼 가입자 데이터를 순서에 맞게 리스트로 만든다
         # 서버에서 "/" 를 기준으로 구분하기때문에 그에 맞춰서 "/".join 을 이용해서 각데이터 사이에 "/" 넣고 보낸다
         self.sock.send("/".join(user_data).encode())
-        self.sign_up_back()
+        self.login_page()
 
     # 회원가입 창을 닫는 버튼
     def BackButton_event(self):
         self.sock.send("Q_reg".encode())
-        self.sign_up_back()
+        self.login_page()
 
     # 아이디 중복확인 버튼
     def SignUpCheckButton_event(self):
         input_id = self.lineEdit_new_id.text()
         self.sock.send(input_id.encode())
-
 
     def beackButton_2_event(self):
         self.stackedWidget.setCurrentIndex(0)
@@ -259,7 +213,7 @@ class WindowClass(QMainWindow, form_class):
             self.EmailCheckNumberPushButton.setEnabled(False)
             self.SignUpPushButton_2.setEnabled(True)
 
-    def sign_up_back(self):
+    def login_page(self):
         self.stackedWidget.setCurrentIndex(0)
         # 회원가입이 끝나고 로그인페이지로 이동하면서 입력창을 빈칸으로 만든다
         self.lineEdit_new_name.setText("")
@@ -277,10 +231,6 @@ class WindowClass(QMainWindow, form_class):
         self.SignUpPushButton_2.setEnabled(False)
         self.check_msg = ""
 
-    # 테스트용 서버의 동작읋 확인하기 위해서 만든 함수
-    @pyqtSlot(str)
-    def server_log(self, data):
-        self.logTextBrowser.append(data)
 
     # 클라이언트가 서버로 받은 메시지를 메인스레드 에서 처리하기 위해 만든 함수
     @pyqtSlot(str)
