@@ -299,6 +299,7 @@ class WindowClass(QMainWindow, form_class):
             self.pwFindPageIdLineEdit.setText("")
             self.pwFindPageEmailLineEdit.setText("")
             self.stackedWidget.setCurrentIndex(0)
+            self.loginLabel.setText(f"이메일로 비밀번호가 전송되었습니다.")
 
             # # 이메일로 아이디 보내기
             # ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
