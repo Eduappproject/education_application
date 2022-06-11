@@ -9,7 +9,6 @@ PORT = 2090
 BUF_SIZE = 2048
 lock = threading.Lock()
 clnt_imfor = []  # [[소켓, id]]
-clnt_cnt = 0
 
 
 def dbcon(): #db연결
@@ -19,9 +18,9 @@ def dbcon(): #db연결
 
 
 def handle_clnt(clnt_sock): #핸들클라
-    for i in range(0, clnt_cnt):
-        if clnt_imfor[i][0] == clnt_sock:
-            clnt_num = i
+    for clnt_imfo in clnt_imfor:
+        if clnt_imfo[0] == clnt_sock:
+            clnt_num = clnt_imfor.index(clnt_imfo[0])
             break  # 접속한 클라 저장
 
     while True:
@@ -38,7 +37,7 @@ def handle_clnt(clnt_sock): #핸들클라
         sys.stdin.flush()
 
         if 'signup' == clnt_msg:
-            sign_up(clnt_sock, clnt_num)
+            sign_up(clnt_sock)
         elif clnt_msg.startswith('login/'):  # startswitch -->문자열중에 특정 문자를 찾고싶거나, 특정문자로 시작하는 문자열, 특정문자로 끝이나는 문자열 등
             clnt_msg = clnt_msg.replace('login/', '')  # clnt_msg에서 login/ 자름
             log_in(clnt_sock, clnt_msg, clnt_num)
@@ -83,7 +82,7 @@ def edit_data(clnt_num, clnt_msg): #데이터 베이스 정보변경
         return
 
 
-def sign_up(clnt_sock, clnt_num): #회원가입
+def sign_up(clnt_sock): #회원가입
     con, c = dbcon()
     user_data = []
 
@@ -252,16 +251,11 @@ def find_pw(clnt_sock, id):  #비번찾기
 
 def delete_imfor(clnt_sock): #유저정보 삭제
     global clnt_cnt
-    for i in range(0, clnt_cnt):
-        if clnt_sock == clnt_imfor[i][0]:
+    for clnt_imfo in clnt_imfor:
+        if clnt_sock == clnt_imfo[0]:
             print('exit client')
-            while i < clnt_cnt - 1:
-                clnt_imfor[i] = clnt_imfor[i + 1]
-                i += 1
-            break
-    clnt_cnt -= 1
-
-#def recv_clnt_msg(clnt_sock):
+            index = clnt_imfor.index(clnt_imfo)
+            del clnt_imfor[index]
 
 
 if __name__ == '__main__': #메인? 기본설정같은 칸지
@@ -273,8 +267,7 @@ if __name__ == '__main__': #메인? 기본설정같은 칸지
         clnt_sock, addr = sock.accept()
 
         lock.acquire()
-        clnt_imfor.insert(clnt_cnt, [clnt_sock])
-        clnt_cnt += 1
+        clnt_imfor.append([clnt_sock])
         print(clnt_sock)
         lock.release()
         t = threading.Thread(target=handle_clnt, args=(clnt_sock,))
