@@ -94,9 +94,9 @@ def sign_up(clnt_sock): #회원가입
             break
         c.execute("SELECT userid FROM usertbl where userid = ?", (imfor, ))  # usertbl 테이블에서 id 컬럼 추출
         row = c.fetchone()
-        if row == None:                      # DB에 없는 id면 None
+        if row != None:                      # DB에 없는 id면 None
             clnt_sock.send('!NO'.encode())
-            print('id_found_error')
+            print('id_overlap')
             con.close()
             return
 

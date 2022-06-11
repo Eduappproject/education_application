@@ -10,7 +10,7 @@ from email.mime.text import MIMEText  # 이메일 전송을 위한 라이브러�
 import smtplib
 import re  # 정규 표현식
 
-form_class = uic.loadUiType("student_untitled.ui")[0]
+form_class = uic.loadUiType("student.ui")[0]
 port_num = 2090
 
 # 클라이언트 스레드
