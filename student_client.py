@@ -105,6 +105,7 @@ class WindowClass(QMainWindow, form_class):
     # 회원가입 페이지로 이동
     def SignUpPushButton_event(self):
         self.sock.send("signup".encode())  # 서버에게 회원가입 하겠다고 보냄
+        self.logTextBrowser_2.append(f"보냄:signup")
         self.loginLineEdit.setText("")
         self.loginLineEdit_2.setText("")
         self.stackedWidget.setCurrentIndex(1)
@@ -158,17 +159,20 @@ class WindowClass(QMainWindow, form_class):
             ,"student"]  # 서버로 보낼 가입자 데이터를 순서에 맞게 리스트로 만든다
         # 서버에서 "/" 를 기준으로 구분하기때문에 그에 맞춰서 "/".join 을 이용해서 각데이터 사이에 "/" 넣고 보낸다
         self.sock.send("/".join(user_data).encode())
+        self.logTextBrowser_2.append(f"보냄:{'/'.join(user_data)}")
         self.login_page()
 
     # 회원가입 창을 닫는 버튼
     def BackButton_event(self):
         self.sock.send("Q_reg".encode())
+        self.logTextBrowser_2.append(f"보냄:Q_reg")
         self.login_page()
 
     # 아이디 중복확인 버튼
     def SignUpCheckButton_event(self):
         input_id = self.lineEdit_new_id.text()
         self.sock.send(input_id.encode())
+        self.logTextBrowser_2.append(f"보냄:{input_id}")
 
     def beackButton_2_event(self):
         self.stackedWidget.setCurrentIndex(0)
@@ -235,7 +239,7 @@ class WindowClass(QMainWindow, form_class):
     # 클라이언트가 서버로 받은 메시지를 메인스레드 에서 처리하기 위해 만든 함수
     @pyqtSlot(str)
     def sock_msg(self, msg):
-        self.logTextBrowser_2.append(msg)
+        self.logTextBrowser_2.append(f"받음:{msg}")
         if msg == "!OK":
             page_index = self.stackedWidget.currentIndex()
             if 1 == page_index:
