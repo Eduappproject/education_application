@@ -94,7 +94,6 @@ class WindowClass(QMainWindow, form_class):
             return
         self.sock.send(f"login/{self.loginLineEdit.text()}/{self.loginLineEdit_2.text()}".encode())
         self.logTextBrowser_2.append(f'보냄:{f"login/{self.loginLineEdit.text()}/{self.loginLineEdit_2.text()}"}')
-        self.stackedWidget.setCurrentIndex(4)
         self.loginLineEdit.setText("")
         self.loginLineEdit_2.setText("")
 
@@ -235,15 +234,24 @@ class WindowClass(QMainWindow, form_class):
     @pyqtSlot(str)
     def sock_msg(self, msg):
         self.logTextBrowser_2.append(f"받음:{msg}")
-        if msg == "!OK":
+        if "!OK" in msg:
             page_index = self.stackedWidget.currentIndex()
-            if 1 == page_index:
+            if 0 == page_index:  # 로그인 페이지
+                user_data = msg.split("/")
+                # 할일:유저정보를 저장해야한다
+                self.loginLabel.setText("")
+                self.userNameLabel.setText(user_data[1])
+                self.stackedWidget.setCurrentIndex(4)
+            if 1 == page_index:  # 회원가입 페이지
                 self.lineEdit_new_id.setEnabled(False)
                 self.SignUpCheckButton.setEnabled(False)
                 self.lineEdit_email.setEnabled(True)
         if msg == "!NO":
             page_index = self.stackedWidget.currentIndex()
-            if 1 == page_index:
+            if 0 == page_index:  # 로그인 페이지
+                self.loginLabel.setText(f"{self.loginLineEdit.text()} 아이디로 로그인에 실패했습니다.")
+                self.loginLabel.adjustSize()
+            if 1 == page_index:  # 회원가입 페이지
                 self.logTextBrowser_2.append("중복된 아이디가 있습니다")
 
 

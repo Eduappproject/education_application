@@ -120,8 +120,8 @@
      </property>
      <property name="geometry">
       <rect>
-       <x>331</x>
-       <y>205</y>
+       <x>170</x>
+       <y>260</y>
        <width>80</width>
        <height>31</height>
       </rect>
@@ -136,14 +136,27 @@
      </property>
      <property name="geometry">
       <rect>
-       <x>331</x>
-       <y>242</y>
+       <x>270</x>
+       <y>260</y>
        <width>80</width>
        <height>31</height>
       </rect>
      </property>
      <property name="text">
       <string>pw찾기</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="loginLabel">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>220</y>
+       <width>151</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>환영함</string>
      </property>
     </widget>
    </widget>
@@ -525,6 +538,19 @@
      </property>
      <property name="text">
       <string>뒤로가기</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="userNameLabel">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>110</y>
+       <width>91</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>유저명</string>
      </property>
     </widget>
    </widget>
