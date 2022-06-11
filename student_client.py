@@ -278,6 +278,9 @@ class WindowClass(QMainWindow, form_class):
                 self.lineEdit_email.setEnabled(True)
             if 2 == page_index:  # 아이디 찾기 페이지
                 print("id 찾기 페이지 이메일 전송")
+                self.stackedWidget.setCurrentIndex(0)
+                self.loginLabel.setText(f"이메일로 아이디가 전송되었습니다.")
+                self.loginLabel.adjustSize()
         if msg == "!NO":
             page_index = self.stackedWidget.currentIndex()
             if 0 == page_index:  # 로그인 페이지
@@ -287,6 +290,9 @@ class WindowClass(QMainWindow, form_class):
                 self.logTextBrowser_2.append("중복된 아이디가 있습니다")
             if 2 == page_index:  # 아이디 찾기 페이지
                 print("id 찾기 페이지 실패")
+                self.stackedWidget.setCurrentIndex(0)
+                self.loginLabel.setText(f"아이디를 찾을수없습니다.")
+                self.loginLabel.adjustSize()
 
 
 if __name__ == "__main__":
