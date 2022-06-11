@@ -113,7 +113,12 @@ def sign_up(clnt_sock): #회원가입
         imfor = imfor.split('/')  # 구분자 /로 잘라서 리스트 생성
         for imfo in imfor:
             user_data.append(imfo)       # user_data 리스트에 추가
-        print(user_data)
+        if user_data[4] == "student":
+            c.execute("insert into studtbl(userid, score, point) values(?,?,?) ", (user_data[0], "0", "0") )
+
+       #elif user_data[4] == "teacher":
+           # c.execute("insert into teachtbl(userid) value(?) ", (user_data[0]))
+            
         query = "INSERT INTO usertbl(userid, userpw, username, email, usertype) VALUES(?, ?, ?, ?, ?)"
 
         c.executemany(query, (user_data,))  # DB에 user_data 추가
@@ -172,9 +177,11 @@ def send_user_information(clnt_num):  # 유저정보 보낸데
         "SELECT username FROM usertbl where userid=?", (id,))  # 이름
     row = c.fetchone()
     row = list(row)
-    for i in range(0, len(row)):     # None인 항목 찾기
-        if row[i] == None:
-            row[i] = 'X'
+    c.execute(
+        "SELECT point FROM usertbl where userid=?", (id,))  # 이름
+    # for i in range(0, len(row)):     # None인 항목 찾기
+    #     if row[i] == None:
+    #         row[i] = 'X'
 
     user_data = row  # 이름
     user_data = '/'.join(user_data)
