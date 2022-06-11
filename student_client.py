@@ -148,8 +148,7 @@ class WindowClass(QMainWindow, form_class):
         self.SignUpLabel.adjustSize()  # 라벨에 적힌 글자에맞춰서 라벨 사이즈를 조절해주는 메서드
 
     def SignUpPushButton_2_event(self):  # 회원가입 버튼
-        user_data = [self.lineEdit_new_name.text()
-            ,self.lineEdit_new_pw.text()
+        user_data = [self.lineEdit_new_pw.text()
             ,self.lineEdit_new_name.text()
             ,self.lineEdit_email.text()
             ,"student"]  # 서버로 보낼 가입자 데이터를 순서에 맞게 리스트로 만든다
