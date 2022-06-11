@@ -68,7 +68,7 @@ class WindowClass(QMainWindow, form_class):
         i = 0
         while i < 100:
             try:
-                self.sock.connect(('127.0.0.1', port_num))
+                self.sock.connect(('127.0.0.1', port_num + i))
                 print(f'클라이언트에서 포트번호 {port_num + i} 에 서버 연결 성공')
                 break  # 서버 생성에 성공하면 반복문 멈춤
             except:
@@ -192,17 +192,17 @@ class WindowClass(QMainWindow, form_class):
             print("잘못된 이메일")
             return
 
-        ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
-        ses.starttls()
+        # ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
+        # ses.starttls()
         # 이메일을 보낼 gmail 계정에 접속
-        ses.login('uihyeon.bookstore@gmail.com', 'ttqe mztd lljo tguh')
+        # ses.login('uihyeon.bookstore@gmail.com', 'ttqe mztd lljo tguh')
 
         self.check_msg = str(random.randrange(1000, 10000))
-        msg = MIMEText('인증번호: ' + self.check_msg)  # 보낼 메세지 내용을 적는다
-        msg['subject'] = 'PyQt5 에서 인증코드를 발송했습니다.'  # 보낼 이메일의 제목을 적는다
+        # msg = MIMEText('인증번호: ' + self.check_msg)  # 보낼 메세지 내용을 적는다
+        # msg['subject'] = 'PyQt5 에서 인증코드를 발송했습니다.'  # 보낼 이메일의 제목을 적는다
         # 앞에는 위에서 설정한 계정, 두번째에는 이메일을 보낼 계정을 입력
-        ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
-
+        # ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
+        print(f"인증번호:{self.check_msg}")
         # 꺼야하는 버튼 끄기
         self.lineEdit_email.setEnabled(False)
         self.EmailCheckPushButton.setEnabled(False)
