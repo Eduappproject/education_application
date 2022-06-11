@@ -169,7 +169,7 @@ def send_user_information(clnt_num):  # 유저정보 보낸데
     clnt_sock = clnt_imfor[clnt_num][0]
 
     c.execute(
-        "SELECT username FROM usertbl where id=?", (id,))  # 이름
+        "SELECT username FROM usertbl where userid=?", (id,))  # 이름
     row = c.fetchone()
     row = list(row)
     for i in range(0, len(row)):     # None인 항목 찾기
