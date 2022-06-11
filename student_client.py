@@ -13,6 +13,7 @@ import re  # 정규 표현식
 form_class = uic.loadUiType("student_untitled.ui")[0]
 port_num = 2090
 
+
 # 클라이언트 스레드
 class ClientWorker(QThread):
     client_data_emit = pyqtSignal(str)
@@ -48,6 +49,11 @@ class WindowClass(QMainWindow, form_class):
         self.EmailCheckPushButton.clicked.connect(self.EmailCheckPushButton_event)  # 이메일 인증요청 버튼
         self.EmailCheckNumberPushButton.clicked.connect(self.EmailCheckNumberPushButton_event)  # 이메일에 도착한 인증번호 확인 버튼
         self.beackButton_2.clicked.connect(self.beackButton_2_event)
+        self.idFindButton.clicked.connect(self.idFindButton_event)
+        self.pwFindButton.clicked.connect(self.pwFindButton_event)
+        self.idFindPageEmailButton.clicked.connect(self.idFindPageEmailButton_event)
+        self.pwFindPageIdButton.clicked.connect(self.pwFindPageIdButton_event)
+        self.pwFindPageEmailButton.clicked.connect(self.pwFindPageEmailButton_event)
         # # 메인 화면
         # self.mainButton_1.clicked.connect()  # 등급 버튼
         # self.mainButton_2.clicked.connect()  # 퀴즈 버튼
@@ -148,9 +154,9 @@ class WindowClass(QMainWindow, form_class):
 
     def SignUpPushButton_2_event(self):  # 회원가입 버튼
         user_data = [self.lineEdit_new_pw.text()
-            ,self.lineEdit_new_name.text()
-            ,self.lineEdit_email.text()
-            ,"student"]  # 서버로 보낼 가입자 데이터를 순서에 맞게 리스트로 만든다
+            , self.lineEdit_new_name.text()
+            , self.lineEdit_email.text()
+            , "student"]  # 서버로 보낼 가입자 데이터를 순서에 맞게 리스트로 만든다
         # 서버에서 "/" 를 기준으로 구분하기때문에 그에 맞춰서 "/".join 을 이용해서 각데이터 사이에 "/" 넣고 보낸다
         self.sock.send("/".join(user_data).encode())
         self.logTextBrowser_2.append(f"보냄:{'/'.join(user_data)}")
@@ -229,6 +235,30 @@ class WindowClass(QMainWindow, form_class):
         self.SignUpPushButton_2.setEnabled(False)
         self.check_msg = ""
 
+    def idFindButton_event(self):
+        """
+        이메일 전송 find_id/email
+        """
+        print("id 찾기 버튼 누름")
+        self.stackedWidget.setCurrentIndex(2)
+
+    def pwFindButton_event(self):
+        """
+        아이디 확인 find_pw/id
+        이메일 전송 email
+        """
+        print("pw 찾기 버튼 누름")
+        self.stackedWidget.setCurrentIndex(3)
+
+    def idFindPageEmailButton_event(self):
+        id_find_page_email = self.idFindPageEmailLineEdit.text()
+        self.sock.send(f"find_id/id_find_page_email".encode())
+        self.logTextBrowser_2.append(f"보냄:find_id/id_find_page_email")
+    def pwFindPageEmailButton_event(self):
+        pass
+
+    def pwFindPageIdButton_event(self):
+        pass
 
     # 클라이언트가 서버로 받은 메시지를 메인스레드 에서 처리하기 위해 만든 함수
     @pyqtSlot(str)
@@ -246,13 +276,17 @@ class WindowClass(QMainWindow, form_class):
                 self.lineEdit_new_id.setEnabled(False)
                 self.SignUpCheckButton.setEnabled(False)
                 self.lineEdit_email.setEnabled(True)
+            if 2 == page_index:  # 아이디 찾기 페이지
+                print("id 찾기 페이지 이메일 전송")
         if msg == "!NO":
             page_index = self.stackedWidget.currentIndex()
             if 0 == page_index:  # 로그인 페이지
-                self.loginLabel.setText(f"{self.loginLineEdit.text()} 아이디로 로그인에 실패했습니다.")
+                self.loginLabel.setText(f"로그인에 실패했습니다.")
                 self.loginLabel.adjustSize()
             if 1 == page_index:  # 회원가입 페이지
                 self.logTextBrowser_2.append("중복된 아이디가 있습니다")
+            if 2 == page_index:  # 아이디 찾기 페이지
+                print("id 찾기 페이지 실패")
 
 
 if __name__ == "__main__":
