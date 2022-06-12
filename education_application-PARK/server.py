@@ -297,9 +297,7 @@ def chatwindow(clnt_cnt,user_name):
         else:
             for sock,user_id in clnt_imfor:
                 sock.send(f"{user_name}({user_id}):{msg}".encode())
-    for i in clnt_imfor:
-        if i[0] is clnt_cnt:
-            break
+
 
 
 if __name__ == '__main__': #메인? 기본설정같은 칸지
