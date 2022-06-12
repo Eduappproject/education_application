@@ -285,10 +285,11 @@ def delete_imfor(clnt_sock): #유저정보 삭제
 
 def chatwindow(clnt_cnt,user_name,clnt_num):
     user_id = clnt_imfor[clnt_num][1]  # 유저 아이디 찾아서 넣기
-    while True:
+    while True:  # 상담방 참여자의 메시지를 받기위해 무한반복
         try:
             msg = clnt_cnt.recv(1024).decode()
-            print(msg)
+            msg = f"{user_name}({user_id}):{msg}"  # 다른사람에게 보내기위해 f포멧팅(이름,아이디,메시지)
+            print(msg)  # 받은 메시지 확인하기
             if not msg or msg == "/나가기":
                 print("상담대상 상담방 나감")
                 break
@@ -296,8 +297,9 @@ def chatwindow(clnt_cnt,user_name,clnt_num):
             print("예외 처리로 상담방 함수종료(정상)")
             break
         else:
-            for other_people,id in clnt_imfor:
-                other_people.send(f"{user_name}({user_id}):{msg}".encode())
+            # 상담방 참여자를 포함한 모두에게 메시지 보내기 (할일:1대1 채팅으로 구현해야한다)
+            for other_people_sock,i in clnt_imfor:
+                other_people_sock.send(f"{user_name}({user_id}):{msg}".encode())
 
 
 
