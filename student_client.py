@@ -17,6 +17,7 @@ port_num = 2090
 # 상담 채팅 클라이언트 스레드
 class ClientWorker(QThread):
     client_data_emit = pyqtSignal(str)
+
     def run(self):
         print("Q스레드 실행됨")
         while True:
@@ -333,8 +334,8 @@ class WindowClass(QMainWindow, form_class):
     @pyqtSlot(str)
     def chat_msg(self, msg):
         self.chatTextBrowser.append(msg)
+
     # 클라이언트가 서버로 받은 메시지를 메인스레드 에서 처리하기 위해 만든 함수
-    @pyqtSlot(str)
     def sock_msg(self, msg):
         if "!OK" in msg:
             page_index = self.stackedWidget.currentIndex()
