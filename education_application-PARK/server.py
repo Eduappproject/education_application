@@ -61,7 +61,7 @@ def handle_clnt(clnt_sock): #핸들클라
             print("상담버튼클릭 확인됨")
             clnt_msg = clnt_msg.replace('상담버튼클릭', '') # 상담버튼클릭이라는 단어가 있는 메시지를 받으면
             # 그뒤에는 해당 사용자의 이름을 같이 받는다
-            chatwindow(clnt_sock,clnt_msg) # 채팅방 입장(함수의 인수로 소켓과 사용자의 이름을 넣는다)
+            chatwindow(clnt_sock,clnt_msg,clnt_num) # 채팅방 입장(함수의 인수로 소켓과 사용자의 이름을 넣는다)
         else:
             continue
 
@@ -283,7 +283,8 @@ def delete_imfor(clnt_sock): #유저정보 삭제
             index = clnt_imfor.index(clnt_imfo)
             del clnt_imfor[index]
 
-def chatwindow(clnt_cnt,user_name):
+def chatwindow(clnt_cnt,user_name,clnt_num):
+    user_id = clnt_imfor[clnt_num][1]  # 유저 아이디 찾아서 넣기
     while True:
         try:
             msg = clnt_cnt.recv(1024).decode()
@@ -295,8 +296,8 @@ def chatwindow(clnt_cnt,user_name):
             print("예외 처리로 상담방 함수종료(정상)")
             break
         else:
-            for sock,user_id in clnt_imfor:
-                sock.send(f"{user_name}({user_id}):{msg}".encode())
+            for other_people,id in clnt_imfor:
+                other_people.send(f"{user_name}({user_id}):{msg}".encode())
 
 
 
