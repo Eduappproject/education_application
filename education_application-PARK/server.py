@@ -27,7 +27,7 @@ def handle_clnt(clnt_sock): #핸들클라
     while True:
         sys.stdout.flush()  # 버퍼 비워주는거
         clnt_msg = clnt_sock.recv(BUF_SIZE)
-
+        print(clnt_msg.decode()) # 받는값 확인하기
         if not clnt_msg:
             lock.acquire() #뮤텍스같은거
             delete_imfor(clnt_sock)
@@ -56,6 +56,12 @@ def handle_clnt(clnt_sock): #핸들클라
             edit_data(clnt_num, clnt_msg)
         elif clnt_msg.startswith('remove'):
             remove(clnt_num)
+        # 1대1 상담 입장(지금은 전체 채팅방으로 구현)
+        elif clnt_msg.startswith('상담버튼클릭'):
+            print("상담버튼클릭 확인됨")
+            clnt_msg = clnt_msg.replace('상담버튼클릭', '') # 상담버튼클릭이라는 단어가 있는 메시지를 받으면
+            # 그뒤에는 해당 사용자의 이름을 같이 받는다
+            chatwindow(clnt_sock,clnt_msg) # 채팅방 입장(함수의 인수로 소켓과 사용자의 이름을 넣는다)
         else:
             continue
 
@@ -276,6 +282,23 @@ def delete_imfor(clnt_sock): #유저정보 삭제
             print('exit client')
             index = clnt_imfor.index(clnt_imfo)
             del clnt_imfor[index]
+
+def chatwindow(clnt_cnt,user_name):
+    while True:
+        try:
+            msg = clnt_cnt.recv(1024).decode()
+            print(msg)
+            if not msg or msg == "/나가기":
+                print("상담대상 상담방 나감")
+                break
+            for sock,user_id in clnt_imfor:
+                sock.send(f"{user_name}({user_id}):{msg}".encode())
+        except:
+            for i in clnt_imfor:
+                if i[0] is clnt_cnt:
+                    print(f"소켓 삭제됨 {i}")
+                    clnt_imfor.remove(i)
+                    break
 
 
 if __name__ == '__main__': #메인? 기본설정같은 칸지
