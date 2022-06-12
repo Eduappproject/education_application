@@ -162,7 +162,7 @@ class WindowClass(QMainWindow, form_class):
         user_data = [self.lineEdit_new_pw.text()
             , self.lineEdit_new_name.text()
             , self.lineEdit_email.text()
-            , "student"]  # 서버로 보낼 가입자 데이터를 순서에 맞게 리스트로 만든다
+            , "teacher"]  # 서버로 보낼 가입자 데이터를 순서에 맞게 리스트로 만든다
         # 서버에서 "/" 를 기준으로 구분하기때문에 그에 맞춰서 "/".join 을 이용해서 각데이터 사이에 "/" 넣고 보낸다
         self.sock.send("/".join(user_data).encode())
         self.login_page()
