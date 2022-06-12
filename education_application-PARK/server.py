@@ -299,7 +299,7 @@ def chatwindow(clnt_cnt,user_name,clnt_num):
         else:
             # 상담방 참여자를 포함한 모두에게 메시지 보내기 (할일:1대1 채팅으로 구현해야한다)
             for other_people_sock,i in clnt_imfor:
-                other_people_sock.send(f"{user_name}({user_id}):{msg}".encode())
+                other_people_sock.send(msg.encode())
 
 
 
