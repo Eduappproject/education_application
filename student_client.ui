@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>546</width>
+    <width>550</width>
     <height>690</height>
    </rect>
   </property>
@@ -26,7 +26,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>8</number>
+    <number>5</number>
    </property>
    <widget class="QWidget" name="page">
     <widget class="QLabel" name="label_3">
@@ -75,7 +75,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>학생용클라이언트 로그인</string>
+      <string>교사용클라이언트 로그인</string>
      </property>
     </widget>
     <widget class="QPushButton" name="loginPushButton">
@@ -327,7 +327,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>학생용 클라이언트 회원가입</string>
+      <string>교사용 클라이언트 회원가입</string>
      </property>
     </widget>
    </widget>
@@ -479,46 +479,41 @@
     <widget class="QPushButton" name="mainButton_1">
      <property name="geometry">
       <rect>
-       <x>310</x>
-       <y>290</y>
-       <width>200</width>
-       <height>100</height>
+       <x>220</x>
+       <y>460</y>
+       <width>141</width>
+       <height>31</height>
       </rect>
      </property>
      <property name="text">
-      <string>등급조회(미구현)</string>
+      <string>학생별 등급조회(조회)</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="mainPageQuestionButton">
+    <widget class="QPushButton" name="mainButton_2">
      <property name="geometry">
       <rect>
-       <x>310</x>
-       <y>190</y>
-       <width>200</width>
-       <height>100</height>
+       <x>259</x>
+       <y>509</y>
+       <width>80</width>
+       <height>31</height>
       </rect>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>32</pointsize>
-      </font>
-     </property>
      <property name="text">
-      <string>문제풀기</string>
+      <string>문제(미완)</string>
      </property>
     </widget>
     <widget class="QPushButton" name="mainPageCounselButton">
      <property name="geometry">
       <rect>
-       <x>310</x>
-       <y>90</y>
-       <width>200</width>
-       <height>100</height>
+       <x>110</x>
+       <y>190</y>
+       <width>261</width>
+       <height>141</height>
       </rect>
      </property>
      <property name="font">
       <font>
-       <pointsize>32</pointsize>
+       <pointsize>64</pointsize>
       </font>
      </property>
      <property name="text">
@@ -528,10 +523,10 @@
     <widget class="QPushButton" name="mainButton_4">
      <property name="geometry">
       <rect>
-       <x>310</x>
-       <y>390</y>
-       <width>200</width>
-       <height>100</height>
+       <x>269</x>
+       <y>559</y>
+       <width>80</width>
+       <height>25</height>
       </rect>
      </property>
      <property name="text">
@@ -541,10 +536,10 @@
     <widget class="QPushButton" name="backButton_2">
      <property name="geometry">
       <rect>
-       <x>70</x>
-       <y>310</y>
-       <width>100</width>
-       <height>100</height>
+       <x>0</x>
+       <y>500</y>
+       <width>151</width>
+       <height>51</height>
       </rect>
      </property>
      <property name="text">
@@ -579,7 +574,7 @@
       </font>
      </property>
      <property name="text">
-      <string>학생용 메인메뉴</string>
+      <string>교사 메인화면</string>
      </property>
     </widget>
     <widget class="QLabel" name="userNameLabel_2">
@@ -595,42 +590,6 @@
       <string>당신의 이름:</string>
      </property>
     </widget>
-    <widget class="QLabel" name="userNameLabel_3">
-     <property name="geometry">
-      <rect>
-       <x>40</x>
-       <y>140</y>
-       <width>101</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>당신의 포인트:</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="userPointLabel">
-     <property name="geometry">
-      <rect>
-       <x>150</x>
-       <y>140</y>
-       <width>101</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>포인트</string>
-     </property>
-    </widget>
-    <zorder>backButton_2</zorder>
-    <zorder>mainButton_1</zorder>
-    <zorder>mainPageQuestionButton</zorder>
-    <zorder>mainPageCounselButton</zorder>
-    <zorder>mainButton_4</zorder>
-    <zorder>userNameLabel</zorder>
-    <zorder>label_7</zorder>
-    <zorder>userNameLabel_2</zorder>
-    <zorder>userNameLabel_3</zorder>
-    <zorder>userPointLabel</zorder>
    </widget>
    <widget class="QWidget" name="page_3">
     <widget class="QTextBrowser" name="chatTextBrowser">
@@ -677,217 +636,6 @@
      </property>
      <property name="text">
       <string>1대1상담(지금은 전체 채팅)</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QWidget" name="questionPage">
-    <widget class="QListWidget" name="questionListWidget">
-     <property name="geometry">
-      <rect>
-       <x>80</x>
-       <y>110</y>
-       <width>256</width>
-       <height>192</height>
-      </rect>
-     </property>
-     <item>
-      <property name="text">
-       <string>조류</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>포유류(API 연결안돼있음)</string>
-      </property>
-     </item>
-    </widget>
-    <widget class="QLabel" name="label_8">
-     <property name="geometry">
-      <rect>
-       <x>90</x>
-       <y>66</y>
-       <width>201</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>문제의 주제 선택하기</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="stackedWidget_2">
-     <property name="geometry">
-      <rect>
-       <x>130</x>
-       <y>330</y>
-       <width>151</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>선택한 문제의 주제명</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="questionChoiceButton">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="geometry">
-      <rect>
-       <x>120</x>
-       <y>370</y>
-       <width>221</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>주제를 선택하세요</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QWidget" name="QuestionPage">
-    <widget class="QLabel" name="questionLabel">
-     <property name="geometry">
-      <rect>
-       <x>70</x>
-       <y>100</y>
-       <width>67</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: rgb(198, 198, 198);</string>
-     </property>
-     <property name="text">
-      <string>TextLabel</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="answerLabel">
-     <property name="geometry">
-      <rect>
-       <x>70</x>
-       <y>470</y>
-       <width>67</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>TextLabel</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="answerLabel_2">
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>100</y>
-       <width>40</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>문제</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="answerLabel_3">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>470</y>
-       <width>40</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>정답</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="answerLabel_4">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>530</y>
-       <width>31</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>답</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="answerLineEdit">
-     <property name="geometry">
-      <rect>
-       <x>70</x>
-       <y>520</y>
-       <width>331</width>
-       <height>31</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QLabel" name="questionNumLabel">
-     <property name="geometry">
-      <rect>
-       <x>60</x>
-       <y>20</y>
-       <width>67</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>TextLabel</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QWidget" name="page_5">
-    <widget class="QLabel" name="questionsCompletionLabel_1">
-     <property name="geometry">
-      <rect>
-       <x>150</x>
-       <y>50</y>
-       <width>56</width>
-       <height>12</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>TextLabel</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="questionsCompletionLabel_2">
-     <property name="geometry">
-      <rect>
-       <x>150</x>
-       <y>80</y>
-       <width>56</width>
-       <height>12</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>TextLabel</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="questionsCompletionLabel_3">
-     <property name="geometry">
-      <rect>
-       <x>140</x>
-       <y>130</y>
-       <width>56</width>
-       <height>12</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>TextLabel</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="goMainPageButton">
-     <property name="geometry">
-      <rect>
-       <x>150</x>
-       <y>280</y>
-       <width>75</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>메인메뉴로</string>
      </property>
     </widget>
    </widget>
