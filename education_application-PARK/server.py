@@ -291,14 +291,15 @@ def chatwindow(clnt_cnt,user_name):
             if not msg or msg == "/나가기":
                 print("상담대상 상담방 나감")
                 break
+
+        except:
+            pass
+        else:
             for sock,user_id in clnt_imfor:
                 sock.send(f"{user_name}({user_id}):{msg}".encode())
-        except:
-            for i in clnt_imfor:
-                if i[0] is clnt_cnt:
-                    print(f"소켓 삭제됨 {i}")
-                    clnt_imfor.remove(i)
-                    break
+    for i in clnt_imfor:
+        if i[0] is clnt_cnt:
+            break
 
 
 if __name__ == '__main__': #메인? 기본설정같은 칸지
