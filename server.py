@@ -178,7 +178,7 @@ def send_user_information(clnt_num):  # 유저정보 보낸데
     row = c.fetchone()
     row = list(row)
     c.execute(
-        "SELECT point FROM usertbl where userid=?", (id,))  # 이름
+        "SELECT point FROM studtbl where userid=?", (id,))  # 이름
     # for i in range(0, len(row)):     # None인 항목 찾기
     #     if row[i] == None:
     #         row[i] = 'X'
