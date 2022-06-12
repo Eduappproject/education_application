@@ -293,7 +293,7 @@ def chatwindow(clnt_cnt,user_name):
                 break
         except:
             print("예외 처리로 상담방 함수종료(정상)")
-            pass
+            break
         else:
             for sock,user_id in clnt_imfor:
                 sock.send(f"{user_name}({user_id}):{msg}".encode())
