@@ -291,8 +291,8 @@ def chatwindow(clnt_cnt,user_name):
             if not msg or msg == "/나가기":
                 print("상담대상 상담방 나감")
                 break
-
         except:
+            print("예외 처리로 상담방 함수종료(정상)")
             pass
         else:
             for sock,user_id in clnt_imfor:
