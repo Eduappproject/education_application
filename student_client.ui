@@ -26,7 +26,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>5</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="page">
     <widget class="QLabel" name="label_3">
@@ -75,7 +75,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>교사용클라이언트 로그인</string>
+      <string>학생용클라이언트 로그인</string>
      </property>
     </widget>
     <widget class="QPushButton" name="loginPushButton">
@@ -327,7 +327,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>교사용 클라이언트 회원가입</string>
+      <string>학생용 클라이언트 회원가입</string>
      </property>
     </widget>
    </widget>
@@ -486,7 +486,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>학생별 등급조회(조회)</string>
+      <string>등급조회(미구현)</string>
      </property>
     </widget>
     <widget class="QPushButton" name="mainButton_2">
@@ -574,7 +574,7 @@
       </font>
      </property>
      <property name="text">
-      <string>교사 메인화면</string>
+      <string>학생용 메인메뉴</string>
      </property>
     </widget>
     <widget class="QLabel" name="userNameLabel_2">
