@@ -26,7 +26,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>6</number>
    </property>
    <widget class="QWidget" name="page">
     <widget class="QLabel" name="label_3">
@@ -479,41 +479,46 @@
     <widget class="QPushButton" name="mainButton_1">
      <property name="geometry">
       <rect>
-       <x>220</x>
-       <y>460</y>
-       <width>141</width>
-       <height>31</height>
+       <x>310</x>
+       <y>290</y>
+       <width>200</width>
+       <height>100</height>
       </rect>
      </property>
      <property name="text">
       <string>등급조회(미구현)</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="mainButton_2">
+    <widget class="QPushButton" name="mainPageQuestionButton">
      <property name="geometry">
       <rect>
-       <x>259</x>
-       <y>509</y>
-       <width>80</width>
-       <height>31</height>
+       <x>310</x>
+       <y>190</y>
+       <width>200</width>
+       <height>100</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>32</pointsize>
+      </font>
+     </property>
      <property name="text">
-      <string>문제(미완)</string>
+      <string>문제풀기</string>
      </property>
     </widget>
     <widget class="QPushButton" name="mainPageCounselButton">
      <property name="geometry">
       <rect>
-       <x>110</x>
-       <y>190</y>
-       <width>261</width>
-       <height>141</height>
+       <x>310</x>
+       <y>90</y>
+       <width>200</width>
+       <height>100</height>
       </rect>
      </property>
      <property name="font">
       <font>
-       <pointsize>64</pointsize>
+       <pointsize>32</pointsize>
       </font>
      </property>
      <property name="text">
@@ -523,10 +528,10 @@
     <widget class="QPushButton" name="mainButton_4">
      <property name="geometry">
       <rect>
-       <x>269</x>
-       <y>559</y>
-       <width>80</width>
-       <height>25</height>
+       <x>310</x>
+       <y>390</y>
+       <width>200</width>
+       <height>100</height>
       </rect>
      </property>
      <property name="text">
@@ -536,10 +541,10 @@
     <widget class="QPushButton" name="backButton_2">
      <property name="geometry">
       <rect>
-       <x>0</x>
-       <y>500</y>
-       <width>151</width>
-       <height>51</height>
+       <x>70</x>
+       <y>310</y>
+       <width>100</width>
+       <height>100</height>
       </rect>
      </property>
      <property name="text">
@@ -590,6 +595,42 @@
       <string>당신의 이름:</string>
      </property>
     </widget>
+    <widget class="QLabel" name="userNameLabel_3">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>140</y>
+       <width>101</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>당신의 포인트:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="userPointLabel">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>140</y>
+       <width>101</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>포인트</string>
+     </property>
+    </widget>
+    <zorder>backButton_2</zorder>
+    <zorder>mainButton_1</zorder>
+    <zorder>mainPageQuestionButton</zorder>
+    <zorder>mainPageCounselButton</zorder>
+    <zorder>mainButton_4</zorder>
+    <zorder>userNameLabel</zorder>
+    <zorder>label_7</zorder>
+    <zorder>userNameLabel_2</zorder>
+    <zorder>userNameLabel_3</zorder>
+    <zorder>userPointLabel</zorder>
    </widget>
    <widget class="QWidget" name="page_3">
     <widget class="QTextBrowser" name="chatTextBrowser">
@@ -636,6 +677,118 @@
      </property>
      <property name="text">
       <string>1대1상담(지금은 전체 채팅)</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="page_5">
+    <widget class="QListWidget" name="questionListWidget">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>110</y>
+       <width>256</width>
+       <height>192</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>새 항목</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>포유류 항목</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLabel" name="label_8">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>66</y>
+       <width>201</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>문제의 주제 선택하기</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="QuestionPage">
+    <widget class="QLabel" name="questionLabel">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>100</y>
+       <width>67</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="answerLabel">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>200</y>
+       <width>67</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="answerLabel_2">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>70</y>
+       <width>67</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>문제</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="answerLabel_3">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>160</y>
+       <width>67</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>정답</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="answerLabel_4">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>300</y>
+       <width>67</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>답</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>310</y>
+       <width>331</width>
+       <height>31</height>
+      </rect>
      </property>
     </widget>
    </widget>

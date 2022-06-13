@@ -63,6 +63,7 @@ class WindowClass(QMainWindow, form_class):
         self.loginLineEdit_2.setText("ppp")
         # 메인 화면
         self.mainPageCounselButton.clicked.connect(self.mainPageCounselButton_event)  # 상담 버튼
+        self.mainPageQuestionButton.clicked.connect(lambda : self.stackedWidget.setCurrentWidget('questionPage'))  # questionPage (주제 선택 페이지명)
 
         # 회원가입화면 lineEdit
         self.lineEdit_text_changed()
@@ -340,9 +341,11 @@ class WindowClass(QMainWindow, form_class):
             page_index = self.stackedWidget.currentIndex()
             if 0 == page_index:  # 로그인 페이지
                 user_data = msg.split("/")
+                print(f"로그인해서 받은 유저정보 {user_data}")
                 # 할일:유저정보를 저장해야한다
                 self.loginLabel.setText("")
                 self.userNameLabel.setText(user_data[1])
+                self.userPointLabel.setText(user_data[2])
                 self.stackedWidget.setCurrentIndex(4)
             if 1 == page_index:  # 회원가입 페이지
                 self.lineEdit_new_id.setEnabled(False)

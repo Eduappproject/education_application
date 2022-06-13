@@ -191,7 +191,7 @@ class Worker(threading.Thread):
         row = list(row)
         c.execute(
             "SELECT point FROM studtbl where userid=?", (id,))  # 이름
-
+        row.append(str(c.fetchone()[0]))
         user_data = row  # 이름
         user_data = '/'.join(user_data)
         self.clnt_sock.send(('!OK/' + user_data).encode()) # !OK/username/point
@@ -271,8 +271,18 @@ class Worker(threading.Thread):
     def chatwindow(self, user_name, clnt_num):
         chat_room_name_list = []
         user_id = clnt_imfor[clnt_num][1]  # 유저 아이디 찾아서 넣기
-        user_type = clnt_imfor[clnt_num][2]
+        user_type = clnt_imfor[clnt_num][2]  # "teacher" 또는 "student"
         print(f"{user_name}({user_id}) {user_type}님 상담버튼누름")
+        if user_type == "teacher":  # 상담방 출입자 신분이 '교사'라면
+            print("교사가 상담방에 입장했으니 교사의 이름(아이디)로된 상담방을 만듭니다.")
+            print("학생이 상담방에 들어오면 해당학생과 메시지를 주고받습니다.")
+        else: # 교사가 아니라면 무조건 학생
+            print("학생이 상담방에 입장했으니 열려져있는 상담방의 교사의 이름(아이디)를 학생에게 알려줍니다.")
+            print("열려져있는 상담방이없다면 학생에게 상담방이 없다고 알려줍니다.")
+            print("그후 학생이 입력한 교사의 이름(아이디)로 상담을 연결합니다.")
+            print("학생이 교사의 상담방의 입장하면 밑에 있는 모든 클라이언트에 ")
+            print("메시지를 보내는게 아닌 상담방의 교사에게만 메시지를 보내는 코드를 만드세요")
+
         if not chat_rooms:
             self.clnt_sock.send("chat_not_found".encode())
         else:
