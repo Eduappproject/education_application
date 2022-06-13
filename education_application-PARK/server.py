@@ -59,8 +59,7 @@ class Worker(threading.Thread):
                 print("상담버튼클릭 확인됨")
                 clnt_msg = clnt_msg.replace('chat_request', '')  # 상담버튼클릭이라는 단어가 있는 메시지를 받으면
                 # 그뒤에는 해당 사용자의 이름을 같이 받는다
-                clnt_msg = clnt_msg.split("/")
-                self.chatwindow(clnt_msg[1], clnt_num,clnt_msg[2])  # 채팅방 입장(함수의 인수로 소켓과 사용자의 이름을 넣는다)
+                self.chatwindow(clnt_msg, clnt_num)  # 채팅방 입장(함수의 인수로 소켓과 사용자의 이름을 넣는다)
             elif clnt_msg.startswith('question_request/'): # question_request/주제명 (bird, mammal)
                 clnt_msg = clnt_msg.replace('question_request/', '')
                 self.question_send(clnt_msg)
@@ -167,6 +166,8 @@ class Worker(threading.Thread):
             self.clnt_sock.send('!NO'.encode())
             print("login failure")
 
+        self.user_type = user_type # 유저타입을 객체변수에 저장해서 다른 함수에서 사용할수 있게 한다(상담방에서 사용예정)
+
         con.close()
         return
 
@@ -269,16 +270,11 @@ class Worker(threading.Thread):
                 index = clnt_imfor.index(clnt_imfo)
                 del clnt_imfor[index]
 
-    def chatwindow(self, user_name, clnt_num, user_type):
+    def chatwindow(self, user_name, clnt_num):
         chat_room_name_list = []
         user_id = clnt_imfor[clnt_num][1]  # 유저 아이디 찾아서 넣기
-        print(f"{user_id} 상담입장")
-
-        print(f"{user_id} 상담입장 user_type_check")
-        if user_type == "teacher":
-            print(f"{user_name}({user_id})님은 선생님 입니다.")
-        elif user_type == "student":
-            print(f"{user_name}({user_id})님은 학생 입니다.")
+        user_type = self.user_type
+        print(f"{user_id}({user_type}) 상담버튼누름")
         if not chat_rooms:
             self.clnt_sock.send("chat_not_found".encode())
         else:
@@ -291,9 +287,9 @@ class Worker(threading.Thread):
         while True:  # 상담방 참여자의 메시지를 받기위해 무한반복
             try:
                 msg = self.clnt_sock.recv(1024).decode()
-                print(f"{user_name}({user_id})님이 보낸 메시지:{msg}")  # 받은 메시지 확인하기
+                print(f"{user_name}({user_id}) {user_type}님이 보낸 메시지:{msg}")  # 받은 메시지 확인하기
                 if not msg or msg == "/나가기":
-                    print(f"{user_name}({user_id})님 상담방 나감")
+                    print(f"{user_name}({user_id}) {user_type}님 상담방 나감")
                     self.clnt_sock.send(''.encode())
                     break
             except:
