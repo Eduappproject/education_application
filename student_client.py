@@ -321,6 +321,12 @@ class WindowClass(QMainWindow, form_class):
 
     def chat_msg_input(self):
         msg = self.chatLineEdit.text()
+        if msg == "/나가기":
+            self.chatTextBrowser.clear()
+            self.chatLineEdit.setText("")
+            self.sock.send("/나가기".encode())
+            self.stackedWidget.setCurrentIndex(4)
+            return
         self.chatLineEdit.setText("")
         self.sock.send(msg.encode())
 
