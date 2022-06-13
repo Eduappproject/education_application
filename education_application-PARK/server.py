@@ -272,10 +272,10 @@ def chatwindow(clnt_cnt, user_name, clnt_num):
             msg = clnt_cnt.recv(1024).decode()
             print(msg)  # 받은 메시지 확인하기
             if not msg or msg == "/나가기":
-                print("상담대상 상담방 나감")
+                print(f"아이디:{user_id} 상담방 나감")
                 break
         except:
-            print("예외 처리로 상담방 함수종료(정상)")
+            print(f"아이디:{user_id} 예외 처리로 상담방 함수종료(정상)")
             break
         else:
             msg = f"{user_name}({user_id}):{msg}"  # 다른사람에게 보내기위해 f포멧팅(이름,아이디,메시지)
