@@ -391,7 +391,7 @@ class WindowClass(QMainWindow, form_class):
             if 3 == page_index:  # 비밀번호 찾기 페이지
                 print("pw 찾기 페이지 실패")
                 self.stackedWidget.setCurrentIndex(0)
-                self.loginLabel.setText(f"비밀번호호호를 찾을수없습니다.")
+                self.loginLabel.setText(f"비밀번호를 찾을수없습니다.")
                 self.loginLabel.adjustSize()
 
 
