@@ -104,7 +104,7 @@ class WindowClass(QMainWindow, form_class):
         if not self.loginLineEdit.text() or not self.loginLineEdit_2.text():
             print("아이디와 비밀번호를 입력하세요.")
             return
-        self.sock.send(f"login/{self.loginLineEdit.text()}/{self.loginLineEdit_2.text()}".encode())
+        self.sock.send(f"login/{self.loginLineEdit.text()}/{self.loginLineEdit_2.text()}/teacher".encode())
         self.loginLineEdit.setText("")
         self.loginLineEdit_2.setText("")
 
