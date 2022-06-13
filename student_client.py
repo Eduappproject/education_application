@@ -199,16 +199,16 @@ class WindowClass(QMainWindow, form_class):
             print("잘못된 이메일")
             return
 
-        ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
-        ses.starttls()
-        # 이메일을 보낼 gmail 계정에 접속
-        ses.login('uihyeon.bookstore@gmail.com', 'ttqe mztd lljo tguh')
-
-        self.check_msg = str(random.randrange(1000, 10000))
-        msg = MIMEText('인증번호: ' + self.check_msg)  # 보낼 메세지 내용을 적는다
-        msg['subject'] = 'PyQt5 에서 인증코드를 발송했습니다.'  # 보낼 이메일의 제목을 적는다
-        # 앞에는 위에서 설정한 계정, 두번째에는 이메일을 보낼 계정을 입력
-        ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
+        # ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
+        # ses.starttls()
+        # # 이메일을 보낼 gmail 계정에 접속
+        # ses.login('uihyeon.bookstore@gmail.com', 'ttqe mztd lljo tguh')
+        #
+        # self.check_msg = str(random.randrange(1000, 10000))
+        # msg = MIMEText('인증번호: ' + self.check_msg)  # 보낼 메세지 내용을 적는다
+        # msg['subject'] = 'PyQt5 에서 인증코드를 발송했습니다.'  # 보낼 이메일의 제목을 적는다
+        # # 앞에는 위에서 설정한 계정, 두번째에는 이메일을 보낼 계정을 입력
+        # ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
         print(f"인증번호:{self.check_msg}")
         # 꺼야하는 버튼 끄기
         self.lineEdit_email.setEnabled(False)
@@ -296,22 +296,23 @@ class WindowClass(QMainWindow, form_class):
             self.stackedWidget.setCurrentIndex(0)
             self.loginLabel.setText(f"이메일로 비밀번호가 전송되었습니다.")
 
-            # 이메일로 아이디 보내기
-            ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
-            ses.starttls()
-            # 이메일을 보낼 gmail 계정에 접속
-            ses.login('uihyeon.bookstore@gmail.com', 'ttqe mztd lljo tguh')
-
-            self.check_msg = pw_find_pw_text
-            msg = MIMEText('찾으시는 비밀번호: ' + self.check_msg)  # 보낼 메세지 내용을 적는다
-            msg['subject'] = 'PyQt5 에서 찾으시는 비밀번호를 발송했습니다.'  # 보낼 이메일의 제목을 적는다
-            # 앞에는 위에서 설정한 계정, 두번째에는 이메일을 보낼 계정을 입력
-            ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
-            # 이메일로 아이디 보냈다
+            # # 이메일로 아이디 보내기
+            # ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
+            # ses.starttls()
+            # # 이메일을 보낼 gmail 계정에 접속
+            # ses.login('uihyeon.bookstore@gmail.com', 'ttqe mztd lljo tguh')
+            #
+            # self.check_msg = pw_find_pw_text
+            # msg = MIMEText('찾으시는 비밀번호: ' + self.check_msg)  # 보낼 메세지 내용을 적는다
+            # msg['subject'] = 'PyQt5 에서 찾으시는 비밀번호를 발송했습니다.'  # 보낼 이메일의 제목을 적는다
+            # # 앞에는 위에서 설정한 계정, 두번째에는 이메일을 보낼 계정을 입력
+            # ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
+            # # 이메일로 아이디 보냈다
 
     def mainPageCounselButton_event(self):
         # 상담버튼을 눌렀다
         self.stackedWidget.setCurrentIndex(5)
+
         self.sock.send(f"chat_request{self.userNameLabel.text()}".encode())
 
         self.T = ClientWorker()
@@ -361,18 +362,18 @@ class WindowClass(QMainWindow, form_class):
                 self.loginLabel.setText(f"이메일로 아이디가 전송되었습니다.")
                 self.loginLabel.adjustSize()
 
-                # 이메일로 아이디 보내기
-                ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
-                ses.starttls()
-                # 이메일을 보낼 gmail 계정에 접속
-                ses.login('uihyeon.bookstore@gmail.com', 'ttqe mztd lljo tguh')
-
-                self.check_msg = find_id
-                msg = MIMEText('찾으시는 아이디: ' + self.check_msg)  # 보낼 메세지 내용을 적는다
-                msg['subject'] = 'PyQt5 에서 찾으시는 아이디를 발송했습니다.'  # 보낼 이메일의 제목을 적는다
-                # 앞에는 위에서 설정한 계정, 두번째에는 이메일을 보낼 계정을 입력
-                ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
-                # 이메일로 아이디 보냈다
+                # # 이메일로 아이디 보내기
+                # ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
+                # ses.starttls()
+                # # 이메일을 보낼 gmail 계정에 접속
+                # ses.login('uihyeon.bookstore@gmail.com', 'ttqe mztd lljo tguh')
+                #
+                # self.check_msg = find_id
+                # msg = MIMEText('찾으시는 아이디: ' + self.check_msg)  # 보낼 메세지 내용을 적는다
+                # msg['subject'] = 'PyQt5 에서 찾으시는 아이디를 발송했습니다.'  # 보낼 이메일의 제목을 적는다
+                # # 앞에는 위에서 설정한 계정, 두번째에는 이메일을 보낼 계정을 입력
+                # ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
+                # # 이메일로 아이디 보냈다
 
             if 3 == page_index:  # 비밀번호 찾기 페이지
                 print("pw 찾기 페이지 id 찾기 성공")
