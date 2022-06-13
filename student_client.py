@@ -70,6 +70,8 @@ class WindowClass(QMainWindow, form_class):
         self.questionListWidget.itemClicked.connect(self.questionListWidget_event)  # 문제 주제 리스트를 클릭했을때 실행되는 함수
         self.questionChoiceButton.clicked.connect(self.questionChoiceButton_event)  # 문제의 주제를 선택하면 실행되는 함수
         self.answerLineEdit.returnPressed.connect(self.answerLineEdit_event) # 답을 입력하고 엔터를 누르면 실행되는 함수
+        # 문제 문답 결과 페이지
+        self.goMainPageButton.clicked.connect(lambda : self.stackedWidget.setCurrentIndex(4))
 
         # 회원가입화면 lineEdit
         self.lineEdit_text_changed()
@@ -313,7 +315,7 @@ class WindowClass(QMainWindow, form_class):
     def mainPageCounselButton_event(self):
         # 상담버튼을 눌렀다
         self.stackedWidget.setCurrentIndex(5)
-        self.sock.send(f"chat_request{self.userNameLabel.text()}".encode())
+        self.sock.send(f"chat_request/{self.userNameLabel.text()}/student".encode())
         self.T = ClientWorker()
         self.T.client_data_emit.connect(self.chat_msg)
         self.T.sock = self.sock
@@ -352,13 +354,15 @@ class WindowClass(QMainWindow, form_class):
         self.question_num = 0
         print(self.questionChoiceButton.text(), "주제 선택됨\n해당 주제를 서버로 보내서 문제를 받아옴")
         self.stackedWidget.setCurrentIndex(7)
-        question_request_dict = {
+        self.question_request_dict = {  # 객채 변수 선언을 매번 반복해 컴퓨터 자원낭비지만 구현목적으로 여기 작성하곘습니다.
             "조류": "bird"
             , "포유류": "mammal"
-        }
-        question_request_text = self.questionChoiceButton.text()
+        }  # 리스트에 적힌 주제명에 따라서 서버로 보낼 메시지
+        self.question_request = self.questionChoiceButton.text()
+        self.questionChoiceButton.setText("서버에서 문제 불러오는중")
         self.answerLineEdit.setEnabled(False)
-        self.sock.send(f"question_request/{question_request_dict[question_request_text]}".encode())
+
+        self.sock.send(f"question_request/{self.question_request_dict[self.question_request]}".encode())
         question_data = self.sock.recv(16384).decode()
         question_data_1 = question_data[len("!Question//"):question_data.find("!Answer//")]
         question_data_2 = question_data[question_data.find("!Answer//") + len("!Answer//"):]
@@ -368,10 +372,11 @@ class WindowClass(QMainWindow, form_class):
         self.question_data_base = list(zip(question_data_1, question_data_2))
         self.answerLineEdit.setEnabled(True)
         self.answerLineEdit.setText("")
-        for q, a in self.question_data_base:
+        for q, a in self.question_data_base:  # 받은 문제 프린트로 보기
             print(f"문제:{q}\n정답:{a}")
-        random.shuffle(self.question_data_base)
+        random.shuffle(self.question_data_base)  # 문제 섞어 버리기ㅣㅣㅣㅣ
         print("len self.question_data_base", len(self.question_data_base))
+        self.questions_completion_list = [] # 정답과 오답을 기록할 리스트
         self.question_page()
 
     def question_page(self):
@@ -393,15 +398,49 @@ class WindowClass(QMainWindow, form_class):
         self.answerLabel.move(self.answerLabel.x(), question_height + 5) # 정답이 적히는 라벨
         self.answerLabel_4.move(self.answerLineEdit.x() - 30, question_height + 50) # '답'이라 적힌 라벨
         self.answerLineEdit.move(self.answerLineEdit.x(), question_height + 50) # 답을 입력하는 라인에딧
-        self.questionNumLabel.setText(f"{self.question_num + 1}/{len(self.question_data_base)}")
+        self.questionNumLabel.setText(f"남은 문제 {self.question_num + 1}/{len(self.question_data_base)}")
+        self.questionNumLabel.adjustSize()
         self.question_num += 1
+        return True
 
+    # 답 제출 버튼(답을 입력한 다음에 엔터입력)
     def answerLineEdit_event(self):
         stident_result = self.answerLineEdit.text()
         question_answer = self.answerLabel.text()
         self.answerLineEdit.setText("")
+        # 답과 정답을 비교
+        print(f"학생 답: {stident_result} == 정답: {question_answer}:{stident_result == question_answer}")
+        # 정답이면 정답으로 저장
+        if stident_result == question_answer:
+            print("정답입니다")
+            self.questions_completion_list.append(True)
+        else:  # 아니면 오답
+            print("오답입니다")
+            self.questions_completion_list.append(False)
+        # 모든 문제를 풀었다면
         if not self.question_page():
-            print("문제풀이 끝남")
+            self.stackedWidget.setCurrentIndex(8) # 문제 결과 보기
+            print(self.question_request)
+            print(self.question_request_dict)
+            print(self.question_request_dict[self.question_request])
+            print([i for i in self.questions_completion_list if i == True])
+            print(len([i for i in self.questions_completion_list if i == True]))
+            print(self.user_point)
+            print("427")
+
+            self.questionsCompletionLabel_1.setText(f"주제:{self.question_request}({self.question_request_dict[self.question_request]})")
+            self.questionsCompletionLabel_1.adjustSize()
+            self.questionsCompletionLabel_2.setText(f"총 문제 {len(self.questions_completion_list)}개 중 {len([i for i in self.questions_completion_list if i == True])}개 정답")
+            self.questionsCompletionLabel_2.adjustSize()
+            msg = f"quesiton_complete/{self.question_request_dict[self.question_request]}/{len([i for i in self.questions_completion_list if i])}/{self.user_point}"
+            self.sock.send(msg.encode())
+            print(f"문제 풀이완료 서버로 다음과 같은 메시지 전송:{msg}") # quetion_complete/과목명/점수/포인트
+            self.questionsCompletionLabel_3.setText("수고하셧습니다")
+            self.questionsCompletionLabel_3.adjustSize()
+            point = self.sock.recv(1024).decode() # 메인메뉴에 표시할 나의 포인트를 받음 를 받음
+            self.user_point = point
+            self.userPointLabel.setText(self.user_point)
+
 
 
     @pyqtSlot(str)
@@ -415,11 +454,12 @@ class WindowClass(QMainWindow, form_class):
             if 0 == page_index:  # 로그인 페이지
                 user_data = msg.split("/")
                 print(f"로그인해서 받은 유저정보 {user_data}")
-                # 할일:유저정보를 저장해야한다
                 self.loginLabel.setText("")
-                self.userNameLabel.setText(user_data[1])
-                self.userPointLabel.setText(user_data[2])
-                self.stackedWidget.setCurrentIndex(4)
+                self.user_name = user_data[1]
+                self.userNameLabel.setText(self.user_name)
+                self.user_point = user_data[2]
+                self.userPointLabel.setText(self.user_point)
+                self.stackedWidget.setCurrentIndex(4)  # 메인 화면
             if 1 == page_index:  # 회원가입 페이지
                 self.lineEdit_new_id.setEnabled(False)
                 self.SignUpCheckButton.setEnabled(False)

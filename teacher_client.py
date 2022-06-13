@@ -308,7 +308,7 @@ class WindowClass(QMainWindow, form_class):
     def mainPageCounselButton_event(self):
         # 상담버튼을 눌렀다
         self.stackedWidget.setCurrentIndex(5)
-        self.sock.send(f"chat_request{self.userNameLabel.text()}".encode())
+        self.sock.send(f"chat_request/{self.user_name}/teacher".encode())
         self.T = ClientWorker()
         self.T.client_data_emit.connect(self.chat_msg)
         self.T.sock = self.sock
@@ -343,8 +343,12 @@ class WindowClass(QMainWindow, form_class):
                 user_data = msg.split("/")
                 # 할일:유저정보를 저장해야한다
                 self.loginLabel.setText("")
-                self.userNameLabel.setText(user_data[1])
-                self.stackedWidget.setCurrentIndex(4)
+                self.user_name = user_data[1]
+                self.userNameLabel.setText(self.user_name)
+                # 교사는 포인트가 없다.
+                # self.user_point = user_data[2]
+                # self.userPointLabel.setText(self.user_point)
+                self.stackedWidget.setCurrentIndex(4)  # 메인 화면
             if 1 == page_index:  # 회원가입 페이지
                 self.lineEdit_new_id.setEnabled(False)
                 self.SignUpCheckButton.setEnabled(False)
