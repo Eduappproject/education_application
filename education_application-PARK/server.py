@@ -166,8 +166,6 @@ class Worker(threading.Thread):
             self.clnt_sock.send('!NO'.encode())
             print("login failure")
 
-        self.user_type = user_type # 유저타입을 객체변수에 저장해서 다른 함수에서 사용할수 있게 한다(상담방에서 사용예정)
-
         con.close()
         return
 
@@ -273,8 +271,8 @@ class Worker(threading.Thread):
     def chatwindow(self, user_name, clnt_num):
         chat_room_name_list = []
         user_id = clnt_imfor[clnt_num][1]  # 유저 아이디 찾아서 넣기
-        user_type = self.user_type
-        print(f"{user_id}({user_type}) 상담버튼누름")
+        user_type = clnt_imfor[clnt_num][2]
+        print(f"{user_name}({user_id}) {user_type}님 상담버튼누름")
         if not chat_rooms:
             self.clnt_sock.send("chat_not_found".encode())
         else:
@@ -293,7 +291,7 @@ class Worker(threading.Thread):
                     self.clnt_sock.send(''.encode())
                     break
             except:
-                print(f"{user_name}({user_id})님 예외 처리로 상담방 함수종료(정상)")
+                print(f"{user_name}({user_id}) {user_type}님 예외 처리로 상담방 함수종료(정상)")
                 break
             else:
                 msg = f"{user_name}({user_id}):{msg}"  # 다른사람에게 보내기위해 f포멧팅(이름,아이디,메시지)
@@ -302,7 +300,7 @@ class Worker(threading.Thread):
                         for chat_clnt in chat_room:
                             chat_clnt.send
                 # 상담방 참여자를 포함한 모두에게 메시지 보내기 (할일:1대1 채팅으로 구현해야한다)
-                for other_people_sock, i in clnt_imfor:
+                for other_people_sock, i, j in clnt_imfor:
                     other_people_sock.send(msg.encode())
 
     def question_send(self, clnt_msg):

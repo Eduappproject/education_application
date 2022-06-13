@@ -307,7 +307,7 @@ class WindowClass(QMainWindow, form_class):
     def mainPageCounselButton_event(self):
         # 상담버튼을 눌렀다
         self.stackedWidget.setCurrentIndex(5)
-        self.sock.send(f"chat_request/{self.userNameLabel.text()}/student".encode())
+        self.sock.send(f"chat_request{self.userNameLabel.text()}".encode())
         self.T = ClientWorker()
         self.T.client_data_emit.connect(self.chat_msg)
         self.T.sock = self.sock
