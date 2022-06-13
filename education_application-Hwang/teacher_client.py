@@ -27,9 +27,6 @@ class ClientWorker(QThread):
                 if not msg:
                     print("연결 종료(메시지 없음)")
                     break
-                if not self.chat:
-                    print("연결 종료(상담방 나감)")
-                    break
             except:
                 print("연결 종료(예외 처리)")
                 break
@@ -62,7 +59,7 @@ class WindowClass(QMainWindow, form_class):
         self.chatLineEdit.returnPressed.connect(self.chat_msg_input)  # 상담방에서 채팅메시지 입력시
         self.chatBackButton.clicked.connect(self.chatBackButton_event)  # 상담방에서 나가기 버튼 누를시
         # 아이디 비밀번호 미리 입력(디버그 용,삭제해도 상관없음)
-        self.loginLineEdit.setText("wwd")
+        self.loginLineEdit.setText("wwdT")
         self.loginLineEdit_2.setText("ppp")
         # 메인 화면
         self.mainPageCounselButton.clicked.connect(self.mainPageCounselButton_event)  # 상담 버튼
@@ -199,17 +196,16 @@ class WindowClass(QMainWindow, form_class):
             print("잘못된 이메일")
             return
 
+        self.check_msg = str(random.randrange(1000, 10000))
+        print(f"인증번호:{self.check_msg}")
         # ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
         # ses.starttls()
         # # 이메일을 보낼 gmail 계정에 접속
         # ses.login('uihyeon.bookstore@gmail.com', 'ttqe mztd lljo tguh')
-        #
-        # self.check_msg = str(random.randrange(1000, 10000))
         # msg = MIMEText('인증번호: ' + self.check_msg)  # 보낼 메세지 내용을 적는다
         # msg['subject'] = 'PyQt5 에서 인증코드를 발송했습니다.'  # 보낼 이메일의 제목을 적는다
         # # 앞에는 위에서 설정한 계정, 두번째에는 이메일을 보낼 계정을 입력
         # ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
-        print(f"인증번호:{self.check_msg}")
         # 꺼야하는 버튼 끄기
         self.lineEdit_email.setEnabled(False)
         self.EmailCheckPushButton.setEnabled(False)
@@ -312,11 +308,9 @@ class WindowClass(QMainWindow, form_class):
     def mainPageCounselButton_event(self):
         # 상담버튼을 눌렀다
         self.stackedWidget.setCurrentIndex(5)
-        self.sock.send(f"chat_request{self.userNameLabel.text()}".encode())
-
+        self.sock.send(f"chat_request/{self.userNameLabel.text()}/teacher".encode())
         self.T = ClientWorker()
         self.T.client_data_emit.connect(self.chat_msg)
-        self.T.chat = True
         self.T.sock = self.sock
         self.T.start()
 
@@ -324,7 +318,6 @@ class WindowClass(QMainWindow, form_class):
         self.chatTextBrowser.clear()
         self.chatLineEdit.setText("")
         self.sock.send("/나가기".encode())
-        self.T.chat = False
         self.stackedWidget.setCurrentIndex(4)
 
     def chat_msg_input(self):
