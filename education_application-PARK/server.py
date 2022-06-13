@@ -1,3 +1,7 @@
+import requests
+import re
+from bs4 import BeautifulSoup
+import string
 import random
 import socket
 import threading
@@ -191,7 +195,9 @@ class Worker(threading.Thread):
         row = list(row)
         c.execute(
             "SELECT point FROM studtbl where userid=?", (id,))  # 이름
-        row.append(str(c.fetchone()[0]))
+        point_data = c.fetchone()
+        if point_data:
+            row.append(str(point_data[0]))
         user_data = row  # 이름
         user_data = '/'.join(user_data)
         self.clnt_sock.send(('!OK/' + user_data).encode()) # !OK/username/point
@@ -349,11 +355,16 @@ class Worker(threading.Thread):
         for item in Qlist:  # 문제에 정답이 들어있을때 빈칸으로 치환
             if item[1] in item[0]:
                 item[0] = item[0].replace(item[1], "["+"  "*len(item[1])+"]")
-            Question = Question + '/' + item[0]
-            Answer = Answer + '/' + item[1]
+            Question = Question + '//' + item[0]
+            Answer = Answer + '//' + item[1]
             print('문제: '+item[0]+"\n") #얘는 문제라는것!
             print('정답: '+item[1]+"\n\n") #얘가 정답이라는것!
-        self.clnt_sock.send(Question+Answer.encode())
+        print(f"356 요청받은 문제들을 클라이언트에 전송:")
+        from pprint import pprint
+        pprint(Question)
+        pprint(Answer)
+        print(Question+Answer)
+        self.clnt_sock.send(str(Question+Answer).encode())
 
 
     def test_result_handle(self, clnt_msg, clnt_num):

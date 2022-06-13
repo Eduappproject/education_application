@@ -63,7 +63,12 @@ class WindowClass(QMainWindow, form_class):
         self.loginLineEdit_2.setText("ppp")
         # 메인 화면
         self.mainPageCounselButton.clicked.connect(self.mainPageCounselButton_event)  # 상담 버튼
-        self.mainPageQuestionButton.clicked.connect(lambda : self.stackedWidget.setCurrentWidget('questionPage'))  # questionPage (주제 선택 페이지명)
+        self.mainPageQuestionButton.clicked.connect(self.mainPageQuestionButton_event)  # 문제 풀기 버튼
+
+        # 문제 풀기 페이지
+        self.questionListWidget.itemClicked.connect(self.questionListWidget_event)
+        self.questionChoiceButton.clicked.connect(self.questionChoiceButton_event)
+
 
         # 회원가입화면 lineEdit
         self.lineEdit_text_changed()
@@ -330,6 +335,63 @@ class WindowClass(QMainWindow, form_class):
             return
         self.chatLineEdit.setText("")
         self.sock.send(msg.encode())
+
+    # 문제 풀기 주제 선택 실행되는 함수
+    def questionListWidget_event(self):
+        text_data = self.questionListWidget.currentItem().text()
+        self.questionChoiceButton.setText(text_data)
+        self.questionChoiceButton.setEnabled(True)
+
+    def mainPageQuestionButton_event(self):
+        self.stackedWidget.setCurrentIndex(6)
+        self.questionChoiceButton.setText("주제를 선택해주세요.")
+        self.questionChoiceButton.setEnabled(False)
+
+    # 문제 주제를 선택하고 문제 푸는 페이지로 넘어가는 버튼을 눌렀을때 실행되는 함수
+    def questionChoiceButton_event(self):
+        self.question_num = 0
+        print(self.questionChoiceButton.text(), "주제 선택됨\n해당 주제를 서버로 보내서 문제를 받아옴")
+        self.stackedWidget.setCurrentIndex(7)
+        question_request_dict = {
+            "조류": "bird"
+            , "포유류": "mammal"
+        }
+        question_request_text = self.questionChoiceButton.text()
+        self.answerLineEdit.setEnabled(False)
+        self.sock.send(f"question_request/{question_request_dict[question_request_text]}".encode())
+        question_data = self.sock.recv(16384).decode()
+        question_data_1 = question_data[len("!Question//"):question_data.find("!Answer//")]
+        question_data_2 = question_data[question_data.find("!Answer//")+len("!Answer//"):]
+        question_data_1 = question_data_1.split("//")
+        question_data_2 = question_data_2.split("//")
+        print(len(question_data_1),len(question_data_2))
+        self.question_data_base = list(zip(question_data_1,question_data_2))
+        self.answerLineEdit.setEnabled(True)
+        self.answerLineEdit.setText("")
+        for q,a in self.question_data_base:
+            print(f"문제:{q}\n정답:{a}")
+        random.shuffle(self.question_data_base)
+        print("len self.question_data_base",len(self.question_data_base))
+        self.question_page()
+
+    def question_page(self):
+        if len(self.question_data_base) <= self.question_num:
+            print("축하합니다 모든문제를 풀었습니다\n이제 서버로 푼문제의 개수와 원래있던 포인트를 전송합니다")
+            return
+        Q, A = self.question_data_base[self.question_num]
+        split_n = 35
+        for i in range(len(Q)//split_n):
+            Q = f"{Q[:(i+1)*split_n]}\n{Q[(i+1)*split_n:]}"
+            print("385",Q)
+        self.questionLabel.setText(Q)
+        self.questionLabel.adjustSize()
+        self.answerLabel.setText(A)
+        self.answerLabel.adjustSize()
+        # self.answerLabel.move(self.answerLabel.x(),self.questionLabel.width()+self.questionLabel.y())
+        # self.answerLabel_3.move(self.answerLabel.x() - 30,self.answerLabel.y())
+        self.questionNumLabel.setText(f"{self.question_num + 1}/{len(self.question_data_base)}")
+        self.question_num += 1
+
 
     @pyqtSlot(str)
     def chat_msg(self, msg):

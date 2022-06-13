@@ -26,7 +26,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>6</number>
+    <number>7</number>
    </property>
    <widget class="QWidget" name="page">
     <widget class="QLabel" name="label_3">
@@ -680,7 +680,7 @@
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="page_5">
+   <widget class="QWidget" name="questionPage">
     <widget class="QListWidget" name="questionListWidget">
      <property name="geometry">
       <rect>
@@ -692,12 +692,12 @@
      </property>
      <item>
       <property name="text">
-       <string>새 항목</string>
+       <string>조류</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>포유류 항목</string>
+       <string>포유류(API 연결안돼있음)</string>
       </property>
      </item>
     </widget>
@@ -712,6 +712,35 @@
      </property>
      <property name="text">
       <string>문제의 주제 선택하기</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="stackedWidget_2">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>330</y>
+       <width>151</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>선택한 문제의 주제명</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="questionChoiceButton">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>370</y>
+       <width>221</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>주제를 선택하세요</string>
      </property>
     </widget>
    </widget>
@@ -732,8 +761,8 @@
     <widget class="QLabel" name="answerLabel">
      <property name="geometry">
       <rect>
-       <x>70</x>
-       <y>200</y>
+       <x>100</x>
+       <y>470</y>
        <width>67</width>
        <height>17</height>
       </rect>
@@ -758,8 +787,8 @@
     <widget class="QLabel" name="answerLabel_3">
      <property name="geometry">
       <rect>
-       <x>50</x>
-       <y>160</y>
+       <x>20</x>
+       <y>470</y>
        <width>67</width>
        <height>17</height>
       </rect>
@@ -771,8 +800,8 @@
     <widget class="QLabel" name="answerLabel_4">
      <property name="geometry">
       <rect>
-       <x>70</x>
-       <y>300</y>
+       <x>30</x>
+       <y>530</y>
        <width>67</width>
        <height>17</height>
       </rect>
@@ -781,14 +810,27 @@
       <string>답</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit">
+    <widget class="QLineEdit" name="answerLineEdit">
      <property name="geometry">
       <rect>
-       <x>110</x>
-       <y>310</y>
+       <x>100</x>
+       <y>520</y>
        <width>331</width>
        <height>31</height>
       </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="questionNumLabel">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>20</y>
+       <width>67</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
      </property>
     </widget>
    </widget>
