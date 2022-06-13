@@ -534,13 +534,13 @@ def chatwindow(clnt_cnt, user_name, clnt_num):
     user_id = clnt_imfor[clnt_num][1]  # 유저 아이디 찾아서 넣기
     while True:  # 상담방 참여자의 메시지를 받기위해 무한반복
         try:
-            msg = clnt_cnt.recv(1024).decode()
-            print(f"아이디:{user_id} 가 보낸 메시지:{msg}")  # 받은 메시지 확인하기
+            msg = clnt_sock.recv(1024).decode()
+            print(f"{user_name}({user_id})님이 보낸 메시지:{msg}")  # 받은 메시지 확인하기
             if not msg or msg == "/나가기":
-                print(f"아이디:{user_id} 상담방 나감")
+                print(f"{user_name}({user_id})님 상담방 나감")
                 break
         except:
-            print(f"아이디:{user_id} 예외 처리로 상담방 함수종료(정상)")
+            print(f"{user_name}({user_id})님 예외 처리로 상담방 함수종료(정상)")
             break
         else:
             msg = f"{user_name}({user_id}):{msg}"  # 다른사람에게 보내기위해 f포멧팅(이름,아이디,메시지)
