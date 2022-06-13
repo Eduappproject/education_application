@@ -281,6 +281,7 @@ class Worker(threading.Thread):
     def chat_wait(self, user_name, clnt_num):
         user_type = clnt_imfor[clnt_num][2] # 유저 타입 
         chat_room_name_list = [] # 채팅 대기중인 선생 아이디를 담는 리스트
+        
         if user_type == "student":
             if not chat_rooms: # 채팅방 리스트에 아무것도 없으면 찾을 수 없다고 보내줌
                 self.clnt_sock.send("chat_not_found".encode()) 
@@ -288,7 +289,10 @@ class Worker(threading.Thread):
                 for chat_room in chat_rooms: 
                     if chat_room[1] == None: # 학생이 안 들어있는 채팅방만 고르기
                         chat_room_name_list.append(chat_room[0][3])
-                chat_room_name_list = '/'.join(chat_room_name_list)
+                if chat_room_name_list == None:
+                    chat_room_name_list = "!None"
+                else:
+                    chat_room_name_list = '/'.join(chat_room_name_list)
                 self.clnt_sock.send(chat_room_name_list.encode())
             teacher_name = self.clnt_sock.recv(1024).decode() # 학생이 고른 클라이언트 찾기 
             
@@ -297,6 +301,7 @@ class Worker(threading.Thread):
                     chat_rooms[chat_rooms.index(chat_room)][1] = clnt_imfor[clnt_num]
                     self.chatwindow(user_name, clnt_num)
                     return
+                
         elif user_type == "teacher": # 선생님일때는 바로 채팅방에 넣고 대기시킴
             chat_rooms.append(clnt_imfor[clnt_num])
             self.chatwindow(user_name, clnt_num)
