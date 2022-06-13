@@ -10,7 +10,7 @@ from email.mime.text import MIMEText  # 이메일 전송을 위한 라이브러�
 import smtplib
 import re  # 정규 표현식
 
-form_class = uic.loadUiType("student_client.ui")[0]
+form_class = uic.loadUiType("teacher_client.ui")[0]
 port_num = 2090
 
 
@@ -104,7 +104,7 @@ class WindowClass(QMainWindow, form_class):
         if not self.loginLineEdit.text() or not self.loginLineEdit_2.text():
             print("아이디와 비밀번호를 입력하세요.")
             return
-        self.sock.send(f"login/{self.loginLineEdit.text()}/{self.loginLineEdit_2.text()}/student".encode())
+        self.sock.send(f"login/{self.loginLineEdit.text()}/{self.loginLineEdit_2.text()}/teacher".encode())
         self.loginLineEdit.setText("")
         self.loginLineEdit_2.setText("")
 
@@ -163,7 +163,7 @@ class WindowClass(QMainWindow, form_class):
         user_data = [self.lineEdit_new_pw.text()
             , self.lineEdit_new_name.text()
             , self.lineEdit_email.text()
-            , "student"]  # 서버로 보낼 가입자 데이터를 순서에 맞게 리스트로 만든다
+            , "teacher"]  # 서버로 보낼 가입자 데이터를 순서에 맞게 리스트로 만든다
         # 서버에서 "/" 를 기준으로 구분하기때문에 그에 맞춰서 "/".join 을 이용해서 각데이터 사이에 "/" 넣고 보낸다
         self.sock.send("/".join(user_data).encode())
         self.login_page()
@@ -312,7 +312,6 @@ class WindowClass(QMainWindow, form_class):
     def mainPageCounselButton_event(self):
         # 상담버튼을 눌렀다
         self.stackedWidget.setCurrentIndex(5)
-
         self.sock.send(f"chat_request{self.userNameLabel.text()}".encode())
 
         self.T = ClientWorker()
@@ -393,7 +392,7 @@ class WindowClass(QMainWindow, form_class):
             if 3 == page_index:  # 비밀번호 찾기 페이지
                 print("pw 찾기 페이지 실패")
                 self.stackedWidget.setCurrentIndex(0)
-                self.loginLabel.setText(f"비밀번호를 찾을수없습니다.")
+                self.loginLabel.setText(f"비밀번호호호를 찾을수없습니다.")
                 self.loginLabel.adjustSize()
 
 
