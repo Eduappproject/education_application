@@ -10,6 +10,7 @@ PORT = 2090 + random.randint(0, 10)
 BUF_SIZE = 2048
 lock = threading.Lock()
 clnt_imfor = []  # [[소켓, id]]
+chat_rooms = [] # [[채팅1], [채팅방2]]
 
 class Worker(threading.Thread):
     def __init__(self, sock):
@@ -54,9 +55,9 @@ class Worker(threading.Thread):
             elif clnt_msg.startswith('remove'):
                 self.remove(clnt_num)  # 전달받은 내용에따라 해당하는 함수 실행
             # 1대1 상담 입장(지금은 전체 채팅방으로 구현)
-            elif clnt_msg.startswith('상담버튼클릭'):
+            elif clnt_msg.startswith('chat_request'):
                 print("상담버튼클릭 확인됨")
-                clnt_msg = clnt_msg.replace('상담버튼클릭', '')  # 상담버튼클릭이라는 단어가 있는 메시지를 받으면
+                clnt_msg = clnt_msg.replace('chat_request', '')  # 상담버튼클릭이라는 단어가 있는 메시지를 받으면
                 # 그뒤에는 해당 사용자의 이름을 같이 받는다
                 self.chatwindow(clnt_msg, clnt_num)  # 채팅방 입장(함수의 인수로 소켓과 사용자의 이름을 넣는다)
             else:
@@ -259,7 +260,17 @@ class Worker(threading.Thread):
                 del clnt_imfor[index]
 
     def chatwindow(self, user_name, clnt_num):
+        chat_room_name_list = []
         user_id = clnt_imfor[clnt_num][1]  # 유저 아이디 찾아서 넣기
+        if not chat_rooms:
+            self.clnt_sock.send("chat_not_found".encode())
+        else:
+            for chat_room in chat_rooms:
+                if chat_room[1] == None:
+                    chat_room_name_list.append(chat_room[0])
+            chat_room_name_list = '/'.join(chat_room_name_list)
+            self.clnt_sock.send(chat_room_name.encode())
+
         while True:  # 상담방 참여자의 메시지를 받기위해 무한반복
             try:
                 msg = self.clnt_sock.recv(1024).decode()
@@ -272,6 +283,10 @@ class Worker(threading.Thread):
                 break
             else:
                 msg = f"{user_name}({user_id}):{msg}"  # 다른사람에게 보내기위해 f포멧팅(이름,아이디,메시지)
+                for chat_room in chat_rooms:
+                    if chat_room in self.clnt_sock:
+                        for chat_clnt in chat_room:
+                            chat_clnt.send
                 # 상담방 참여자를 포함한 모두에게 메시지 보내기 (할일:1대1 채팅으로 구현해야한다)
                 for other_people_sock, i in clnt_imfor:
                     other_people_sock.send(msg.encode())
@@ -545,6 +560,10 @@ def chatwindow(clnt_cnt, user_name, clnt_num):
         else:
             msg = f"{user_name}({user_id}):{msg}"  # 다른사람에게 보내기위해 f포멧팅(이름,아이디,메시지)
             # 상담방 참여자를 포함한 모두에게 메시지 보내기 (할일:1대1 채팅으로 구현해야한다)
+            for chat_room in chat_rooms:
+                if chat_room in self.clnt_sock:
+                    for chat_clnt in chat_room:
+                        chat_clnt.send
             for other_people_sock, i in clnt_imfor:
                 other_people_sock.send(msg.encode())
 

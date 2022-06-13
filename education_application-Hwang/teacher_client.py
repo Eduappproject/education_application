@@ -290,6 +290,7 @@ class WindowClass(QMainWindow, form_class):
             self.sock.send("plz_pw".encode())
             pw_find_pw_text = self.sock.recv(1024).decode()
             print(f"이메일로 보낸 비밀번호{pw_find_pw_text}")
+            email = self.pwFindPageEmailLineEdit.text()
             self.pwFindPageIdLineEdit.setText("")
             self.pwFindPageEmailLineEdit.setText("")
             self.stackedWidget.setCurrentIndex(0)
@@ -311,7 +312,7 @@ class WindowClass(QMainWindow, form_class):
     def mainPageCounselButton_event(self):
         # 상담버튼을 눌렀다
         self.stackedWidget.setCurrentIndex(5)
-        self.sock.send(f"상담버튼클릭{self.userNameLabel.text()}".encode())
+        self.sock.send(f"chat_request{self.userNameLabel.text()}".encode())
 
         self.T = ClientWorker()
         self.T.client_data_emit.connect(self.chat_msg)
