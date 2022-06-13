@@ -1,3 +1,4 @@
+from multiprocessing import set_forkserver_preload
 import requests
 import re
 from bs4 import BeautifulSoup
@@ -6,12 +7,14 @@ import random
 import socket
 import threading
 import sqlite3
+import datetime
+from datetime import date
 import sys
 
 PORT = 2090 + random.randint(0, 10)
 BUF_SIZE = 2048
 lock = threading.Lock()
-clnt_imfor = []  # [[소켓, id, type]]
+clnt_imfor = []  # [[소켓, id, type, name]]
 chat_rooms = [] # [[채팅1], [채팅방2]]
 
 class Worker(threading.Thread):
@@ -56,13 +59,16 @@ class Worker(threading.Thread):
                 self.edit_data(clnt_num, clnt_msg)
             elif clnt_msg.startswith('remove'):
                 self.remove(clnt_num)  # 전달받은 내용에따라 해당하는 함수 실행
-            elif clnt_msg.startswith('chat_request'): 
-                clnt_msg = clnt_msg.replace('chat_request', '')  
-                self.chatwindow(clnt_msg, clnt_num)  # 채팅방 입장(함수의 인수로 소켓과 사용자의 이름을 넣는다)
+            # 1대1 상담 입장(지금은 전체 채팅방으로 구현)
+            elif clnt_msg.startswith('chat_request'):
+                print("상담버튼클릭 확인됨")
+                clnt_msg = clnt_msg.replace('chat_request', '')  # 상담버튼클릭이라는 단어가 있는 메시지를 받으면
+                # 그뒤에는 해당 사용자의 이름을 같이 받는다
+                self.chat_wait(clnt_msg, clnt_num)  # 채팅방 입장(함수의 인수로 소켓과 사용자의 이름을 넣는다)
             elif clnt_msg.startswith('question_request/'): # question_request/주제명 (bird, mammal)
                 clnt_msg = clnt_msg.replace('question_request/', '')
                 self.question_send(clnt_msg)
-            elif clnt_msg.startswith('quesiton_complete/'): # quetion_complete/과목명/점수/포인트 
+            elif clnt_msg.startswith('quesiton_complete/'): # quetion_complete/과목명/점수/포인트
                 clnt_msg = clnt_msg.replace('quetion_complete/', '')
                 self.test_result_handle(clnt_msg, clnt_num)
             else:
@@ -101,6 +107,7 @@ class Worker(threading.Thread):
         user_data = []
 
         while True:
+            print("비로그인 회원가입 페이지 입장")
             imfor = self.clnt_sock.recv(BUF_SIZE)
             imfor = imfor.decode()
             if imfor == "Q_reg":  # 회원가입 창 닫을 때 함수 종료
@@ -123,7 +130,7 @@ class Worker(threading.Thread):
             if imfor == "Q_reg":  # 회원가입 창 닫을 때 함수 종료
                 con.close()
                 break
-            print(imfor)
+            print("회원가입 정보"+imfor)
             imfor = imfor.split('/')  # 구분자 /로 잘라서 리스트 생성
             for imfo in imfor:
                 user_data.append(imfo)  # user_data 리스트에 추가
@@ -143,11 +150,14 @@ class Worker(threading.Thread):
         data = data.split('/')
         user_id = data[0]
         user_type = data[2]
-
+        
         c.execute("SELECT userpw FROM usertbl where userid=? and usertype=?",
                   (user_id, user_type))  # DB에서 id 같은 password 컬럼 선택
         user_pw = c.fetchone()  # 한 행 추출
-
+        
+        c.execute("SELECT username FROM usertbl where userid=? and usertype=?",
+                  (user_id, user_type))
+        user_name = c.fetchone()
         if not user_pw:  # DB에 없는 id 입력시
             self.clnt_sock.send('iderror'.encode())
             con.close()
@@ -158,11 +168,13 @@ class Worker(threading.Thread):
             print("login sucess")
             clnt_imfor[clnt_num].append(data[0])
             clnt_imfor[clnt_num].append(data[2])
+            clnt_imfor[clnt_num].append(str(user_name))
             self.send_user_information(clnt_num)
         else:
             # 로그인실패 시그널
             self.clnt_sock.send('!NO'.encode())
             print("login failure")
+
 
         con.close()
         return
@@ -266,24 +278,43 @@ class Worker(threading.Thread):
                 index = clnt_imfor.index(clnt_imfo)
                 del clnt_imfor[index]
 
-    def chatwindow(self, user_name, clnt_num):
-        chat_teacher_list = []
-        user_id = clnt_imfor[clnt_num][1]  # 유저 아이디 찾아서 넣기
-        if not chat_rooms:
-            self.clnt_sock.send("teacher_not_found".encode())
-        else:
+    def chat_wait(self, user_name, clnt_num):
+        user_type = clnt_imfor[clnt_num][2] # 유저 타입 
+        chat_room_name_list = [] # 채팅 대기중인 선생 아이디를 담는 리스트
+        if user_type == "student":
+            if not chat_rooms: # 채팅방 리스트에 아무것도 없으면 찾을 수 없다고 보내줌
+                self.clnt_sock.send("chat_not_found".encode()) 
+            else:
+                for chat_room in chat_rooms: 
+                    if chat_room[1] == None: # 학생이 안 들어있는 채팅방만 고르기
+                        chat_room_name_list.append(chat_room[0][3])
+                chat_room_name_list = '/'.join(chat_room_name_list)
+                self.clnt_sock.send(chat_room_name_list.encode())
+            teacher_name = self.clnt_sock.recv(1024).decode() # 학생이 고른 클라이언트 찾기 
+            
             for chat_room in chat_rooms:
-                if chat_room[1] == None:
-                    chat_teacher_list.append(chat_room[0])
-            chat_teacher_list = '/'.join(chat_teacher_list)
-            self.clnt_sock.send(chat_teacher_list.encode())
+                if chat_room[0][3] == teacher_name: # 학생이 고른 선생님의 채팅방에 들어간다는것이다
+                    chat_rooms[chat_rooms.index(chat_room)][1] = clnt_imfor[clnt_num]
+                    self.chatwindow(user_name, clnt_num)
+                    return
+        elif user_type == "teacher": # 선생님일때는 바로 채팅방에 넣고 대기시킴
+            chat_rooms.append(clnt_imfor[clnt_num])
+            self.chatwindow(user_name, clnt_num)
+        
+
+    def chatwindow(self, user_name, clnt_num):
+        
+        user_id = clnt_imfor[clnt_num][1]  # 유저 아이디 찾아서 넣기
+        user_type = clnt_imfor[clnt_num][2] # 유저 타입 
+        
 
         while True:  # 상담방 참여자의 메시지를 받기위해 무한반복
             try:
                 msg = self.clnt_sock.recv(1024).decode()
-                print(f"{user_name}({user_id})님이 보낸 메시지:{msg}")  # 받은 메시지 확인하기
+                print(f"{user_name}({user_id}) {user_type}님이 보낸 메시지:{msg}")  # 받은 메시지 확인하기
                 if not msg or msg == "/나가기":
-                    print(f"{user_name}({user_id})님 상담방 나감")
+                    print(f"{user_name}({user_id}) {user_type}님 상담방 나감")
+                    self.clnt_sock.send(''.encode())
                     break
             except:
                 print(f"{user_name}({user_id})님 예외 처리로 상담방 함수종료(정상)")
@@ -293,11 +324,11 @@ class Worker(threading.Thread):
                 for chat_room in chat_rooms:
                     if chat_room in self.clnt_sock:
                         for chat_clnt in chat_room:
-                            chat_clnt.send
-                # 상담방 참여자를 포함한 모두에게 메시지 보내기 (할일:1대1 채팅으로 구현해야한다)
-                for other_people_sock, i in clnt_imfor:
-                    other_people_sock.send(msg.encode())
-    
+                            if chat_clnt != self.clnt_sock:
+                                self.clnt_sock.send(msg.encode())
+                            
+
+
     def question_send(self, clnt_msg):
         con, c = self.dbcon()
         subname = clnt_msg
@@ -330,7 +361,7 @@ class Worker(threading.Thread):
                 temp_list.append(j)
                 temp_list.append(i)
                 Qlist.append(temp_list)
-            
+
         for item in Qlist:  # 문제에 정답이 들어있을때 빈칸으로 치환
             if item[1] in item[0]:
                 item[0] = item[0].replace(item[1], "["+"  "*len(item[1])+"]")
@@ -339,8 +370,8 @@ class Worker(threading.Thread):
             print('문제: '+item[0]+"\n") #얘는 문제라는것!
             print('정답: '+item[1]+"\n\n") #얘가 정답이라는것!
         self.clnt_sock.send(Question+Answer.encode())
-        
-        
+
+
     def test_result_handle(self, clnt_msg, clnt_num):
         con, c = self.dbcon()
         result = clnt_msg.split('/')
@@ -356,7 +387,7 @@ class Worker(threading.Thread):
         c.execute("UPDATE apitbl SET score_avr=?, score_cnt=? where subname=?", (score_list[0], score_list[1], result[0], ))
         c.execute("UPDATE studtbl SET score=?, point=? where userid=?", (result[1], result[2], clnt_imfor[clnt_num], ))
         lock.release()
-        
+
         con.commit()
         con.close()
 
@@ -373,6 +404,6 @@ if __name__ == '__main__':  # 메인? 기본설정같은 칸지
         clnt_imfor.append([clnt_sock])
         print(clnt_sock)
         lock.release()
-        
+
         t = Worker(clnt_sock)
         t.start()
