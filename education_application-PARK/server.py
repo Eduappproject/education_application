@@ -270,7 +270,7 @@ def chatwindow(clnt_cnt, user_name, clnt_num):
     while True:  # 상담방 참여자의 메시지를 받기위해 무한반복
         try:
             msg = clnt_cnt.recv(1024).decode()
-            print(msg)  # 받은 메시지 확인하기
+            print(f"아이디:{user_id} 가 보낸 메시지:{msg}")  # 받은 메시지 확인하기
             if not msg or msg == "/나가기":
                 print(f"아이디:{user_id} 상담방 나감")
                 break
