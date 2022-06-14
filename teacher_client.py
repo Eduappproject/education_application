@@ -96,6 +96,17 @@ class WindowClass(QMainWindow, form_class):
         header4 = self.qnatable.horizontalHeader()
         header4.resizeSection(3, 400)
 
+        #문제출제
+        self.quploadbutton.clicked.connect(self.quploadbutton_clicked_Event)
+        #self.qOKbutton.clicked.connect(self.)
+        self.qbackbutton.clicked.connect(self.backButton_2_event)
+        self.qlineEdit1.textChanged[str].connect(self.qlineEdit_onChanged)
+        self.qlineEdit1.returnPressed.connect(self.qlineEditque)
+        self.qlineEdit_2.textChanged[str].connect(self.qlineEdit_onChanged)
+
+        #문제를 출제하는 버튼
+        #def quploadbutton_clicked_connect(self):
+        #    self.upload
         # 소켓 생성
         self.sock = socket(AF_INET, SOCK_STREAM)
         port_num = 2090
@@ -368,6 +379,10 @@ class WindowClass(QMainWindow, form_class):
         self.chatLineEdit.setText("")
         self.sock.send(msg.encode())
 
+    def qlineEditque(self):
+        que = self.qlineEdit1.text()
+        answer = self.qlineEdit2.text()
+
     @pyqtSlot(str)
     def chat_msg(self, msg):
         self.chatTextBrowser.append(msg)
@@ -438,7 +453,18 @@ class WindowClass(QMainWindow, form_class):
     def moveqnapage_event(self):
         self.stackedWidget.setCurrentIndex(8)
 
+    # def quploadbutton_event(self):
+    #     self.stackedWidget.setCurrentIndex(6)
+    #     self.qOKbutton.clicked.connect
 
+    def quploadbutton_clicked_Event(self):
+        self.stackedWidget.setCurrentIndex(6)
+
+    def qlineEdit_onChanged(self, text):
+        self.qlineEdit1.setText(text)
+        self.qlineEdit2.setText(text)
+        self.qlineEdit1.adjustSize(text)
+        self.qlineEdit2.adjustSize(text)
 
 
 if __name__ == "__main__":
