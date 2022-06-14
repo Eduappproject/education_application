@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>550</width>
+    <width>546</width>
     <height>690</height>
    </rect>
   </property>
@@ -26,7 +26,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>7</number>
+    <number>8</number>
    </property>
    <widget class="QWidget" name="page">
     <widget class="QLabel" name="label_3">
@@ -754,6 +754,9 @@
        <height>17</height>
       </rect>
      </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(198, 198, 198);</string>
+     </property>
      <property name="text">
       <string>TextLabel</string>
      </property>
@@ -761,7 +764,7 @@
     <widget class="QLabel" name="answerLabel">
      <property name="geometry">
       <rect>
-       <x>100</x>
+       <x>70</x>
        <y>470</y>
        <width>67</width>
        <height>17</height>
@@ -774,10 +777,10 @@
     <widget class="QLabel" name="answerLabel_2">
      <property name="geometry">
       <rect>
-       <x>40</x>
-       <y>70</y>
-       <width>67</width>
-       <height>17</height>
+       <x>30</x>
+       <y>100</y>
+       <width>40</width>
+       <height>20</height>
       </rect>
      </property>
      <property name="text">
@@ -789,8 +792,8 @@
       <rect>
        <x>20</x>
        <y>470</y>
-       <width>67</width>
-       <height>17</height>
+       <width>40</width>
+       <height>20</height>
       </rect>
      </property>
      <property name="text">
@@ -800,9 +803,9 @@
     <widget class="QLabel" name="answerLabel_4">
      <property name="geometry">
       <rect>
-       <x>30</x>
+       <x>20</x>
        <y>530</y>
-       <width>67</width>
+       <width>31</width>
        <height>17</height>
       </rect>
      </property>
@@ -813,7 +816,7 @@
     <widget class="QLineEdit" name="answerLineEdit">
      <property name="geometry">
       <rect>
-       <x>100</x>
+       <x>70</x>
        <y>520</y>
        <width>331</width>
        <height>31</height>
@@ -831,6 +834,60 @@
      </property>
      <property name="text">
       <string>TextLabel</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="page_5">
+    <widget class="QLabel" name="questionsCompletionLabel_1">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>50</y>
+       <width>56</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="questionsCompletionLabel_2">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>80</y>
+       <width>56</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="questionsCompletionLabel_3">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>130</y>
+       <width>56</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="goMainPageButton">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>280</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>메인메뉴로</string>
      </property>
     </widget>
    </widget>
