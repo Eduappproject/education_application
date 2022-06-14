@@ -384,6 +384,7 @@ class Worker(threading.Thread):
         lock.acquire()
         c.execute("SELECT score_avr, score_cnt FROM apitbl where subname=?", (result[0], ))
         score_list = c.fetchone()
+        score_list = list(score_list)
         lock.release()
         total_score = (score_list[0]*score_list[1]) + result[1]
         score_list[1]+=1
