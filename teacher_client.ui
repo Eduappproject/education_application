@@ -19,14 +19,14 @@
   <widget class="QStackedWidget" name="stackedWidget">
    <property name="geometry">
     <rect>
-     <x>0</x>
-     <y>20</y>
+     <x>30</x>
+     <y>30</y>
      <width>531</width>
      <height>641</height>
     </rect>
    </property>
    <property name="currentIndex">
-    <number>7</number>
+    <number>8</number>
    </property>
    <widget class="QWidget" name="page">
     <widget class="QLabel" name="label_3">
@@ -489,17 +489,17 @@
       <string>학생별 점수조회</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="mainButton_4">
+    <widget class="QPushButton" name="qnaButton">
      <property name="geometry">
       <rect>
-       <x>180</x>
-       <y>510</y>
-       <width>80</width>
-       <height>25</height>
+       <x>290</x>
+       <y>360</y>
+       <width>191</width>
+       <height>61</height>
       </rect>
      </property>
      <property name="text">
-      <string>Q&amp;&amp;A(미완)</string>
+      <string>Q&amp;&amp;A</string>
      </property>
     </widget>
     <widget class="QPushButton" name="backButton_2">
@@ -933,6 +933,89 @@
      </property>
      <property name="text">
       <string>점수확인버튼</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="page_9">
+    <widget class="QTableWidget" name="qnatable">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>301</width>
+       <height>431</height>
+      </rect>
+     </property>
+     <row>
+      <property name="text">
+       <string>1</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>2</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>3</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>4</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>5</string>
+      </property>
+     </row>
+     <column>
+      <property name="text">
+       <string>학생이름</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>교사이름</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>학생의질문</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>교사의답변</string>
+      </property>
+     </column>
+    </widget>
+    <widget class="QLabel" name="qna_pagelabel">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>10</y>
+       <width>67</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="qnaback">
+     <property name="geometry">
+      <rect>
+       <x>400</x>
+       <y>600</y>
+       <width>89</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>뒤로가기</string>
      </property>
     </widget>
    </widget>

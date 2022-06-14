@@ -75,11 +75,26 @@ class WindowClass(QMainWindow, form_class):
         #점수확인
         # self.StudentScore_Widget_2.AllEditTriggers.connect(self.StudentScore_Widget_2)
         #self.StudentScore_Widget_2.setEditTriggers(QAbstractItemView.AllEditTriggers)
-        # self.score_back_pushButton_2.clicked.connect(self.mainPageCounselButton_event)
+        self.score_back_pushButton_2.clicked.connect(self.backButton_2_event)
         # self.StudentScore_Button_1.clicked.connect(self.StudentScore_Button_1_event)
         # self.StudentScore_Widget_2.QAbstractItemView.connect(self.QAbstractItemView)
         self.StudentScore_Button_1.clicked.connect(self.StudentScore_Button_1_event)
         self.student_score_Button2.clicked.connect(self.StudentScore_Talbe_1)
+
+
+        #QNA
+        self.qna_pagelabel.setText("QNA 창입니다")
+        self.qnaback.clicked.connect(self.backButton_2_event)
+        self.qnatable.resize(470,500)
+        self.qnaButton.clicked.connect(self.moveqnapage_event)
+        header1 = self.qnatable.horizontalHeader()
+        header1.resizeSection(0,80)
+        header2 = self.qnatable.horizontalHeader()
+        header2.resizeSection(1, 80)
+        header3 = self.qnatable.horizontalHeader()
+        header3.resizeSection(2, 400)
+        header4 = self.qnatable.horizontalHeader()
+        header4.resizeSection(3, 400)
 
         # 소켓 생성
         self.sock = socket(AF_INET, SOCK_STREAM)
@@ -188,7 +203,8 @@ class WindowClass(QMainWindow, form_class):
         self.sock_msg(msg)
 
     def backButton_2_event(self):
-        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget.setCurrentIndex(4)
+
 
     # 이메일 인증 요청 버튼을 눌렀을때
     # 해당 이메일에 인증번호 보내기
@@ -418,6 +434,9 @@ class WindowClass(QMainWindow, form_class):
                 self.stackedWidget.setCurrentIndex(0)
                 self.loginLabel.setText(f"비밀번호호호를 찾을수없습니다.")
                 self.loginLabel.adjustSize()
+
+    def moveqnapage_event(self):
+        self.stackedWidget.setCurrentIndex(8)
 
 
 
