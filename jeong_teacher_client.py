@@ -76,7 +76,7 @@ class WindowClass(QMainWindow, form_class):
         self.sock = socket(AF_INET, SOCK_STREAM)
         port_num = 2090
         i = 0
-        while i <= 10:
+        while True:
             try:
                 self.sock.connect(('127.0.0.1', port_num + i))
                 print(f'클라이언트에서 포트번호 {port_num + i} 에 서버 연결 성공')
@@ -86,7 +86,7 @@ class WindowClass(QMainWindow, form_class):
                 print(f'클라이언트에서 포트번호 {port_num + i} 에 서버 연결 실패')
                 # 생성에 실패(오류)하면 반복문 멈추지 않음
             i += 1
-            if i > 10:
+            if i > 3:
                 print("서버 연결에 실패했습니다.")
                 input("엔터키를 누를시 재시도 합니다")
                 i = 0
