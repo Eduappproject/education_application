@@ -32,7 +32,7 @@ class Worker(threading.Thread):
         while True:
             sys.stdout.flush()  # 버퍼 비워주는거
             clnt_msg = self.clnt_sock.recv(BUF_SIZE)  # 클라이언트에서 메세지 수신
-            print(clnt_msg.decode())  # 받는값 확인
+            print(f"클라가 보낸값:{clnt_msg.decode()}")  # 받는값 확인
             if not clnt_msg:  # 연결상태 확인 - 연결 종료시 삭제
                 lock.acquire()  # 쓰레드 락
                 self.delete_imfor()

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>546</width>
-    <height>690</height>
+    <width>627</width>
+    <height>685</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,12 +21,12 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>531</width>
-     <height>641</height>
+     <width>611</width>
+     <height>661</height>
     </rect>
    </property>
    <property name="currentIndex">
-    <number>6</number>
+    <number>9</number>
    </property>
    <widget class="QWidget" name="page">
     <widget class="QLabel" name="label_3">
@@ -838,56 +838,165 @@
     </widget>
    </widget>
    <widget class="QWidget" name="page_5">
-    <widget class="QLabel" name="questionsCompletionLabel_1">
+    <widget class="QWidget" name="">
      <property name="geometry">
       <rect>
-       <x>150</x>
-       <y>50</y>
-       <width>56</width>
-       <height>12</height>
+       <x>170</x>
+       <y>230</y>
+       <width>221</width>
+       <height>241</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QLabel" name="questionsCompletionLabel_1">
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="questionsCompletionLabel_2">
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="questionsCompletionLabel_3">
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="goMainPageButton">
+        <property name="text">
+         <string>메인메뉴로</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="page_8">
+    <widget class="QTableWidget" name="tableWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>591</width>
+       <height>441</height>
+      </rect>
+     </property>
+     <attribute name="horizontalHeaderVisible">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="horizontalHeaderCascadingSectionResizes">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="horizontalHeaderHighlightSections">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="horizontalHeaderStretchLastSection">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="verticalHeaderCascadingSectionResizes">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="verticalHeaderStretchLastSection">
+      <bool>false</bool>
+     </attribute>
+     <row>
+      <property name="text">
+       <string>새 열</string>
+      </property>
+     </row>
+     <column>
+      <property name="text">
+       <string>글번호</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>제목</string>
+      </property>
+     </column>
+     <item row="0" column="0">
+      <property name="text">
+       <string>번호</string>
+      </property>
+     </item>
+     <item row="0" column="1">
+      <property name="text">
+       <string>제목</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QPushButton" name="pushButton">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>570</y>
+       <width>111</width>
+       <height>61</height>
       </rect>
      </property>
      <property name="text">
-      <string>TextLabel</string>
+      <string>뒤로가기</string>
      </property>
     </widget>
-    <widget class="QLabel" name="questionsCompletionLabel_2">
+    <widget class="QPushButton" name="pushButton_2">
      <property name="geometry">
       <rect>
-       <x>150</x>
-       <y>80</y>
-       <width>56</width>
-       <height>12</height>
+       <x>330</x>
+       <y>570</y>
+       <width>111</width>
+       <height>61</height>
       </rect>
      </property>
      <property name="text">
-      <string>TextLabel</string>
+      <string>Q&amp;&amp;A작성</string>
      </property>
     </widget>
-    <widget class="QLabel" name="questionsCompletionLabel_3">
+    <widget class="QLabel" name="label_9">
      <property name="geometry">
       <rect>
-       <x>140</x>
-       <y>130</y>
-       <width>56</width>
-       <height>12</height>
+       <x>30</x>
+       <y>20</y>
+       <width>311</width>
+       <height>61</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>27</pointsize>
+      </font>
+     </property>
      <property name="text">
-      <string>TextLabel</string>
+      <string>Q &amp; A 게시판</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="goMainPageButton">
+    <widget class="QLabel" name="label_17">
      <property name="geometry">
       <rect>
-       <x>150</x>
-       <y>280</y>
-       <width>75</width>
-       <height>23</height>
+       <x>10</x>
+       <y>560</y>
+       <width>161</width>
+       <height>21</height>
       </rect>
      </property>
      <property name="text">
-      <string>메인메뉴로</string>
+      <string>더블클릭 으로 글보기</string>
      </property>
     </widget>
    </widget>
