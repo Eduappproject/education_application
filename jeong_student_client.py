@@ -13,7 +13,19 @@ import re  # 정규 표현식
 form_class = uic.loadUiType("student_client.ui")[0]
 port_num = 2090
 
+# 문제집 데이터를 받는 스레드
+class QuestionRecvWorker(QThread):
+    question_recv_signal = pyqtSignal(list)
 
+    def run(self):
+        question_data = self.sock.recv(16384).decode()
+        question_data_1 = question_data[len("!Question//"):question_data.find("!Answer//")]
+        question_data_2 = question_data[question_data.find("!Answer//") + len("!Answer//"):]
+        question_data_1 = question_data_1.split("//")
+        question_data_2 = question_data_2.split("//")
+        print(len(question_data_1), len(question_data_2))
+        recv_data = list(zip(question_data_1, question_data_2))
+        self.question_recv_signal.emit(recv_data)
 # 상담 채팅 클라이언트 스레드
 class ClientWorker(QThread):
     client_data_emit = pyqtSignal(str)
@@ -349,35 +361,39 @@ class WindowClass(QMainWindow, form_class):
         self.stackedWidget.setCurrentIndex(6)
         self.questionChoiceButton.setText("주제를 선택해주세요.")
         self.questionChoiceButton.setEnabled(False)
+        self.questionListWidget.setEnabled(True)
 
     # 문제 주제를 선택하고 문제 푸는 페이지로 넘어가는 버튼을 눌렀을때 실행되는 함수
     def questionChoiceButton_event(self):
         self.question_num = 0
         print(self.questionChoiceButton.text(), "주제 선택됨\n해당 주제를 서버로 보내서 문제를 받아옴")
-        self.stackedWidget.setCurrentIndex(7)
         self.question_request_dict = {  # 객채 변수 선언을 매번 반복해 컴퓨터 자원낭비지만 구현목적으로 여기 작성하곘습니다.
             "조류": "bird"
             , "포유류": "mammal"
         }  # 리스트에 적힌 주제명에 따라서 서버로 보낼 메시지
         self.question_request = self.questionChoiceButton.text()
         self.questionChoiceButton.setText("서버에서 문제 불러오는중")
+        self.questionChoiceButton.setEnabled(False)
         self.answerLineEdit.setEnabled(False)
+        self.questionListWidget.setEnabled(False)
 
         self.sock.send(f"question_request/{self.question_request_dict[self.question_request]}".encode())
-        question_data = self.sock.recv(16384).decode()
-        question_data_1 = question_data[len("!Question//"):question_data.find("!Answer//")]
-        question_data_2 = question_data[question_data.find("!Answer//") + len("!Answer//"):]
-        question_data_1 = question_data_1.split("//")
-        question_data_2 = question_data_2.split("//")
-        print(len(question_data_1), len(question_data_2))
-        self.question_data_base = list(zip(question_data_1, question_data_2))
+        self.recv_data = QuestionRecvWorker()
+        self.recv_data.sock = self.sock
+        self.recv_data.question_recv_signal.connect(self.recv_data_pyqt_slot)
+        self.recv_data.start()
+
+    @pyqtSlot(list)
+    def recv_data_pyqt_slot(self,recv_data):
+        self.stackedWidget.setCurrentIndex(7)
+        self.question_data_base = recv_data
         self.answerLineEdit.setEnabled(True)
         self.answerLineEdit.setText("")
         for q, a in self.question_data_base:  # 받은 문제 프린트로 보기
             print(f"문제:{q}\n정답:{a}")
         random.shuffle(self.question_data_base)  # 문제 섞어 버리기ㅣㅣㅣㅣ
         print("len self.question_data_base", len(self.question_data_base))
-        self.questions_completion_list = [] # 정답과 오답을 기록할 리스트
+        self.questions_completion_list = []  # 정답과 오답을 기록할 리스트
         self.question_page()
 
     def question_page(self):
@@ -395,9 +411,9 @@ class WindowClass(QMainWindow, form_class):
 
         # 화면에 표시된 문제 라벨의 세로 위치 + 높이
         question_height = self.questionLabel.height() + self.questionLabel.y()
-        self.answerLabel_3.move(self.answerLabel.x() - 30, question_height) # '정답'이라 적힌 라벨
+        self.answerLabel_3.move(self.answerLabel_2.x(), question_height) # '정답'이라 적힌 라벨
         self.answerLabel.move(self.answerLabel.x(), question_height + 5) # 정답이 적히는 라벨
-        self.answerLabel_4.move(self.answerLineEdit.x() - 30, question_height + 50) # '답'이라 적힌 라벨
+        self.answerLabel_4.move(self.answerLabel_2.x(), question_height + 50) # '답'이라 적힌 라벨
         self.answerLineEdit.move(self.answerLineEdit.x(), question_height + 50) # 답을 입력하는 라인에딧
         self.questionNumLabel.setText(f"남은 문제 {self.question_num + 1}/{len(self.question_data_base)}")
         self.questionNumLabel.adjustSize()
