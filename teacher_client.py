@@ -17,6 +17,7 @@ port_num = 2090
 # 상담 채팅 클라이언트 스레드
 class ClientWorker(QThread):
     client_data_emit = pyqtSignal(str)
+
     def run(self):
         print("Q스레드 실행됨")
         while True:
@@ -25,9 +26,6 @@ class ClientWorker(QThread):
                 print(msg)
                 if not msg:
                     print("연결 종료(메시지 없음)")
-                    break
-                if not self.chat:
-                    print("연결 종료(상담방 나감)")
                     break
             except:
                 print("연결 종료(예외 처리)")
@@ -61,7 +59,7 @@ class WindowClass(QMainWindow, form_class):
         self.chatLineEdit.returnPressed.connect(self.chat_msg_input)  # 상담방에서 채팅메시지 입력시
         self.chatBackButton.clicked.connect(self.chatBackButton_event)  # 상담방에서 나가기 버튼 누를시
         # 아이디 비밀번호 미리 입력(디버그 용,삭제해도 상관없음)
-        self.loginLineEdit.setText("wwd")
+        self.loginLineEdit.setText("wwdT")
         self.loginLineEdit_2.setText("ppp")
         # 메인 화면
         self.mainPageCounselButton.clicked.connect(self.mainPageCounselButton_event)  # 상담 버튼
@@ -74,11 +72,18 @@ class WindowClass(QMainWindow, form_class):
         self.lineEdit_new_pw_check.textChanged[str].connect(self.lineEdit_text_changed)
         self.lineEdit_email.textChanged[str].connect(self.lineEdit_text_changed)
 
+        #점수확인
+        self.StudentScore_Widget_2.QAbstractItemView.AllEditTriggers.connect(self.StudentScore_Widget_2)
+        self.score_back_pushButton_2.clicked.connect(self.mainPageCounselButton_event)
+
+        self.scorepushButton2.clicked.connect(self.mainpagescoreButton_1_event)
+
+
         # 소켓 생성
         self.sock = socket(AF_INET, SOCK_STREAM)
         port_num = 2090
         i = 0
-        while i < 10:
+        while i <= 10:
             try:
                 self.sock.connect(('127.0.0.1', port_num + i))
                 print(f'클라이언트에서 포트번호 {port_num + i} 에 서버 연결 성공')
@@ -103,7 +108,7 @@ class WindowClass(QMainWindow, form_class):
         if not self.loginLineEdit.text() or not self.loginLineEdit_2.text():
             print("아이디와 비밀번호를 입력하세요.")
             return
-        self.sock.send(f"login/{self.loginLineEdit.text()}/{self.loginLineEdit_2.text()}".encode())
+        self.sock.send(f"login/{self.loginLineEdit.text()}/{self.loginLineEdit_2.text()}/teacher".encode())
         self.loginLineEdit.setText("")
         self.loginLineEdit_2.setText("")
 
@@ -198,17 +203,16 @@ class WindowClass(QMainWindow, form_class):
             print("잘못된 이메일")
             return
 
+        self.check_msg = str(random.randrange(1000, 10000))
+        print(f"인증번호:{self.check_msg}")
         # ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
         # ses.starttls()
-        # 이메일을 보낼 gmail 계정에 접속
+        # # 이메일을 보낼 gmail 계정에 접속
         # ses.login('uihyeon.bookstore@gmail.com', 'ttqe mztd lljo tguh')
-
-        self.check_msg = str(random.randrange(1000, 10000))
         # msg = MIMEText('인증번호: ' + self.check_msg)  # 보낼 메세지 내용을 적는다
         # msg['subject'] = 'PyQt5 에서 인증코드를 발송했습니다.'  # 보낼 이메일의 제목을 적는다
-        # 앞에는 위에서 설정한 계정, 두번째에는 이메일을 보낼 계정을 입력
+        # # 앞에는 위에서 설정한 계정, 두번째에는 이메일을 보낼 계정을 입력
         # ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
-        print(f"인증번호:{self.check_msg}")
         # 꺼야하는 버튼 끄기
         self.lineEdit_email.setEnabled(False)
         self.EmailCheckPushButton.setEnabled(False)
@@ -289,6 +293,7 @@ class WindowClass(QMainWindow, form_class):
             self.sock.send("plz_pw".encode())
             pw_find_pw_text = self.sock.recv(1024).decode()
             print(f"이메일로 보낸 비밀번호{pw_find_pw_text}")
+            email = self.pwFindPageEmailLineEdit.text()
             self.pwFindPageIdLineEdit.setText("")
             self.pwFindPageEmailLineEdit.setText("")
             self.stackedWidget.setCurrentIndex(0)
@@ -310,31 +315,42 @@ class WindowClass(QMainWindow, form_class):
     def mainPageCounselButton_event(self):
         # 상담버튼을 눌렀다
         self.stackedWidget.setCurrentIndex(5)
-        self.sock.send(f"상담버튼클릭{self.userNameLabel.text()}".encode())
-
+        self.sock.send(f"chat_request/{self.user_name}/teacher".encode())
         self.T = ClientWorker()
         self.T.client_data_emit.connect(self.chat_msg)
-        self.T.chat = True
         self.T.sock = self.sock
         self.T.start()
+
+    def mainpagescoreButton_1_event(self):
+            # 점수확인 버튼을 눌렀다
+        self.stackedWidget.setCurrentIndex(8)
+
+        #self.sock.recv((f"score")) 점수결과를 받고
+
+
 
     def chatBackButton_event(self):
         self.chatTextBrowser.clear()
         self.chatLineEdit.setText("")
         self.sock.send("/나가기".encode())
-        self.T.chat = False
         self.stackedWidget.setCurrentIndex(4)
 
     def chat_msg_input(self):
         msg = self.chatLineEdit.text()
+        if msg == "/나가기":
+            self.chatTextBrowser.clear()
+            self.chatLineEdit.setText("")
+            self.sock.send("/나가기".encode())
+            self.stackedWidget.setCurrentIndex(4)
+            return
         self.chatLineEdit.setText("")
         self.sock.send(msg.encode())
 
     @pyqtSlot(str)
     def chat_msg(self, msg):
         self.chatTextBrowser.append(msg)
+
     # 클라이언트가 서버로 받은 메시지를 메인스레드 에서 처리하기 위해 만든 함수
-    @pyqtSlot(str)
     def sock_msg(self, msg):
         if "!OK" in msg:
             page_index = self.stackedWidget.currentIndex()
@@ -342,8 +358,12 @@ class WindowClass(QMainWindow, form_class):
                 user_data = msg.split("/")
                 # 할일:유저정보를 저장해야한다
                 self.loginLabel.setText("")
-                self.userNameLabel.setText(user_data[1])
-                self.stackedWidget.setCurrentIndex(4)
+                self.user_name = user_data[1]
+                self.userNameLabel.setText(self.user_name)
+                # 교사는 포인트가 없다.
+                # self.user_point = user_data[2]
+                # self.userPointLabel.setText(self.user_point)
+                self.stackedWidget.setCurrentIndex(4)  # 메인 화면
             if 1 == page_index:  # 회원가입 페이지
                 self.lineEdit_new_id.setEnabled(False)
                 self.SignUpCheckButton.setEnabled(False)
@@ -392,6 +412,8 @@ class WindowClass(QMainWindow, form_class):
                 self.stackedWidget.setCurrentIndex(0)
                 self.loginLabel.setText(f"비밀번호호호를 찾을수없습니다.")
                 self.loginLabel.adjustSize()
+
+
 
 
 if __name__ == "__main__":
