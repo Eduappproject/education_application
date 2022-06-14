@@ -73,17 +73,19 @@ class WindowClass(QMainWindow, form_class):
         self.lineEdit_email.textChanged[str].connect(self.lineEdit_text_changed)
 
         #점수확인
-        self.StudentScore_Widget_2.QAbstractItemView.AllEditTriggers.connect(self.StudentScore_Widget_2)
-        self.score_back_pushButton_2.clicked.connect(self.mainPageCounselButton_event)
+        # self.StudentScore_Widget_2.AllEditTriggers.connect(self.StudentScore_Widget_2)
+        #self.StudentScore_Widget_2.setEditTriggers(QAbstractItemView.AllEditTriggers)
+        # self.score_back_pushButton_2.clicked.connect(self.mainPageCounselButton_event)
+        # self.StudentScore_Button_1.clicked.connect(self.StudentScore_Button_1_event)
+        # self.StudentScore_Widget_2.QAbstractItemView.connect(self.QAbstractItemView)
         self.StudentScore_Button_1.clicked.connect(self.StudentScore_Button_1_event)
-        self.student_score_button.clicked.connect(self.StudentScore_Button_1_event)
-        self.StudentScore_Widget_2.QAbstractItemView.connect(self.QAbstractItemView)
+        self.student_score_Button2.clicked.connect(self.StudentScore_Talbe_1)
 
         # 소켓 생성
         self.sock = socket(AF_INET, SOCK_STREAM)
         port_num = 2090
         i = 0
-        while i <= 10:
+        while True:
             try:
                 self.sock.connect(('127.0.0.1', port_num + i))
                 print(f'클라이언트에서 포트번호 {port_num + i} 에 서버 연결 성공')
@@ -93,7 +95,7 @@ class WindowClass(QMainWindow, form_class):
                 print(f'클라이언트에서 포트번호 {port_num + i} 에 서버 연결 실패')
                 # 생성에 실패(오류)하면 반복문 멈추지 않음
             i += 1
-            if i > 10:
+            if i > 3:
                 print("서버 연결에 실패했습니다.")
                 input("엔터키를 누를시 재시도 합니다")
                 i = 0
@@ -312,8 +314,9 @@ class WindowClass(QMainWindow, form_class):
             # ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
             # # 이메일로 아이디 보냈다
 
-    def mainPageCounselButton_2_event(self):
+    def mainPageCounselButton_event(self):
         # 상담버튼을 눌렀다
+        self.stackedWidget.setCurrentIndex(5)
         self.sock.send(f"chat_request/{self.user_name}/teacher".encode())
         self.T = ClientWorker()
         self.T.client_data_emit.connect(self.chat_msg)
@@ -322,10 +325,15 @@ class WindowClass(QMainWindow, form_class):
 
         # 학생점수 확인 버튼을 눌렀을때
     def StudentScore_Button_1_event(self):
-        self.stackedWidget.setCurrentIndex(8)
-        self.StudentScore_Widget_2.setEnabled(False)
-        self.student_score_button.clicked.connect(self.StudentScore_Widget_2)
-        self.StudentScore_Widget_2.setEnabled(True)
+        self.stackedWidget.setCurrentIndex(7)
+        self.StudentScore_Table_Widget_1.setEnabled(False)
+
+        # self.
+
+        self.StudentScore_Table_Widget_1.setEnabled(True)
+    def StudentScore_Talbe_1(self):
+        print("StudentScore_Talbe_1(self):")
+        pass
 
     def chatBackButton_event(self):
         self.chatTextBrowser.clear()

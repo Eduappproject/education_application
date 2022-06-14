@@ -26,7 +26,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>3</number>
+    <number>7</number>
    </property>
    <widget class="QWidget" name="page">
     <widget class="QLabel" name="label_3">
@@ -479,52 +479,21 @@
     <widget class="QPushButton" name="StudentScore_Button_1">
      <property name="geometry">
       <rect>
-       <x>380</x>
-       <y>380</y>
-       <width>141</width>
-       <height>31</height>
+       <x>290</x>
+       <y>260</y>
+       <width>201</width>
+       <height>81</height>
       </rect>
      </property>
      <property name="text">
       <string>학생별 점수조회</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="mainButton_2">
-     <property name="geometry">
-      <rect>
-       <x>259</x>
-       <y>509</y>
-       <width>80</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>문제(미완)</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="mainPageCounselButton">
-     <property name="geometry">
-      <rect>
-       <x>260</x>
-       <y>220</y>
-       <width>261</width>
-       <height>141</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>64</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>상담</string>
-     </property>
-    </widget>
     <widget class="QPushButton" name="mainButton_4">
      <property name="geometry">
       <rect>
-       <x>269</x>
-       <y>559</y>
+       <x>180</x>
+       <y>510</y>
        <width>80</width>
        <height>25</height>
       </rect>
@@ -588,6 +557,42 @@
      </property>
      <property name="text">
       <string>당신의 이름:</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="mainButton_2">
+     <property name="geometry">
+      <rect>
+       <x>290</x>
+       <y>180</y>
+       <width>200</width>
+       <height>80</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>33</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>문제 출제</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="mainPageCounselButton">
+     <property name="geometry">
+      <rect>
+       <x>290</x>
+       <y>100</y>
+       <width>200</width>
+       <height>80</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>46</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>상담</string>
      </property>
     </widget>
    </widget>
@@ -827,7 +832,7 @@
       <string>뒤로가기</string>
      </property>
     </widget>
-    <widget class="QTableWidget" name="StudentScore_Widget_2">
+    <widget class="QTableWidget" name="StudentScore_Table_Widget_1">
      <property name="enabled">
       <bool>false</bool>
      </property>
@@ -917,7 +922,7 @@
       </property>
      </column>
     </widget>
-    <widget class="QPushButton" name="student_score_button">
+    <widget class="QPushButton" name="student_score_Button2">
      <property name="geometry">
       <rect>
        <x>280</x>
