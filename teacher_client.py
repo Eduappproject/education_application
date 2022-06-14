@@ -72,6 +72,13 @@ class WindowClass(QMainWindow, form_class):
         self.lineEdit_new_pw_check.textChanged[str].connect(self.lineEdit_text_changed)
         self.lineEdit_email.textChanged[str].connect(self.lineEdit_text_changed)
 
+        #점수확인
+        self.StudentScore_Widget_2.QAbstractItemView.AllEditTriggers.connect(self.StudentScore_Widget_2)
+        self.score_back_pushButton_2.clicked.connect(self.mainPageCounselButton_event)
+
+        self.scorepushButton2.clicked.connect(self.mainpagescoreButton_1_event)
+
+
         # 소켓 생성
         self.sock = socket(AF_INET, SOCK_STREAM)
         port_num = 2090
@@ -308,11 +315,19 @@ class WindowClass(QMainWindow, form_class):
     def mainPageCounselButton_event(self):
         # 상담버튼을 눌렀다
         self.stackedWidget.setCurrentIndex(5)
-        self.sock.send(f"chat_request/{self.userNameLabel.text()}/teacher".encode())
+        self.sock.send(f"chat_request/{self.user_name}/teacher".encode())
         self.T = ClientWorker()
         self.T.client_data_emit.connect(self.chat_msg)
         self.T.sock = self.sock
         self.T.start()
+
+    def mainpagescoreButton_1_event(self):
+            # 점수확인 버튼을 눌렀다
+        self.stackedWidget.setCurrentIndex(8)
+
+        #self.sock.recv((f"score")) 점수결과를 받고
+
+
 
     def chatBackButton_event(self):
         self.chatTextBrowser.clear()
@@ -322,6 +337,12 @@ class WindowClass(QMainWindow, form_class):
 
     def chat_msg_input(self):
         msg = self.chatLineEdit.text()
+        if msg == "/나가기":
+            self.chatTextBrowser.clear()
+            self.chatLineEdit.setText("")
+            self.sock.send("/나가기".encode())
+            self.stackedWidget.setCurrentIndex(4)
+            return
         self.chatLineEdit.setText("")
         self.sock.send(msg.encode())
 
@@ -337,8 +358,12 @@ class WindowClass(QMainWindow, form_class):
                 user_data = msg.split("/")
                 # 할일:유저정보를 저장해야한다
                 self.loginLabel.setText("")
-                self.userNameLabel.setText(user_data[1])
-                self.stackedWidget.setCurrentIndex(4)
+                self.user_name = user_data[1]
+                self.userNameLabel.setText(self.user_name)
+                # 교사는 포인트가 없다.
+                # self.user_point = user_data[2]
+                # self.userPointLabel.setText(self.user_point)
+                self.stackedWidget.setCurrentIndex(4)  # 메인 화면
             if 1 == page_index:  # 회원가입 페이지
                 self.lineEdit_new_id.setEnabled(False)
                 self.SignUpCheckButton.setEnabled(False)
@@ -387,6 +412,8 @@ class WindowClass(QMainWindow, form_class):
                 self.stackedWidget.setCurrentIndex(0)
                 self.loginLabel.setText(f"비밀번호호호를 찾을수없습니다.")
                 self.loginLabel.adjustSize()
+
+
 
 
 if __name__ == "__main__":

@@ -13,7 +13,22 @@ import re  # 정규 표현식
 form_class = uic.loadUiType("student_client.ui")[0]
 port_num = 2090
 
+# 문제집 데이터를 받는 스레드
+class QuestionRecvWorker(QThread):
+    question_recv_signal = pyqtSignal(list)
 
+    def run(self):
+        print("문제를 받기위한 Q스레드 실행함")
+        question_data = self.sock.recv(16384).decode()
+        print(f"서버로부터 {len(question_data.encode())} 바이트의 문제를 받음")
+        question_data_1 = question_data[len("!Question//"):question_data.find("!Answer//")]
+        question_data_2 = question_data[question_data.find("!Answer//") + len("!Answer//"):]
+        question_data_1 = question_data_1.split("//")
+        question_data_2 = question_data_2.split("//")
+        print(len(question_data_1), len(question_data_2))
+        recv_data = list(zip(question_data_1, question_data_2))
+        print("서버에서 받은 문제를 메인 스레드로 보냄")
+        self.question_recv_signal.emit(recv_data)
 # 상담 채팅 클라이언트 스레드
 class ClientWorker(QThread):
     client_data_emit = pyqtSignal(str)
@@ -56,6 +71,7 @@ class WindowClass(QMainWindow, form_class):
         self.pwFindPageIdButton.clicked.connect(self.pwFindPageIdButton_event)
         self.pwFindPageEmailButton.clicked.connect(self.pwFindPageEmailButton_event)
 
+
         self.chatLineEdit.returnPressed.connect(self.chat_msg_input)  # 상담방에서 채팅메시지 입력시
         self.chatBackButton.clicked.connect(self.chatBackButton_event)  # 상담방에서 나가기 버튼 누를시
         # 아이디 비밀번호 미리 입력(디버그 용,삭제해도 상관없음)
@@ -63,6 +79,15 @@ class WindowClass(QMainWindow, form_class):
         self.loginLineEdit_2.setText("ppp")
         # 메인 화면
         self.mainPageCounselButton.clicked.connect(self.mainPageCounselButton_event)  # 상담 버튼
+        self.mainPageQuestionButton.clicked.connect(self.mainPageQuestionButton_event)  # 문제 풀기 버튼
+        # 커밋
+        # 문제 풀기 페이지
+        self.questionListWidget.itemClicked.connect(self.questionListWidget_event)  # 문제 주제 리스트를 클릭했을때 실행되는 함수
+        self.questionListWidget.itemDoubleClicked.connect(self.questionChoiceButton_event)
+        self.questionChoiceButton.clicked.connect(self.questionChoiceButton_event)  # 문제의 주제를 선택하면 실행되는 함수
+        self.answerLineEdit.returnPressed.connect(self.answerLineEdit_event) # 답을 입력하고 엔터를 누르면 실행되는 함수
+        # 문제 문답 결과 페이지
+        self.goMainPageButton.clicked.connect(lambda : self.stackedWidget.setCurrentIndex(4))
 
         # 회원가입화면 lineEdit
         self.lineEdit_text_changed()
@@ -74,9 +99,8 @@ class WindowClass(QMainWindow, form_class):
 
         # 소켓 생성
         self.sock = socket(AF_INET, SOCK_STREAM)
-        port_num = 2090
         i = 0
-        while i <= 10:
+        while True:
             try:
                 self.sock.connect(('127.0.0.1', port_num + i))
                 print(f'클라이언트에서 포트번호 {port_num + i} 에 서버 연결 성공')
@@ -86,7 +110,7 @@ class WindowClass(QMainWindow, form_class):
                 print(f'클라이언트에서 포트번호 {port_num + i} 에 서버 연결 실패')
                 # 생성에 실패(오류)하면 반복문 멈추지 않음
             i += 1
-            if i > 10:
+            if i > 3:
                 print("서버 연결에 실패했습니다.")
                 input("엔터키를 누를시 재시도 합니다")
                 i = 0
@@ -321,8 +345,122 @@ class WindowClass(QMainWindow, form_class):
 
     def chat_msg_input(self):
         msg = self.chatLineEdit.text()
+        if msg == "/나가기":
+            self.chatTextBrowser.clear()
+            self.chatLineEdit.setText("")
+            self.sock.send("/나가기".encode())
+            self.stackedWidget.setCurrentIndex(4)
+            return
         self.chatLineEdit.setText("")
         self.sock.send(msg.encode())
+
+    # 문제 풀기 주제 선택 실행되는 함수
+    def questionListWidget_event(self):
+        text_data = self.questionListWidget.currentItem().text()
+        self.questionChoiceButton.setText(text_data)
+        self.questionChoiceButton.setEnabled(True)
+
+    def mainPageQuestionButton_event(self):
+        self.stackedWidget.setCurrentIndex(6)
+        self.questionChoiceButton.setText("주제를 선택해주세요.")
+        self.questionChoiceButton.setEnabled(False)
+        self.questionListWidget.setEnabled(True)
+
+    # 문제 주제를 선택하고 문제 푸는 페이지로 넘어가는 버튼을 눌렀을때 실행되는 함수
+    def questionChoiceButton_event(self):
+        self.question_num = 0
+        print(self.questionChoiceButton.text(), "주제 선택됨\n해당 주제를 서버로 보내서 문제를 받아옴")
+        self.question_request_dict = {  # 객채 변수 선언을 매번 반복해 컴퓨터 자원낭비지만 구현목적으로 여기 작성하곘습니다.
+            "조류": "bird"
+            , "포유류": "mammal"
+        }  # 리스트에 적힌 주제명에 따라서 서버로 보낼 메시지
+        self.question_request = self.questionChoiceButton.text()
+        self.questionChoiceButton.setText("서버에서 문제 불러오는중")
+        self.questionChoiceButton.setEnabled(False)
+        self.answerLineEdit.setEnabled(False)
+        self.questionListWidget.setEnabled(False)
+
+        self.sock.send(f"question_request/{self.question_request_dict[self.question_request]}".encode())
+        self.recv_data = QuestionRecvWorker()
+        self.recv_data.sock = self.sock
+        self.recv_data.question_recv_signal.connect(self.recv_data_pyqt_slot)
+        self.recv_data.start()
+
+    @pyqtSlot(list)
+    def recv_data_pyqt_slot(self,recv_data):
+        self.stackedWidget.setCurrentIndex(7)
+        self.question_data_base = recv_data
+        print(f"문제 확인:{len(self.question_data_base)}개의 문제를 받음")
+        self.answerLineEdit.setEnabled(True)
+        self.answerLineEdit.setText("")
+        random.shuffle(self.question_data_base)  # 문제 섞어 버리기ㅣㅣㅣㅣ
+        print("len self.question_data_base", len(self.question_data_base))
+        self.questions_completion_list = []  # 정답과 오답을 기록할 리스트
+        self.question_page()
+
+    def question_page(self):
+        if len(self.question_data_base) <= self.question_num:
+            print("축하합니다 모든문제를 풀었습니다\n이제 서버로 푼문제의 개수와 원래있던 포인트를 전송합니다")
+            return False
+        Q, A = self.question_data_base[self.question_num]
+        split_n = 35
+        for i in range(1, (len(Q) // split_n) + 1):
+            Q = f"{Q[:i * split_n]}\n{Q[i * split_n:]}"  # 단어가 화면을 삐져나오는걸 방지하기위해 일정간격으로 줄바꿈을 줌
+        self.questionLabel.setText(Q)
+        self.questionLabel.adjustSize()
+        self.answerLabel.setText(A)
+        self.answerLabel.adjustSize()
+
+        # 화면에 표시된 문제 라벨의 세로 위치 + 높이
+        question_height = self.questionLabel.height() + self.questionLabel.y()
+        self.answerLabel_3.move(self.answerLabel_2.x(), question_height) # '정답'이라 적힌 라벨
+        self.answerLabel.move(self.answerLabel.x(), question_height + 5) # 정답이 적히는 라벨
+        self.answerLabel_4.move(self.answerLabel_2.x(), question_height + 50) # '답'이라 적힌 라벨
+        self.answerLineEdit.move(self.answerLineEdit.x(), question_height + 50) # 답을 입력하는 라인에딧
+        self.questionNumLabel.setText(f"남은 문제 {self.question_num + 1}/{len(self.question_data_base)}")
+        self.questionNumLabel.adjustSize()
+        self.question_num += 1
+        return True
+
+    # 답 제출 버튼(답을 입력한 다음에 엔터입력)
+    def answerLineEdit_event(self):
+        stident_result = self.answerLineEdit.text()
+        question_answer = self.answerLabel.text()
+        self.answerLineEdit.setText("")
+        # 답과 정답을 비교
+        print(f"학생 답: {stident_result} == 정답: {question_answer}:{stident_result == question_answer}")
+        # 정답이면 정답으로 저장
+        if stident_result == question_answer:
+            print("정답입니다")
+            self.questions_completion_list.append(True)
+        else:  # 아니면 오답
+            print("오답입니다")
+            self.questions_completion_list.append(False)
+        # 모든 문제를 풀었다면
+        if not self.question_page():
+            self.stackedWidget.setCurrentIndex(8) # 문제 결과 보기
+            print(self.question_request)
+            print(self.question_request_dict)
+            print(self.question_request_dict[self.question_request])
+            print([i for i in self.questions_completion_list if i == True])
+            print(len([i for i in self.questions_completion_list if i == True]))
+            print(self.user_point)
+            print("427")
+
+            self.questionsCompletionLabel_1.setText(f"주제:{self.question_request}({self.question_request_dict[self.question_request]})")
+            self.questionsCompletionLabel_1.adjustSize()
+            self.questionsCompletionLabel_2.setText(f"총 문제 {len(self.questions_completion_list)}개 중 {len([i for i in self.questions_completion_list if i == True])}개 정답")
+            self.questionsCompletionLabel_2.adjustSize()
+            msg = f"quesiton_complete/{self.question_request_dict[self.question_request]}/{len([i for i in self.questions_completion_list if i])}/{self.user_point}"
+            self.sock.send(msg.encode())
+            print(f"문제 풀이완료 서버로 다음과 같은 메시지 전송:{msg}") # quetion_complete/과목명/점수/포인트
+            self.questionsCompletionLabel_3.setText("수고하셧습니다")
+            self.questionsCompletionLabel_3.adjustSize()
+            point = self.sock.recv(1024).decode() # 메인메뉴에 표시할 나의 포인트를 받음 를 받음
+            self.user_point = point
+            self.userPointLabel.setText(self.user_point)
+
+
 
     @pyqtSlot(str)
     def chat_msg(self, msg):
@@ -334,10 +472,13 @@ class WindowClass(QMainWindow, form_class):
             page_index = self.stackedWidget.currentIndex()
             if 0 == page_index:  # 로그인 페이지
                 user_data = msg.split("/")
-                # 할일:유저정보를 저장해야한다
+                print(f"로그인해서 받은 유저정보 {user_data}")
                 self.loginLabel.setText("")
-                self.userNameLabel.setText(user_data[1])
-                self.stackedWidget.setCurrentIndex(4)
+                self.user_name = user_data[1]
+                self.userNameLabel.setText(self.user_name)
+                self.user_point = user_data[2]
+                self.userPointLabel.setText(self.user_point)
+                self.stackedWidget.setCurrentIndex(4)  # 메인 화면
             if 1 == page_index:  # 회원가입 페이지
                 self.lineEdit_new_id.setEnabled(False)
                 self.SignUpCheckButton.setEnabled(False)

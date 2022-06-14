@@ -77,6 +77,7 @@ url = 'http://apis.data.go.kr/1400119/MammService/mammIlstrInfo' # 오픈 API에
 Qlist = [] # 문제를 저장할 리스트
 
 for i in range(900,1012): # API마다 가져올 값의 범위가 다르기 때문에 DB에 따로 저장할 예정
+    print(i)
     temp_list = []
     code = 'A00000' + str(i)  # API 접속 설정
     params ={'serviceKey' : key, 'q1' : code }
@@ -90,9 +91,9 @@ for i in range(900,1012): # API마다 가져올 값의 범위가 다르기 때�
         temp_list.append(j)
         temp_list.append(i)
         Qlist.append(temp_list)
-        # print('문제 : ' + j)
-        # print('정답 : ' + i)
-        
+        print('문제 : ' + j)
+        print('정답 : ' + i)
+
 
 for item in Qlist:  # 문제에 정답이 들어있을때 빈칸으로 치환
     if item[1] in item[0]:
