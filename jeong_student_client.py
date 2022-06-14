@@ -68,6 +68,7 @@ class WindowClass(QMainWindow, form_class):
         # 커밋
         # 문제 풀기 페이지
         self.questionListWidget.itemClicked.connect(self.questionListWidget_event)  # 문제 주제 리스트를 클릭했을때 실행되는 함수
+        self.questionListWidget.itemDoubleClicked.connect(self.questionChoiceButton_event)
         self.questionChoiceButton.clicked.connect(self.questionChoiceButton_event)  # 문제의 주제를 선택하면 실행되는 함수
         self.answerLineEdit.returnPressed.connect(self.answerLineEdit_event) # 답을 입력하고 엔터를 누르면 실행되는 함수
         # 문제 문답 결과 페이지
