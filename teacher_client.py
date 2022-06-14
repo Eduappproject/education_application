@@ -75,9 +75,9 @@ class WindowClass(QMainWindow, form_class):
         #점수확인
         self.StudentScore_Widget_2.QAbstractItemView.AllEditTriggers.connect(self.StudentScore_Widget_2)
         self.score_back_pushButton_2.clicked.connect(self.mainPageCounselButton_event)
-
-        self.scorepushButton2.clicked.connect(self.mainpagescoreButton_1_event)
-
+        self.StudentScore_Button_1.clicked.connect(self.StudentScore_Button_1_event)
+        self.student_score_button.clicked.connect(self.StudentScore_Button_1_event)
+        self.StudentScore_Widget_2.QAbstractItemView.connect(self.QAbstractItemView)
 
         # 소켓 생성
         self.sock = socket(AF_INET, SOCK_STREAM)
@@ -312,22 +312,20 @@ class WindowClass(QMainWindow, form_class):
             # ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
             # # 이메일로 아이디 보냈다
 
-    def mainPageCounselButton_event(self):
+    def mainPageCounselButton_2_event(self):
         # 상담버튼을 눌렀다
-        self.stackedWidget.setCurrentIndex(5)
         self.sock.send(f"chat_request/{self.user_name}/teacher".encode())
         self.T = ClientWorker()
         self.T.client_data_emit.connect(self.chat_msg)
         self.T.sock = self.sock
         self.T.start()
 
-    def mainpagescoreButton_1_event(self):
-            # 점수확인 버튼을 눌렀다
+        # 학생점수 확인 버튼을 눌렀을때
+    def StudentScore_Button_1_event(self):
         self.stackedWidget.setCurrentIndex(8)
-
-        #self.sock.recv((f"score")) 점수결과를 받고
-
-
+        self.StudentScore_Widget_2.setEnabled(False)
+        self.student_score_button.clicked.connect(self.StudentScore_Widget_2)
+        self.StudentScore_Widget_2.setEnabled(True)
 
     def chatBackButton_event(self):
         self.chatTextBrowser.clear()
