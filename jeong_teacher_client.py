@@ -72,6 +72,15 @@ class WindowClass(QMainWindow, form_class):
         self.lineEdit_new_pw_check.textChanged[str].connect(self.lineEdit_text_changed)
         self.lineEdit_email.textChanged[str].connect(self.lineEdit_text_changed)
 
+        #점수확인
+        # self.StudentScore_Widget_2.AllEditTriggers.connect(self.StudentScore_Widget_2)
+        #self.StudentScore_Widget_2.setEditTriggers(QAbstractItemView.AllEditTriggers)
+        # self.score_back_pushButton_2.clicked.connect(self.mainPageCounselButton_event)
+        # self.StudentScore_Button_1.clicked.connect(self.StudentScore_Button_1_event)
+        # self.StudentScore_Widget_2.QAbstractItemView.connect(self.QAbstractItemView)
+        self.StudentScore_Button_1.clicked.connect(self.StudentScore_Button_1_event)
+        self.student_score_Button2.clicked.connect(self.StudentScore_Talbe_1)
+
         # 소켓 생성
         self.sock = socket(AF_INET, SOCK_STREAM)
         port_num = 2090
@@ -313,6 +322,18 @@ class WindowClass(QMainWindow, form_class):
         self.T.client_data_emit.connect(self.chat_msg)
         self.T.sock = self.sock
         self.T.start()
+
+        # 학생점수 확인 버튼을 눌렀을때
+    def StudentScore_Button_1_event(self):
+        self.stackedWidget.setCurrentIndex(7)
+        self.StudentScore_Table_Widget_1.setEnabled(False)
+
+        # self.recv
+
+        self.StudentScore_Table_Widget_1.setEnabled(True)
+    def StudentScore_Talbe_1(self):
+        print("StudentScore_Talbe_1(self):")
+        pass
 
     def chatBackButton_event(self):
         self.chatTextBrowser.clear()

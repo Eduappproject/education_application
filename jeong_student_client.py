@@ -18,16 +18,24 @@ class QuestionRecvWorker(QThread):
     question_recv_signal = pyqtSignal(list)
 
     def run(self):
-        print("Q스레드:문제를 받기위한 Q스레드 실행함")
-        question_data = self.sock.recv(16384).decode()
-        print(f"Q스레드:서버로부터 {len(question_data.encode())} 바이트의 문제를 받음")
-        question_data_1 = question_data[len("!Question//"):question_data.find("!Answer//")]
-        question_data_2 = question_data[question_data.find("!Answer//") + len("!Answer//"):]
-        question_data_1 = question_data_1.split("//")
-        question_data_2 = question_data_2.split("//")
-        recv_data = list(zip(question_data_1, question_data_2))
-        print("Q스레드:서버에서 받은 문제를 메인 스레드로 보냄")
-        self.question_recv_signal.emit(recv_data)
+        for i in range(3):
+            print("Q스레드: 문제를 받기위한 Q스레드 실행함")
+            question_data = self.sock.recv(16384).decode()
+            print(f"Q스레드: 서버로부터 {len(question_data.encode())} 바이트의 문제를 받음")
+            if len(question_data.encode()) < 30: # 받은 메시지가 30바이트 미만일때 서버에 다시 요청
+                self.sock.send(self.question_load.encode())
+                continue
+            question_data_1 = question_data[len("!Question//"):question_data.find("!Answer//")]
+            question_data_2 = question_data[question_data.find("!Answer//") + len("!Answer//"):]
+            question_data_1 = question_data_1.split("//")
+            question_data_2 = question_data_2.split("//")
+            recv_data = list(zip(question_data_1, question_data_2))
+            print("Q스레드: 서버에서 받은 문제를 메인 스레드로 보냄")
+            self.question_recv_signal.emit(recv_data)
+            return
+        print("Q스레드: API 에서 문제를 불러오는데 실패 했습니다")
+        self.question_recv_signal.emit([("문제가 정상적으로 오지 않았습니다","스미마세ㅇ")])
+        return
 # 상담 채팅 클라이언트 스레드
 class ClientWorker(QThread):
     client_data_emit = pyqtSignal(str)
@@ -383,9 +391,10 @@ class WindowClass(QMainWindow, form_class):
         self.questionChoiceButton.setEnabled(False)
         self.answerLineEdit.setEnabled(False)
         self.questionListWidget.setEnabled(False)
-
-        self.sock.send(f"question_request/{self.question_request_dict[self.question_request]}".encode())
+        question_load = f"question_request/{self.question_request_dict[self.question_request]}"
+        self.sock.send(question_load.encode())
         self.recv_data = QuestionRecvWorker()
+        self.recv_data.question_load = question_load
         self.recv_data.sock = self.sock
         self.recv_data.question_recv_signal.connect(self.recv_data_pyqt_slot)
         self.recv_data.start()
