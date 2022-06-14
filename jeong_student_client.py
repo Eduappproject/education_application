@@ -18,13 +18,16 @@ class QuestionRecvWorker(QThread):
     question_recv_signal = pyqtSignal(list)
 
     def run(self):
+        print("문제를 받기위한 Q스레드 실행함")
         question_data = self.sock.recv(16384).decode()
+        print(f"서버로부터 {len(question_data.encode())} 바이트의 문제를 받음")
         question_data_1 = question_data[len("!Question//"):question_data.find("!Answer//")]
         question_data_2 = question_data[question_data.find("!Answer//") + len("!Answer//"):]
         question_data_1 = question_data_1.split("//")
         question_data_2 = question_data_2.split("//")
         print(len(question_data_1), len(question_data_2))
         recv_data = list(zip(question_data_1, question_data_2))
+        print("서버에서 받은 문제를 메인 스레드로 보냄")
         self.question_recv_signal.emit(recv_data)
 # 상담 채팅 클라이언트 스레드
 class ClientWorker(QThread):
@@ -387,10 +390,9 @@ class WindowClass(QMainWindow, form_class):
     def recv_data_pyqt_slot(self,recv_data):
         self.stackedWidget.setCurrentIndex(7)
         self.question_data_base = recv_data
+        print(f"문제 확인:{len(self.question_data_base)}개의 문제를 받음")
         self.answerLineEdit.setEnabled(True)
         self.answerLineEdit.setText("")
-        for q, a in self.question_data_base:  # 받은 문제 프린트로 보기
-            print(f"문제:{q}\n정답:{a}")
         random.shuffle(self.question_data_base)  # 문제 섞어 버리기ㅣㅣㅣㅣ
         print("len self.question_data_base", len(self.question_data_base))
         self.questions_completion_list = []  # 정답과 오답을 기록할 리스트
