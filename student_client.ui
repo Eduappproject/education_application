@@ -479,14 +479,14 @@
     <widget class="QPushButton" name="mainButton_1">
      <property name="geometry">
       <rect>
-       <x>310</x>
-       <y>290</y>
+       <x>60</x>
+       <y>460</y>
        <width>200</width>
        <height>100</height>
       </rect>
      </property>
      <property name="text">
-      <string>등급조회(미구현)</string>
+      <string>자신의?등급조회(미구현)</string>
      </property>
     </widget>
     <widget class="QPushButton" name="mainPageQuestionButton">
@@ -525,17 +525,22 @@
       <string>상담</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="mainButton_4">
+    <widget class="QPushButton" name="mainPageQandAButton">
      <property name="geometry">
       <rect>
        <x>310</x>
-       <y>390</y>
+       <y>290</y>
        <width>200</width>
        <height>100</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>15</pointsize>
+      </font>
+     </property>
      <property name="text">
-      <string>Q&amp;&amp;A(미완)</string>
+      <string>Q&amp;&amp;A 게시판 구현중</string>
      </property>
     </widget>
     <widget class="QPushButton" name="backButton_2">
@@ -625,7 +630,7 @@
     <zorder>mainButton_1</zorder>
     <zorder>mainPageQuestionButton</zorder>
     <zorder>mainPageCounselButton</zorder>
-    <zorder>mainButton_4</zorder>
+    <zorder>mainPageQandAButton</zorder>
     <zorder>userNameLabel</zorder>
     <zorder>label_7</zorder>
     <zorder>userNameLabel_2</zorder>
@@ -889,6 +894,12 @@
        <height>441</height>
       </rect>
      </property>
+     <property name="autoScroll">
+      <bool>false</bool>
+     </property>
+     <property name="showDropIndicator" stdset="0">
+      <bool>true</bool>
+     </property>
      <attribute name="horizontalHeaderVisible">
       <bool>true</bool>
      </attribute>
@@ -942,7 +953,7 @@
       </property>
      </item>
     </widget>
-    <widget class="QPushButton" name="pushButton">
+    <widget class="QPushButton" name="QandAPageBackButton">
      <property name="geometry">
       <rect>
        <x>210</x>

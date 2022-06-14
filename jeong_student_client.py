@@ -25,7 +25,6 @@ class QuestionRecvWorker(QThread):
         question_data_2 = question_data[question_data.find("!Answer//") + len("!Answer//"):]
         question_data_1 = question_data_1.split("//")
         question_data_2 = question_data_2.split("//")
-        print(len(question_data_1), len(question_data_2))
         recv_data = list(zip(question_data_1, question_data_2))
         print("Q스레드:서버에서 받은 문제를 메인 스레드로 보냄")
         self.question_recv_signal.emit(recv_data)
@@ -80,7 +79,12 @@ class WindowClass(QMainWindow, form_class):
         # 메인 화면
         self.mainPageCounselButton.clicked.connect(self.mainPageCounselButton_event)  # 상담 버튼
         self.mainPageQuestionButton.clicked.connect(self.mainPageQuestionButton_event)  # 문제 풀기 버튼
-        # 커밋
+        self.mainPageQandAButton.clicked.connect(self.mainPageQandAButton_event)  # QandA 게시판 버튼
+
+        # QandA 게시판 화면
+        self.QandAPageBackButton.clicked.connect(self.QandAPageBackButton_event)
+
+        # 학생 전용 기능
         # 문제 풀기 페이지
         self.questionListWidget.itemClicked.connect(self.questionListWidget_event)  # 문제 주제 리스트를 클릭했을때 실행되는 함수
         self.questionListWidget.itemDoubleClicked.connect(self.questionChoiceButton_event)
@@ -459,6 +463,15 @@ class WindowClass(QMainWindow, form_class):
             point = self.sock.recv(1024).decode() # 메인메뉴에 표시할 나의 포인트를 받음 를 받음
             self.user_point = point
             self.userPointLabel.setText(self.user_point)
+
+    # 학생이 QandA 게시판 버튼을 눌렀을때
+    def mainPageQandAButton_event(self):
+        self.stackedWidget.setCurrentIndex(9) # Q&A 게시판 페이지
+        self.sock.send("Q&A게시글목록요청".encode())
+
+    # QandA 게시판에서 뒤로가기 눌렀을때
+    def QandAPageBackButton_event(self):
+        self.stackedWidget.setCurrentIndex(4)  # 메인페이지 페이지
 
 
 
