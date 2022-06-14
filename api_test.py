@@ -91,9 +91,9 @@ for i in range(900,1012): # API마다 가져올 값의 범위가 다르기 때�
         temp_list.append(j)
         temp_list.append(i)
         Qlist.append(temp_list)
-        # print('문제 : ' + j)
-        # print('정답 : ' + i)
-        
+        print('문제 : ' + j)
+        print('정답 : ' + i)
+
 
 for item in Qlist:  # 문제에 정답이 들어있을때 빈칸으로 치환
     if item[1] in item[0]:
