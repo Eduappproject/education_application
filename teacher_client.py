@@ -328,7 +328,7 @@ class WindowClass(QMainWindow, form_class):
         self.stackedWidget.setCurrentIndex(7)
         self.StudentScore_Table_Widget_1.setEnabled(False)
 
-        # self.
+        # self.recv
 
         self.StudentScore_Table_Widget_1.setEnabled(True)
     def StudentScore_Talbe_1(self):
