@@ -11,7 +11,7 @@ import datetime
 from datetime import date
 import sys
 
-PORT = 2090 + random.randint(0, 3)
+PORT = 2090
 BUF_SIZE = 2048
 lock = threading.Lock()
 clnt_imfor = []  # [[소켓, id, type, name]]
@@ -31,8 +31,12 @@ class Worker(threading.Thread):
 
         while True:
             sys.stdout.flush()  # 버퍼 비워주는거
-            clnt_msg = self.clnt_sock.recv(BUF_SIZE)  # 클라이언트에서 메세지 수신
-            print(f"클라가 보낸값:{clnt_msg.decode()}")  # 받는값 확인
+            try:
+                clnt_msg = self.clnt_sock.recv(BUF_SIZE)  # 클라이언트에서 메세지 수신
+            except ConnectionResetError as e:
+                print("(self.clnt_sock)오류 프린트:↲\n\t",e) # 오류표시
+                break
+            print(f"clnt_sock가 보낸값:{clnt_msg.decode()}")  # 받는값 확인
             if not clnt_msg:  # 연결상태 확인 - 연결 종료시 삭제
                 lock.acquire()  # 쓰레드 락
                 self.delete_imfor()
@@ -41,6 +45,8 @@ class Worker(threading.Thread):
             clnt_msg = clnt_msg.decode()  # 숫자->문자열로 바꾸는거 맞나?  데이터 보낼때 incode 로 하고
 
             sys.stdin.flush()
+
+
 
             if 'signup' == clnt_msg:
                 self.sign_up()
@@ -82,16 +88,22 @@ class Worker(threading.Thread):
             elif clnt_msg.startswith('통계요청/'):  # 
                 clnt_msg = clnt_msg.replace('통계요청/', '')
                 self.scoredata_send(clnt_msg, clnt_num)
-            elif clnt_msg.startswith('Q&A작성/'):  # /이름/아이디/Q/A
-                clnt_msg = clnt_msg.replace('Q&A작성/', '')
-                self.qna_write(clnt_msg)
+
+            # QnA게시글작성시 버퍼사이즈 문제로 추가한 조건문
+            elif "작성할 Q&A게시글 크기:" == clnt_msg[:14]:
+                buf_size = int(clnt_msg[14:])
+                self.clnt_sock.send(str(buf_size).encode())
+                clnt_msg = self.clnt_sock.recv(buf_size).decode()
+                print(f"clnt_sock가 게시글 작성을 위해 보낸값:\n\t{clnt_msg}")  # 받는값 확인
+                self.qna_write(clnt_msg[6:])  # 'Q&A작성/' 문자 제외하고 함수에 넣기(문자열 슬라이싱)
+
             elif clnt_msg.startswith('Q&A게시글목록요청'):
                 clnt_msg = clnt_msg.replace('Q&A게시글목록요청', '')
                 self.posts_list_send()
             elif clnt_msg.startswith('Q&A게시글보기/'):  # /게시글번호
                 clnt_msg = clnt_msg.replace('Q&A게시글보기/', '')
                 self.show_qna(clnt_msg)
-            elif clnt_msg.startswith('Q&A댓글작성/'):  
+            elif clnt_msg.startswith('Q&A댓글작성/'):
                 clnt_msg = clnt_msg.replace('Q&A댓글작성/', '')
                 self.qna_comment_update(clnt_msg)
             else:
@@ -433,7 +445,7 @@ class Worker(threading.Thread):
         lock.release()
         con.commit()
         con.close()
-    
+
     def teacher_quetion_update(self, clnt_msg): #주제/문제명/문제내용 teachques 에 저장
         con, c = self.dbcon()
         teacher_Q=[]                            #교사가 만든 문제 리스트
@@ -441,11 +453,11 @@ class Worker(threading.Thread):
         teacher_Q.append(msg)
         lock.acquire()
         c.execute("insert into teachques(subname, question, anser) values(?,?,?) ", (teacher_Q[0],teacher_Q[1], teacher_Q[2])) #받은 내용 table에 저장
-        con.commit()  
+        con.commit()
         con.close()
         lock.release()
 
-    def teacher_question_send(self,clnt_msg):  # 주제를 받아서 해당되는 문제&정답을 db에서 찾아서 보내기   
+    def teacher_question_send(self,clnt_msg):  # 주제를 받아서 해당되는 문제&정답을 db에서 찾아서 보내기
         con, c=self.dbcon()
         subname=clnt_msg   # 주제  만 짤라서 받아서 따로 split을 안함
         lock.acquire()
@@ -506,7 +518,7 @@ class Worker(threading.Thread):
         lock.release()
         con.commit()
         con.close()
-        
+
     def posts_list_send(self):
         con, c = self.dbcon()
         post_data_list = []
@@ -519,14 +531,14 @@ class Worker(threading.Thread):
             post_list[0] = str(post_list[0])
             post_list = '.'.join(post_list)
             post_data_list.append(post_list)
-            
+
         post_data = '/'.join(post_data_list)
         if post_data:  # 게시글이 있다면 게시글을 보냄
             self.clnt_sock.send(post_data.encode())
         else: # 게시글이 없으면 없다고 보냄
             self.clnt_sock.send("게시글 없음".encode())
         con.close()
-    
+
     def show_qna(self, clnt_msg):
         con, c= self.dbcon()
         QnAnum = int(clnt_msg)
@@ -537,12 +549,12 @@ class Worker(threading.Thread):
         c.execute("SELECT writername, writerid, comment FROM commenttbl where qnanum = ?", (QnAnum, ))
         comment_data_lists = c.fetchall()
         lock.release()
-        
+
         for comment_list in comment_data_lists:
             comment_list = list(comment_list)
             comment_list = '&#'.join(comment_list)
             comment_data_list.append(comment_list)
-        
+
         post_data = list(post_data)
         post_msg = '/'.join(post_data)
         comment_data = '/'.join(comment_data_list)
@@ -557,15 +569,15 @@ class Worker(threading.Thread):
         # send 사이 recv 를 넣으면 데이터가 겹치는걸 방지할수있습니다
         # 이런 경우에 함수안에 recv 를 쓰기는 해요
         self.clnt_sock.send(str(len(data.encode())).encode()) # 지금 한번에 보낼려는 문자의 길이를 미리 클라이언트에게 보낸다
-        print("(show_qna 함수)클라이언트 응답:\n\t",self.clnt_sock.recv(1024).decode()) # 클라이언트의 응답을 받는다
+        print("(show_qna 함수)클라이언트 응답:↲\n\t"
+              ,self.clnt_sock.recv(1024).decode()) # 클라이언트의 버퍼 사이즈 확인을 받는다
         self.clnt_sock.send(data.encode()) # 데이터를 보낸다
-        print("(show_qna 함수)게시글 보냄")
         con.close()
-        
+
     def qna_comment_update(self, clnt_msg):
         con, c = self.dbcon()
         comments_list = clnt_msg.split('/')
-        
+
         lock.acquire()
         c.execute("INSERT INTO commenttbl(qnanum, comment, writername, writerid) VALUES(?, ?, ?, ?)",
                   (int(comments_list[0]), comments_list[1], comments_list[2], comments_list[3]))
@@ -576,7 +588,16 @@ class Worker(threading.Thread):
 
 if __name__ == '__main__':  # 메인? 기본설정같은 칸지
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind(('', PORT))
+    i = 0
+    while i < 3:
+        try:
+            sock.bind(('', PORT+i))
+            print(f"서버 생성 성공 포트:{PORT+i}")
+            break
+        except:
+            print(f"서버 생성 실패 포트:{PORT + i}")
+            i+=1
+
     sock.listen(5)
 
     while True:

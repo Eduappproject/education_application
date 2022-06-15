@@ -21,7 +21,7 @@ class QuestionRecvWorker(QThread):
     def run(self):
         for i in range(3):
             print("Q스레드: 문제를 받기위한 Q스레드 실행함")
-            question_data = self.sock.recv(16384).decode()
+            question_data = self.sock.recv(2**14).decode()
             print(f"Q스레드: 서버로부터 {len(question_data.encode())} 바이트의 문제를 받음")
             if len(question_data.encode()) < 30:  # 받은 메시지가 30바이트 미만일때 서버에 다시 요청
                 self.sock.send(self.question_load.encode())
@@ -574,6 +574,8 @@ class WindowClass(QMainWindow, form_class):
         id = self.user_id
         name = self.user_name
         msg = "/".join(("Q&A작성", name, id, Q, A))
+        self.sock.send(f"작성할 Q&A게시글 크기:{len(msg.encode())}".encode())
+        self.sock.recv(255) # 버퍼 사이즈 변경했다는 신호 받기
         self.sock.send(msg.encode())
         self.QandAAddPageeTextEdit.clear()
         self.QandAAddPageeLineEdit.clear()
