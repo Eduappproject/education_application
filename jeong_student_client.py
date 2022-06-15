@@ -48,7 +48,7 @@ class ClientWorker(QThread):
         while True:
             try:
                 msg = self.sock.recv(1024).decode()
-                print(msg)
+                print("msg:",msg)
                 if not msg:
                     print("연결 종료(메시지 없음)")
                     break
@@ -56,7 +56,11 @@ class ClientWorker(QThread):
                 print("연결 종료(예외 처리)")
                 break
             else:
-                self.client_data_emit.emit(f"{msg}")
+                if msg[-4:] == "/나가기":
+                    self.client_data_emit.emit("/나가기")
+                    break
+                self.client_data_emit.emit(msg)
+        print("상담 스레드 종료")
 
 
 class WindowClass(QMainWindow, form_class):
@@ -349,7 +353,10 @@ class WindowClass(QMainWindow, form_class):
     def mainPageCounselButton_event(self):
         # 상담버튼을 눌렀다
         self.stackedWidget.setCurrentIndex(5)
-        self.sock.send(f"chat_request/{self.userNameLabel.text()}/student".encode())
+        self.sock.send(f"chat_request{self.userNameLabel.text()}".encode())
+        room_list = self.sock.recv(2**14).decode()
+        self.chat_msg(room_list)
+
         self.T = ClientWorker()
         self.T.client_data_emit.connect(self.chat_msg)
         self.T.sock = self.sock
@@ -363,14 +370,17 @@ class WindowClass(QMainWindow, form_class):
 
     def chat_msg_input(self):
         msg = self.chatLineEdit.text()
-        if msg == "/나가기":
-            self.chatTextBrowser.clear()
-            self.chatLineEdit.setText("")
-            self.sock.send("/나가기".encode())
-            self.stackedWidget.setCurrentIndex(4)
+        if msg == "/나가기" or msg == "/나가기":
+            self.chat_exet()
             return
         self.chatLineEdit.setText("")
         self.sock.send(msg.encode())
+
+    def chat_exet(self):
+        self.chatTextBrowser.clear()
+        self.chatLineEdit.setText("")
+        self.sock.send("/나가기".encode())
+        self.stackedWidget.setCurrentIndex(4)
 
     # 문제 풀기 주제 선택 실행되는 함수
     def questionListWidget_event(self):
@@ -506,7 +516,7 @@ class WindowClass(QMainWindow, form_class):
         print(f"{num} 번 QnA 게시글 누름")
         self.sock.send(f"Q&A게시글보기/{num}".encode())
         buf_size = int(self.sock.recv(1024).decode())
-        self.sock.send(f"게시글을 받기위한 버퍼_사이즈 가 {buf_size} 로 설정됨".encode())
+        self.sock.send(f"게시글을 받기위한 버퍼사이즈 가 {buf_size} 로 설정됨".encode())
         data = self.sock.recv(buf_size).decode()
         post,comment_list = data.split("<-post/comment->")
         p_text, p_user_name, p_user_id = post.split("/")
@@ -515,10 +525,10 @@ class WindowClass(QMainWindow, form_class):
         self.QandAViewPageTextBrowser.append(f"글쓴이:{p_user_name}({p_user_id})")
         self.QandAViewPageTextBrowser.append(f"{p_text}")
         comment_list = comment_list.split("/")
-        print(comment_list)
+        print(f"comment_list 값:{comment_list}")
         for comment_data in comment_list:
             if comment_data:
-                comment_name,comment_id,comment_text = comment_data.split("&#")
+                comment_name, comment_id, comment_text = comment_data.split("&#")
                 comment = f"\n댓글 작성자:{comment_name}({comment_id})\n{comment_text}"
                 self.QandAViewPageTextBrowser.append(comment)
         self.idLabel_2.setText(self.user_id)
@@ -584,6 +594,8 @@ class WindowClass(QMainWindow, form_class):
     @pyqtSlot(str)
     def chat_msg(self, msg):
         self.chatTextBrowser.append(msg)
+        if msg == "/상담방없음":
+            self.chat_exet()
 
     # 클라이언트가 서버로 받은 메시지를 메인스레드 에서 처리하기 위해 만든 함수
     def sock_msg(self, msg):

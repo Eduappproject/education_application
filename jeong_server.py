@@ -15,7 +15,7 @@ PORT = 2090
 BUF_SIZE = 2048
 lock = threading.Lock()
 clnt_imfor = []  # [[소켓, id, type, name]]
-chat_rooms = []  # [[채팅1], [채팅방2]]
+chat_rooms = {}  # ["교사 아이디":[교사 소켓,학생 소켓], ["교사 아이디":[교사 소켓,학생 소캣]]
 
 
 class Worker(threading.Thread):
@@ -91,10 +91,10 @@ class Worker(threading.Thread):
 
             # QnA게시글작성시 버퍼사이즈 문제로 추가한 조건문
             elif "작성할 Q&A게시글 크기:" == clnt_msg[:14]:
-                buf_size = int(clnt_msg[14:])
-                self.clnt_sock.send(str(buf_size).encode())
-                clnt_msg = self.clnt_sock.recv(buf_size).decode()
-                print(f"clnt_sock가 게시글 작성을 위해 보낸값:\n\t{clnt_msg}")  # 받는값 확인
+                one_buf_size = int(clnt_msg[14:])
+                self.clnt_sock.send(str(one_buf_size).encode())
+                clnt_msg = self.clnt_sock.recv(one_buf_size).decode()
+                print(f"clnt_sock이 게시글 작성을 위해 보낸값:\n\t{clnt_msg}")  # 받는값 확인
                 self.qna_write(clnt_msg[6:])  # 'Q&A작성/' 문자 제외하고 함수에 넣기(문자열 슬라이싱)
 
             elif clnt_msg.startswith('Q&A게시글목록요청'):
@@ -193,6 +193,7 @@ class Worker(threading.Thread):
         c.execute("SELECT username FROM usertbl where userid=? and usertype=?",
                   (user_id, user_type))
         user_name = c.fetchone()
+        print("user_name",user_name)
         if not user_pw:  # DB에 없는 id 입력시
             self.clnt_sock.send('iderror'.encode())
             con.close()
@@ -323,33 +324,41 @@ class Worker(threading.Thread):
 
         if user_type == "student":
             if not chat_rooms:  # 채팅방 리스트에 아무것도 없으면 찾을 수 없다고 보내줌
-                self.clnt_sock.send("chat_not_found".encode())
+                self.clnt_sock.send("열려있는 상담방이 없습니다.".encode())
             else:
-                for chat_room in chat_rooms:
-                    if chat_room[1] == None:  # 학생이 안 들어있는 채팅방만 고르기
-                        chat_room_name_list.append(chat_room[0][3])
-                if chat_room_name_list == None:
-                    chat_room_name_list = "!None"
-                else:
-                    chat_room_name_list = '/'.join(chat_room_name_list)
-                self.clnt_sock.send(chat_room_name_list.encode())
+                room_id_list = ["열려있는 상담방 목록"]
+                for T_name,room_socks in chat_rooms.items():
+                    if len(room_socks) == 1:  # 학생이 있는 소캣만
+                        room_id_list.append(T_name)
+                msg = "\n".join(room_id_list)
+                self.clnt_sock.send(msg.encode())
+
             teacher_name = self.clnt_sock.recv(1024).decode()  # 학생이 고른 클라이언트 찾기
-
-            for chat_room in chat_rooms:
-                if chat_room[0][3] == teacher_name:  # 학생이 고른 선생님의 채팅방에 들어간다는것이다
-                    chat_rooms[chat_rooms.index(chat_room)][1] = clnt_imfor[clnt_num]
-                    self.chatwindow(user_name, clnt_num)
-                    return
-
+            # T_name 상담방 선생아이디, chat_rooms[T_name] 상담방 소켓 리스트
+            lock.acquire()
+            for T_name in chat_rooms:
+                if T_name == teacher_name:  # 학생이 고른 선생님의 채팅방에 들어간다는것이다
+                    print(f"clnt_imfor[clnt_num]:{clnt_imfor[clnt_num]}")
+                    chat_rooms[T_name].append(clnt_imfor[clnt_num][0])
+                    for Sock in chat_rooms[T_name]:
+                        Sock.send(f"{clnt_imfor[clnt_num][3]}({clnt_imfor[clnt_num][1]})님 상담방 입장".encode())
+                    lock.release()
+                    break
+            self.chatwindow(user_name, clnt_num, T_name)
         elif user_type == "teacher":  # 선생님일때는 바로 채팅방에 넣고 대기시킴
-            chat_rooms.append(clnt_imfor[clnt_num])
-            self.chatwindow(user_name, clnt_num)
+            print(' elif user_type == "teacher":  # 선생님일때는 바로 채팅방에 넣고 대기시킴')
+            self.clnt_sock.send("상담방을 생성합니다.\n학생이 선생님의 아이디를 입력할때 까지 기달려주세요.".encode())
+            T_name = self.clnt_sock.recv(1024).decode()
+            lock.acquire()
+            chat_rooms[T_name] = [clnt_imfor[clnt_num][0]] # 키값을 교사 소켓이 들어 있는 리스트로 선언
+            lock.release()
+            self.chatwindow(user_name, clnt_num,T_name)
 
-    def chatwindow(self, user_name, clnt_num):
+    def chatwindow(self, user_name, clnt_num , T_name):
 
         user_id = clnt_imfor[clnt_num][1]  # 유저 아이디 찾아서 넣기
         user_type = clnt_imfor[clnt_num][2]  # 유저 타입
-
+        T_name = T_name  # 교사 아이디 저장 학생이 메시지 를 주고받을때 구분하기 위해서(혹시 모르니 교사 클라이언트도 동일하게 선언)
         while True:  # 상담방 참여자의 메시지를 받기위해 무한반복
             try:
                 msg = self.clnt_sock.recv(1024).decode()
@@ -357,17 +366,25 @@ class Worker(threading.Thread):
                 if not msg or msg == "/나가기":
                     print(f"{user_name}({user_id}) {user_type}님 상담방 나감")
                     self.clnt_sock.send(''.encode())
-                    break
             except:
                 print(f"{user_name}({user_id}) {user_type}님 예외 처리로 상담방 함수종료(정상)")
                 break
             else:
                 msg = f"{user_name}({user_id}):{msg}"  # 다른사람에게 보내기위해 f포멧팅(이름,아이디,메시지)
-                for chat_room in chat_rooms:
-                    if chat_room in self.clnt_sock:
-                        for chat_clnt in chat_room:
-                            if chat_clnt != self.clnt_sock:
-                                self.clnt_sock.send(msg.encode())
+                try:
+                    print(f"chat_rooms[T_name]{chat_rooms[T_name]}")
+                    for sock_send in chat_rooms[T_name]:
+                        print(msg)
+                        sock_send.send(msg.encode())
+                except:   # 이 예외처리가 실행되면 상담방이 삭제된것
+                    self.clnt_sock.send("/상담방없음".encode())
+        lock.acquire()
+        try:
+            del chat_rooms[T_name]  # 깔끔하게 상담방 삭제
+            print(f"{T_name}상담방 삭제")
+        except:
+            print(f"이미 삭제된 {T_name}상담방")
+        lock.release()
 
     def question_send(self, clnt_msg):
         con, c = self.dbcon()
