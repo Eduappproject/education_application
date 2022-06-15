@@ -371,21 +371,22 @@ class Worker(threading.Thread):
                 print(f"{user_name}({user_id}) {user_type}님이 보낸 메시지:{msg}")  # 받은 메시지 확인하기
                 if not msg or msg == "/나가기":
                     print(f"{user_name}({user_id}) {user_type}님 상담방 나감")
-                    self.clnt_sock.send(''.encode())
+                    break
             except:
                 print(f"{user_name}({user_id}) {user_type}님 예외 처리로 상담방 함수종료(정상)")
                 break
             else:
                 msg = f"{user_name}({user_id}):{msg}"  # 다른사람에게 보내기위해 f포멧팅(이름,아이디,메시지)
                 try:
-                    print(f"chat_rooms[T_name]{chat_rooms[T_name]}")
                     for sock_send in chat_rooms[T_name]:
-                        print(msg)
+                        print(f"msg:{msg}")
                         sock_send.send(msg.encode())
                 except:   # 이 예외처리가 실행되면 상담방이 삭제된것
                     self.clnt_sock.send("/상담방없음".encode())
         lock.acquire()
         try:
+            for sock_send in chat_rooms[T_name]:
+                sock_send.send("/나가기".encode())
             del chat_rooms[T_name]  # 깔끔하게 상담방 삭제
             print(f"{T_name}상담방 삭제")
         except:

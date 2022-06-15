@@ -31,7 +31,7 @@ class ClientWorker(QThread):
                 print("연결 종료(예외 처리)")
                 break
             else:
-                if msg[-4:] == "/나가기":
+                if msg[-4:] == "/나가기" or msg[-5:] == "상담방없음":
                     self.client_data_emit.emit("/나가기")
                     break
                 self.client_data_emit.emit(msg)
