@@ -73,21 +73,27 @@ class Worker(threading.Thread):
             elif clnt_msg.startswith('quesiton_complete/'):  # quetion_complete/주제종류(api, teachques)/과목명/점수/포인트
                 clnt_msg = clnt_msg.replace('quesiton_complete/', '')
                 self.test_result_handle(clnt_msg, clnt_num)
-            elif clnt_msg.startswith('교사문제출제/'):  # 
+
+            elif clnt_msg.startswith('교사문제출제/'):  # 주제/문제명/문제내용 teachques 에 저장
                 clnt_msg = clnt_msg.replace('교사문제출제/', '')
                 self.teacher_quetion_update(clnt_msg, clnt_num)
-            elif clnt_msg.startswith('교사문제요청/'):  # 
+
+            elif clnt_msg.startswith('교사문제요청/'):  # 주제를 받아 teachques에서 문제 및 정답 선생클라로 보내기
                 clnt_msg = clnt_msg.replace('교사문제요청/', '')
                 self.teacher_question_send(clnt_msg, clnt_num)
+
             elif clnt_msg.startswith('통계요청/'):  # 
                 clnt_msg = clnt_msg.replace('통계요청/', '')
                 self.scoredata_send(clnt_msg, clnt_num)
+
             elif clnt_msg.startswith('Q&A작성/'):  # 
                 clnt_msg = clnt_msg.replace('Q&A작성/', '')
                 self.qna_write(clnt_msg, clnt_num)
+
             elif clnt_msg.startswith('Q&A게시글보기/'):  # 
                 clnt_msg = clnt_msg.replace('Q&A게시글보기/', '')
                 self.show_qna(clnt_msg, clnt_num)
+
             elif clnt_msg.startswith('Q&A댓글작성/'):  
                 clnt_msg = clnt_msg.replace('Q&A댓글작성/', '')
                 self.qna_comment_update(clnt_msg, clnt_num)
@@ -217,7 +223,7 @@ class Worker(threading.Thread):
         id = clnt_imfor[clnt_num][1]
         self.clnt_sock = clnt_imfor[clnt_num][0]
 
-        c.execute(
+        c.execute( 
             "SELECT username FROM usertbl where userid=?", (id,))  # 이름
         row = c.fetchone()
         row = list(row)
@@ -419,6 +425,57 @@ class Worker(threading.Thread):
         con.commit()
         con.close()
 
+    def teacher_quetion_update(self, clnt_msg): #주제/문제명/문제내용 teachques 에 저장
+        con, c = self.dbcon()
+        teacher_Q=[]                            #교사가 만든 문제 리스트
+        msg = clnt_msg.split('/')
+        teacher_Q.append(msg)
+        lock.acquire()
+        c.execute("insert into teachques(subname, question, anser) values(?,?,?) ", (teacher_Q[0],teacher_Q[1], teacher_Q[2])) #받은 내용 table에 저장
+        con.commit()  
+        con.close()
+        lock.release()
+
+    def teacher_question_send(self,clnt_msg):  # 주제를 받아서 해당되는 문제&정답을 db에서 찾아서 보내기   
+        con, c=self.dbcon()
+        subname=clnt_msg   # 주제  만 짤라서 받아서 따로 split을 안함
+        lock.acquire()
+        c.execute("SELECT question FROM teachques where subname = ?", (subname,)) # 문제받기
+        teacher_Q=c.fetchall()
+        c.execute("SELECT answer FROM teachques where subname = ?", (subname,))   # 정답 받기
+        teacher_A=c.fetchall()
+        lock.release()
+        con.close()
+        teacher_Q=list(teacher_Q)       #문제 리스트화
+        teacher_A=list(teacher_A)       #정답 리스트화
+        teacher_Q = '/'.join(teacher_Q) #앞에 '/' 붙임
+        teacher_A = '/'.join(teacher_A) #앞에 '/' 붙임
+        self.clnt_sock.send((teacher_Q +teacher_A).encode()) # 리스트화 시킨 문제 및 정답을 보냄
+
+    def scoredata_send(self, clnt_msg):
+        con, c=self.dbcon()
+        lock.acquire()
+        api_data_list = []
+        teach_data_list = []
+        c.execute("SELECT subname, score_avr from apitbl")
+        api_avr_list=c.fetchall()
+        for row in api_avr_list:
+            row = list(row)
+            row = '/'.join(row)
+            api_data_list.append(row)
+        c.execute("SELECT subname, score_avr from teachques")
+        teach_avr_list = c.fetchall()
+        for row in teach_avr_list:
+            row = list(row)
+            row = '/'.join(row)
+            teach_data_list.append(row)
+        lock.release()
+        con.close()
+
+        api_data='/'.join(api_data_list)
+        teach_data='/'.join(teach_data_list)
+        self.clnt_sock.send('api/'+api_data.encode())
+        self.clnt_sock.send('teachques/'+teach_data.encode())
 
 if __name__ == '__main__':  # 메인? 기본설정같은 칸지
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
