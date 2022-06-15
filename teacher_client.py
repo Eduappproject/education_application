@@ -9,8 +9,9 @@ from socket import *
 from email.mime.text import MIMEText  # 이메일 전송을 위한 라이브러리 import
 import smtplib
 import re  # 정규 표현식
-
+from qsubwindow import qsubwindow
 form_class = uic.loadUiType("teacher_client.ui")[0]
+print(form_class)
 port_num = 2090
 
 
@@ -34,12 +35,12 @@ class ClientWorker(QThread):
                 self.client_data_emit.emit(f"{msg}")
 
 
-class WindowClass(QMainWindow, form_class):
+class WindowClass(QMainWindow,QWidget, form_class):
 
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-
+        self.show()
         self.stackedWidget.setCurrentIndex(0)
 
         self.loginPushButton.clicked.connect(self.loginPushButton_event)  # 로그인 버튼
@@ -95,18 +96,12 @@ class WindowClass(QMainWindow, form_class):
         header3.resizeSection(2, 400)
         header4 = self.qnatable.horizontalHeader()
         header4.resizeSection(3, 400)
+        self.qnalineEdit.textChanged[str].connect(self.qnalineEdit_onChanged)
 
-        #문제출제
+        #문제출제 창 버튼
         self.quploadbutton.clicked.connect(self.quploadbutton_clicked_Event)
-        #self.qOKbutton.clicked.connect(self.)
-        self.qbackbutton.clicked.connect(self.backButton_2_event)
-        self.qlineEdit1.textChanged[str].connect(self.qlineEdit_onChanged)
-        self.qlineEdit1.returnPressed.connect(self.qlineEditque)
-        self.qlineEdit_2.textChanged[str].connect(self.qlineEdit_onChanged)
 
-        #문제를 출제하는 버튼
-        #def quploadbutton_clicked_connect(self):
-        #    self.upload
+
         # 소켓 생성
         self.sock = socket(AF_INET, SOCK_STREAM)
         port_num = 2090
@@ -130,6 +125,8 @@ class WindowClass(QMainWindow, form_class):
         # self.user.sock = self.sock
         # self.user.client_data_emit.connect(self.sock_msg)
         # self.user.start()
+
+
 
     # 로그인 화면
     def loginPushButton_event(self):
@@ -379,9 +376,16 @@ class WindowClass(QMainWindow, form_class):
         self.chatLineEdit.setText("")
         self.sock.send(msg.encode())
 
+    def qnalineEdit_onChanged(self):
+        #self.qlineEdit1.returnPressed.connect(self.send_chat)
+        print("qnalineEdit_onChanged")
+        self.qlineEdit1.setText("")
+
+    def qlineEdit1_setText(self):
+        answer = self.qlineEdit_onChanged()
     def qlineEditque(self):
-        que = self.qlineEdit1.text()
-        answer = self.qlineEdit2.text()
+        answer = self.qlineEdit.text(self)
+
 
     @pyqtSlot(str)
     def chat_msg(self, msg):
@@ -458,13 +462,22 @@ class WindowClass(QMainWindow, form_class):
     #     self.qOKbutton.clicked.connect
 
     def quploadbutton_clicked_Event(self):
-        self.stackedWidget.setCurrentIndex(6)
+        self.hide()
+        self.second = qsubwindow()
+        self.second.exec()
+        self.show()
 
     def qlineEdit_onChanged(self, text):
         self.qlineEdit1.setText(text)
         self.qlineEdit2.setText(text)
-        self.qlineEdit1.adjustSize(text)
-        self.qlineEdit2.adjustSize(text)
+
+    #def qbackButton_clicked_event(self):
+    #    self.close()
+
+    #def qpushbutton_clicked_event(self):
+        #self.close()
+
+
 
 
 if __name__ == "__main__":
