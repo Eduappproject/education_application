@@ -428,7 +428,8 @@ class Worker(threading.Thread):
                       (score_list, subname,))
 
         # clnt_imfor[clnt_num] = [소켓, 아이디, 유저 타입, 이름]
-        c.execute("UPDATE studtbl SET score_avr=? point=? score_cnt = score_cnt + 1 where userid=?", (clnt_avr, point, clnt_imfor[clnt_num][1]))
+        c.execute("UPDATE studtbl SET score_avr = ?, point = ?, score_cnt = score_cnt + 1 where userid=?",
+                  (clnt_avr, int(point), clnt_imfor[clnt_num][1]))
         lock.release()
         con.commit()
         con.close()
@@ -539,7 +540,7 @@ class Worker(threading.Thread):
         
         for comment_list in comment_data_lists:
             comment_list = list(comment_list)
-            comment_list = '!@#$'.join(comment_list)
+            comment_list = '&#'.join(comment_list)
             comment_data_list.append(comment_list)
         
         post_data = list(post_data)
@@ -566,7 +567,7 @@ class Worker(threading.Thread):
         comments_list = clnt_msg.split('/')
         
         lock.acquire()
-        c.execute("INSERT INTO commenttbl(qnanum, comment, writename, writeid) VALUES(?, ?, ?, ?)", 
+        c.execute("INSERT INTO commenttbl(qnanum, comment, writername, writerid) VALUES(?, ?, ?, ?)",
                   (int(comments_list[0]), comments_list[1], comments_list[2], comments_list[3]))
         lock.release()
         con.commit()

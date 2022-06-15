@@ -102,6 +102,7 @@ class WindowClass(QMainWindow, form_class):
 
         # QandA 게시글 보기 화면
         self.QandAViewPageBackButton.clicked.connect(lambda: self.QandA_list_load())  # 뒤로가기 버튼(QandA 목록으로)
+        self.QandAViewPageCommentPushButton.clicked.connect(self.QandAViewPageCommentPushButton_event)
 
         # 학생 전용 기능
         # 문제 풀기 페이지
@@ -246,14 +247,14 @@ class WindowClass(QMainWindow, form_class):
 
         self.check_msg = str(random.randrange(1000, 10000))
         print(f"인증번호:{self.check_msg}")
-        # ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
-        # ses.starttls()
-        # # 이메일을 보낼 gmail 계정에 접속
-        # ses.login('uihyeon.bookstore@gmail.com', 'ttqe mztd lljo tguh')
-        # msg = MIMEText('인증번호: ' + self.check_msg)  # 보낼 메세지 내용을 적는다
-        # msg['subject'] = 'PyQt5 에서 인증코드를 발송했습니다.'  # 보낼 이메일의 제목을 적는다
-        # # 앞에는 위에서 설정한 계정, 두번째에는 이메일을 보낼 계정을 입력
-        # ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
+        ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
+        ses.starttls()
+        # 이메일을 보낼 gmail 계정에 접속
+        ses.login('uihyeon.bookstore@gmail.com', 'ttqe mztd lljo tguh')
+        msg = MIMEText('인증번호: ' + self.check_msg)  # 보낼 메세지 내용을 적는다
+        msg['subject'] = 'PyQt5 에서 인증코드를 발송했습니다.'  # 보낼 이메일의 제목을 적는다
+        # 앞에는 위에서 설정한 계정, 두번째에는 이메일을 보낼 계정을 입력
+        ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
         # 꺼야하는 버튼 끄기
         self.lineEdit_email.setEnabled(False)
         self.EmailCheckPushButton.setEnabled(False)
@@ -287,17 +288,10 @@ class WindowClass(QMainWindow, form_class):
         self.check_msg = ""
 
     def idFindButton_event(self):
-        """
-        이메일 전송 find_id/email
-        """
         print("id 찾기 버튼 누름")
         self.stackedWidget.setCurrentIndex(2)
 
     def pwFindButton_event(self):
-        """
-        아이디 확인 find_pw/id
-        이메일 전송 email
-        """
         print("pw 찾기 버튼 누름")
         self.stackedWidget.setCurrentIndex(3)
         self.pwFindPageIdLineEdit.setEnabled(True)
@@ -340,17 +334,17 @@ class WindowClass(QMainWindow, form_class):
             self.stackedWidget.setCurrentIndex(0)
             self.loginLabel.setText(f"이메일로 비밀번호가 전송되었습니다.")
 
-            # # 이메일로 아이디 보내기
-            # ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
-            # ses.starttls()
-            # # 이메일을 보낼 gmail 계정에 접속
-            # ses.login('uihyeon.bookstore@gmail.com', 'ttqe mztd lljo tguh')
-            # self.check_msg = pw_find_pw_text
-            # msg = MIMEText('찾으시는 비밀번호: ' + self.check_msg)  # 보낼 메세지 내용을 적는다
-            # msg['subject'] = 'PyQt5 에서 찾으시는 비밀번호를 발송했습니다.'  # 보낼 이메일의 제목을 적는다
-            # # 앞에는 위에서 설정한 계정, 두번째에는 이메일을 보낼 계정을 입력
-            # ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
-            # # 이메일로 아이디 보냈다
+            # 이메일로 아이디 보내기
+            ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
+            ses.starttls()
+            # 이메일을 보낼 gmail 계정에 접속
+            ses.login('uihyeon.bookstore@gmail.com', 'ttqe mztd lljo tguh')
+            self.check_msg = pw_find_pw_text
+            msg = MIMEText('찾으시는 비밀번호: ' + self.check_msg)  # 보낼 메세지 내용을 적는다
+            msg['subject'] = 'PyQt5 에서 찾으시는 비밀번호를 발송했습니다.'  # 보낼 이메일의 제목을 적는다
+            # 앞에는 위에서 설정한 계정, 두번째에는 이메일을 보낼 계정을 입력
+            ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
+            # 이메일로 아이디 보냈다
 
     def mainPageCounselButton_event(self):
         # 상담버튼을 눌렀다
@@ -396,7 +390,7 @@ class WindowClass(QMainWindow, form_class):
         print(self.questionChoiceButton.text(), "주제 선택됨\n해당 주제를 서버로 보내서 문제를 받아옴")
         self.question_request_dict = {  # 객채 변수 선언을 매번 반복해 컴퓨터 자원낭비지만 구현목적으로 여기 작성하곘습니다.
             "조류(API)": "bird"
-            , "포유류": "mammal"
+            , "포유류(API)": "mammal"
         }  # 리스트에 적힌 주제명에 따라서 서버로 보낼 메시지
         self.question_request = self.questionChoiceButton.text()
         self.questionChoiceButton.setText("서버에서 문제 불러오는중")
@@ -425,7 +419,7 @@ class WindowClass(QMainWindow, form_class):
 
     def question_page(self):
         if len(self.question_data_base) <= self.question_num:
-            print("축하합니다 모든문제를 풀었습니다\n이제 서버로 푼문제의 개수와 원래있던 포인트를 전송합니다")
+            print("축하합니다 모든문제를 풀었습니다\n이제 서버로 맞춘 문제의 개수와 포인트를 전송합니다")
             return False
         Q, A = self.question_data_base[self.question_num]
         self.questionTextBrowser.clear()
@@ -501,23 +495,52 @@ class WindowClass(QMainWindow, form_class):
 
     # 게시글을 눌렀을때
     def QandAPageTableWidget_event(self):
+        # 새로운 게시글을 위해 작성된 게시글 지우기
+        self.QandAViewPageTextBrowser.clear()
+        self.QandAViewPageTextEdit.clear()
         table_num = self.QandAPageTableWidget.currentRow()
         table_widget_item = self.QandAPageTableWidget.item(table_num, 0)
         num = table_widget_item.text()
+        post_name = self.QandAPageTableWidget.item(table_num, 1).text()
         num = int(num)
         print(f"{num} 번 QnA 게시글 누름")
         self.sock.send(f"Q&A게시글보기/{num}".encode())
         buf_size = int(self.sock.recv(1024).decode())
         self.sock.send(f"게시글을 받기위한 버퍼_사이즈 가 {buf_size} 로 설정됨".encode())
         data = self.sock.recv(buf_size).decode()
-        print(f"data:{data}")
+        post,comment_list = data.split("<-post/comment->")
+        p_text, p_user_name, p_user_id = post.split("/")
+        # 게시글 정보 화면에 출력하기
+        self.QandAViewPageTextBrowser.append(f"글 제목:{post_name}")
+        self.QandAViewPageTextBrowser.append(f"글쓴이:{p_user_name}({p_user_id})")
+        self.QandAViewPageTextBrowser.append(f"{p_text}")
+        comment_list = comment_list.split("/")
+        print(comment_list)
+        for comment_data in comment_list:
+            if comment_data:
+                comment_name,comment_id,comment_text = comment_data.split("&#")
+                comment = f"\n댓글 작성자:{comment_name}({comment_id})\n{comment_text}"
+                self.QandAViewPageTextBrowser.append(comment)
+        self.idLabel_2.setText(self.user_id)
+        self.nameLabel_2.setText(self.user_name)
         self.stackedWidget.setCurrentWidget(self.QandAViewPage)  # 게시글을 보기위한 페이지로 이동
 
     # QandA 게시판 게시글 보기 페이지
     # 댓글 작성
     def QandAViewPageCommentPushButton_event(self):
-        pass
-
+        comment = self.QandAViewPageTextEdit.toPlainText()
+        if not comment:
+            print("입력된 댓글이 없습니다")
+            QMessageBox.question(self, '입력 없음', '댓글에 문자를 작성해주세요',  QMessageBox.Yes)
+            return
+        self.QandAViewPageTextEdit.clear()
+        table_num = self.QandAPageTableWidget.currentRow()
+        table_widget_item = self.QandAPageTableWidget.item(table_num, 0)
+        qnanum = table_widget_item.text()
+        writename = self.user_name
+        writeid = self.user_id
+        self.sock.send(f"Q&A댓글작성/{qnanum}/{comment}/{writename}/{writeid}".encode())
+        self.QandAPageTableWidget_event()
     # QandA 게시판 Q&A 작성 페이지
     # 게시글 목록 요청
     def QandA_list_load(self):
@@ -527,6 +550,7 @@ class WindowClass(QMainWindow, form_class):
         load_data = self.sock.recv(2 ** 14).decode()
         print("load_data", load_data)
         if "게시글 없음" == load_data:
+            QMessageBox.question(self, '데이터 없음', '작성된 QnA가 없습니다.', QMessageBox.Yes)
             print("QandA 게시글이 없습니다.")
         else:
             print("게시글 갱신중")
@@ -541,6 +565,12 @@ class WindowClass(QMainWindow, form_class):
     def QandAAddPagePushButton_event(self):
         Q = self.QandAAddPageeLineEdit.text()  # 제목
         A = self.QandAAddPageeTextEdit.toPlainText()  # 내용
+        if not Q:
+            QMessageBox.question(self, '데이터 없음', '제목을 입력해주세요.', QMessageBox.Yes)
+            return
+        elif not A:
+            QMessageBox.question(self, '데이터 없음', '내용을 입력해주세요.', QMessageBox.Yes)
+            return
         id = self.user_id
         name = self.user_name
         msg = "/".join(("Q&A작성", name, id, Q, A))
@@ -563,8 +593,10 @@ class WindowClass(QMainWindow, form_class):
                 self.loginLabel.setText("")
                 self.user_name = user_data[1]
                 self.userNameLabel.setText(self.user_name)
+                self.userNameLabel.adjustSize()
                 self.user_point = int(user_data[2])
                 self.userPointLabel.setText(str(self.user_point))
+                self.userPointLabel.adjustSize()
                 self.stackedWidget.setCurrentIndex(4)  # 메인 화면
             if 1 == page_index:  # 회원가입 페이지
                 self.lineEdit_new_id.setEnabled(False)
@@ -581,18 +613,18 @@ class WindowClass(QMainWindow, form_class):
                 self.loginLabel.setText(f"이메일로 아이디가 전송되었습니다.")
                 self.loginLabel.adjustSize()
 
-                # # 이메일로 아이디 보내기
-                # ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
-                # ses.starttls()
-                # # 이메일을 보낼 gmail 계정에 접속
-                # ses.login('uihyeon.bookstore@gmail.com', 'ttqe mztd lljo tguh')
-                #
-                # self.check_msg = find_id
-                # msg = MIMEText('찾으시는 아이디: ' + self.check_msg)  # 보낼 메세지 내용을 적는다
-                # msg['subject'] = 'PyQt5 에서 찾으시는 아이디를 발송했습니다.'  # 보낼 이메일의 제목을 적는다
-                # # 앞에는 위에서 설정한 계정, 두번째에는 이메일을 보낼 계정을 입력
-                # ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
-                # # 이메일로 아이디 보냈다
+                # 이메일로 아이디 보내기
+                ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
+                ses.starttls()
+                # 이메일을 보낼 gmail 계정에 접속
+                ses.login('uihyeon.bookstore@gmail.com', 'ttqe mztd lljo tguh')
+
+                self.check_msg = find_id
+                msg = MIMEText('찾으시는 아이디: ' + self.check_msg)  # 보낼 메세지 내용을 적는다
+                msg['subject'] = 'PyQt5 에서 찾으시는 아이디를 발송했습니다.'  # 보낼 이메일의 제목을 적는다
+                # 앞에는 위에서 설정한 계정, 두번째에는 이메일을 보낼 계정을 입력
+                ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
+                # 이메일로 아이디 보냈다
 
             if 3 == page_index:  # 비밀번호 찾기 페이지
                 print("pw 찾기 페이지 id 찾기 성공")
@@ -603,7 +635,7 @@ class WindowClass(QMainWindow, form_class):
                 self.loginLabel.setText(f"로그인에 실패했습니다.")
                 self.loginLabel.adjustSize()
             if 1 == page_index:  # 회원가입 페이지
-                print("중복된 아이디가 있습니다")
+                self.SignUpLabel.setText("중복된 아이디가 있습니다")
             if 2 == page_index:  # 아이디 찾기 페이지
                 print("id 찾기 페이지 실패")
                 self.stackedWidget.setCurrentIndex(0)
