@@ -334,17 +334,23 @@ class Worker(threading.Thread):
                 self.clnt_sock.send(msg.encode())
 
             teacher_name = self.clnt_sock.recv(1024).decode()  # 학생이 고른 클라이언트 찾기
+
             # T_name 상담방 선생아이디, chat_rooms[T_name] 상담방 소켓 리스트
             lock.acquire()
+            T_name = ""
             for T_name in chat_rooms:
                 if T_name == teacher_name:  # 학생이 고른 선생님의 채팅방에 들어간다는것이다
                     print(f"clnt_imfor[clnt_num]:{clnt_imfor[clnt_num]}")
+                    teacher_name = True
                     chat_rooms[T_name].append(clnt_imfor[clnt_num][0])
                     for Sock in chat_rooms[T_name]:
                         Sock.send(f"{clnt_imfor[clnt_num][3]}({clnt_imfor[clnt_num][1]})님 상담방 입장".encode())
-                    lock.release()
                     break
-            self.chatwindow(user_name, clnt_num, T_name)
+            lock.release()
+            if teacher_name is True:
+                self.chatwindow(user_name, clnt_num, T_name)
+            else:
+                self.clnt_sock.send("/나가기".encode())
         elif user_type == "teacher":  # 선생님일때는 바로 채팅방에 넣고 대기시킴
             print(' elif user_type == "teacher":  # 선생님일때는 바로 채팅방에 넣고 대기시킴')
             self.clnt_sock.send("상담방을 생성합니다.\n학생이 선생님의 아이디를 입력할때 까지 기달려주세요.".encode())

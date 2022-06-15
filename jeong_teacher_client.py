@@ -23,7 +23,7 @@ class ClientWorker(QThread):
         while True:
             try:
                 msg = self.sock.recv(1024).decode()
-                print("msg:",msg)
+                print("msg:", msg)
                 if not msg:
                     print("연결 종료(메시지 없음)")
                     break
@@ -91,9 +91,9 @@ class WindowClass(QMainWindow, form_class):
         self.lineEdit_new_pw_check.textChanged[str].connect(self.lineEdit_text_changed)
         self.lineEdit_email.textChanged[str].connect(self.lineEdit_text_changed)
 
-        #점수확인
+        # 점수확인
         # self.StudentScore_Widget_2.AllEditTriggers.connect(self.StudentScore_Widget_2)
-        #self.StudentScore_Widget_2.setEditTriggers(QAbstractItemView.AllEditTriggers)
+        # self.StudentScore_Widget_2.setEditTriggers(QAbstractItemView.AllEditTriggers)
         # self.score_back_pushButton_2.clicked.connect(self.mainPageCounselButton_event)
         # self.StudentScore_Button_1.clicked.connect(self.StudentScore_Button_1_event)
         # self.StudentScore_Widget_2.QAbstractItemView.connect(self.QAbstractItemView)
@@ -345,6 +345,7 @@ class WindowClass(QMainWindow, form_class):
         # self.recv
 
         self.StudentScore_Table_Widget_1.setEnabled(True)
+
     def StudentScore_Talbe_1(self):
         print("StudentScore_Talbe_1(self):")
         pass
@@ -393,7 +394,7 @@ class WindowClass(QMainWindow, form_class):
         buf_size = int(self.sock.recv(1024).decode())
         self.sock.send(f"게시글을 받기위한 버퍼사이즈 가 {buf_size} 로 설정됨".encode())
         data = self.sock.recv(buf_size).decode()
-        post,comment_list = data.split("<-post/comment->")
+        post, comment_list = data.split("<-post/comment->")
         p_text, p_user_name, p_user_id = post.split("/")
         # 게시글 정보 화면에 출력하기
         self.QandAViewPageTextBrowser.append(f"글 제목:{post_name}")
@@ -416,7 +417,7 @@ class WindowClass(QMainWindow, form_class):
         comment = self.QandAViewPageTextEdit.toPlainText()
         if not comment:
             print("입력된 댓글이 없습니다")
-            QMessageBox.question(self, '입력 없음', '댓글에 문자를 작성해주세요',  QMessageBox.Yes)
+            QMessageBox.question(self, '입력 없음', '댓글에 문자를 작성해주세요', QMessageBox.Yes)
             return
         self.QandAViewPageTextEdit.clear()
         table_num = self.QandAPageTableWidget.currentRow()
@@ -426,6 +427,7 @@ class WindowClass(QMainWindow, form_class):
         writeid = self.user_id
         self.sock.send(f"Q&A댓글작성/{qnanum}/{comment}/{writename}/{writeid}".encode())
         self.QandAPageTableWidget_event()
+
     # QandA 게시판 Q&A 작성 페이지
     # 게시글 목록 요청
     def QandA_list_load(self):
@@ -460,7 +462,7 @@ class WindowClass(QMainWindow, form_class):
         name = self.user_name
         msg = "/".join(("Q&A작성", name, id, Q, A))
         self.sock.send(f"작성할 Q&A게시글 크기:{len(msg.encode())}".encode())
-        self.sock.recv(255) # 버퍼 사이즈 변경했다는 신호 받기
+        self.sock.recv(255)  # 버퍼 사이즈 변경했다는 신호 받기
         self.sock.send(msg.encode())
         self.QandAAddPageeTextEdit.clear()
         self.QandAAddPageeLineEdit.clear()
@@ -471,7 +473,6 @@ class WindowClass(QMainWindow, form_class):
         self.chatTextBrowser.append(msg)
         if msg == "/상담방없음" or msg == "/나가기":
             self.chat_exet()
-
 
     # 클라이언트가 서버로 받은 메시지를 메인스레드 에서 처리하기 위해 만든 함수
     def sock_msg(self, msg):

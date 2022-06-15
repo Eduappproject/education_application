@@ -21,7 +21,7 @@ class QuestionRecvWorker(QThread):
     def run(self):
         for i in range(3):
             print("Q스레드: 문제를 받기위한 Q스레드 실행함")
-            question_data = self.sock.recv(2**14).decode()
+            question_data = self.sock.recv(2 ** 14).decode()
             print(f"Q스레드: 서버로부터 {len(question_data.encode())} 바이트의 문제를 받음")
             if len(question_data.encode()) < 30:  # 받은 메시지가 30바이트 미만일때 서버에 다시 요청
                 self.sock.send(self.question_load.encode())
@@ -48,7 +48,7 @@ class ClientWorker(QThread):
         while True:
             try:
                 msg = self.sock.recv(1024).decode()
-                print("msg:",msg)
+                print("msg:", msg)
                 if not msg:
                     print("연결 종료(메시지 없음)")
                     break
@@ -354,7 +354,7 @@ class WindowClass(QMainWindow, form_class):
         # 상담버튼을 눌렀다
         self.stackedWidget.setCurrentIndex(5)
         self.sock.send(f"chat_request{self.userNameLabel.text()}".encode())
-        room_list = self.sock.recv(2**14).decode()
+        room_list = self.sock.recv(2 ** 14).decode()
         self.chat_msg(room_list)
 
         self.T = ClientWorker()
@@ -470,7 +470,7 @@ class WindowClass(QMainWindow, form_class):
             total = len(self.questions_completion_list)  # 총문제
             ok_question = len([i for i in self.questions_completion_list if i])  # 맞춘 개수
             add_point = ok_question * 10  # 흭득 포인트
-            percent = int((ok_question / total)*100) # 이번 문제의 정답률
+            percent = int((ok_question / total) * 100)  # 이번 문제의 정답률
 
             self.questionsCompletionLabel_1.setText(
                 f"주제:{self.question_request}({self.question_request_dict[self.question_request]})")
@@ -487,7 +487,7 @@ class WindowClass(QMainWindow, form_class):
                 , api_or_teachques
             )  # 서버로 보낼 데이터 튜플로 만들기
             msg = "/".join(msg)  # 문자 사이에 "/" 끼워넣기
-            self.sock.send(msg.encode()) #quetion_complete/과목명/정답률/포인트/주제종류(api, teachques)
+            self.sock.send(msg.encode())  # quetion_complete/과목명/정답률/포인트/주제종류(api, teachques)
             print(f"문제 풀이완료 서버로 다음과 같은 메시지 전송:{msg}")  # quetion_complete/과목명/점수/포인트
             self.questionsCompletionLabel_3.setText("수고하셧습니다")
             self.questionsCompletionLabel_3.adjustSize()
@@ -518,7 +518,7 @@ class WindowClass(QMainWindow, form_class):
         buf_size = int(self.sock.recv(1024).decode())
         self.sock.send(f"게시글을 받기위한 버퍼사이즈 가 {buf_size} 로 설정됨".encode())
         data = self.sock.recv(buf_size).decode()
-        post,comment_list = data.split("<-post/comment->")
+        post, comment_list = data.split("<-post/comment->")
         p_text, p_user_name, p_user_id = post.split("/")
         # 게시글 정보 화면에 출력하기
         self.QandAViewPageTextBrowser.append(f"글 제목:{post_name}")
@@ -541,7 +541,7 @@ class WindowClass(QMainWindow, form_class):
         comment = self.QandAViewPageTextEdit.toPlainText()
         if not comment:
             print("입력된 댓글이 없습니다")
-            QMessageBox.question(self, '입력 없음', '댓글에 문자를 작성해주세요',  QMessageBox.Yes)
+            QMessageBox.question(self, '입력 없음', '댓글에 문자를 작성해주세요', QMessageBox.Yes)
             return
         self.QandAViewPageTextEdit.clear()
         table_num = self.QandAPageTableWidget.currentRow()
@@ -551,6 +551,7 @@ class WindowClass(QMainWindow, form_class):
         writeid = self.user_id
         self.sock.send(f"Q&A댓글작성/{qnanum}/{comment}/{writename}/{writeid}".encode())
         self.QandAPageTableWidget_event()
+
     # QandA 게시판 Q&A 작성 페이지
     # 게시글 목록 요청
     def QandA_list_load(self):
@@ -585,7 +586,7 @@ class WindowClass(QMainWindow, form_class):
         name = self.user_name
         msg = "/".join(("Q&A작성", name, id, Q, A))
         self.sock.send(f"작성할 Q&A게시글 크기:{len(msg.encode())}".encode())
-        self.sock.recv(255) # 버퍼 사이즈 변경했다는 신호 받기
+        self.sock.recv(255)  # 버퍼 사이즈 변경했다는 신호 받기
         self.sock.send(msg.encode())
         self.QandAAddPageeTextEdit.clear()
         self.QandAAddPageeLineEdit.clear()
@@ -594,7 +595,7 @@ class WindowClass(QMainWindow, form_class):
     @pyqtSlot(str)
     def chat_msg(self, msg):
         self.chatTextBrowser.append(msg)
-        if msg == "/상담방없음":
+        if msg == "/상담방없음" or msg == "/나가기":
             self.chat_exet()
 
     # 클라이언트가 서버로 받은 메시지를 메인스레드 에서 처리하기 위해 만든 함수
