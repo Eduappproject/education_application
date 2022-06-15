@@ -32,7 +32,7 @@ class Worker(threading.Thread):
         while True:
             sys.stdout.flush()  # 버퍼 비워주는거
             clnt_msg = self.clnt_sock.recv(BUF_SIZE)  # 클라이언트에서 메세지 수신
-            print(clnt_msg.decode())  # 받는값 확인
+            print(f"클라가 보낸값:{clnt_msg.decode()}")  # 받는값 확인
             if not clnt_msg:  # 연결상태 확인 - 연결 종료시 삭제
                 lock.acquire()  # 쓰레드 락
                 self.delete_imfor()
@@ -69,31 +69,28 @@ class Worker(threading.Thread):
                 self.chat_wait(clnt_msg, clnt_num)  # 채팅방 입장(함수의 인수로 소켓과 사용자의 이름을 넣는다)
             elif clnt_msg.startswith('question_request/'):  # question_request/주제명 (bird, mammal)
                 clnt_msg = clnt_msg.replace('question_request/', '')
-                self.api_question_send(clnt_msg)
-            elif clnt_msg.startswith('quesiton_complete/'):  # quetion_complete/주제종류(api, teachques)/과목명/점수/포인트
+                self.question_send(clnt_msg)
+            elif clnt_msg.startswith('quesiton_complete/'):  # quetion_complete/과목명/정답률/포인트/주제종류(api, teachques)
                 clnt_msg = clnt_msg.replace('quesiton_complete/', '')
                 self.test_result_handle(clnt_msg, clnt_num)
-
-            elif clnt_msg.startswith('교사문제출제/'):  # 주제/문제명/문제내용 teachques 에 저장
+            elif clnt_msg.startswith('교사문제출제/'):  # 
                 clnt_msg = clnt_msg.replace('교사문제출제/', '')
                 self.teacher_quetion_update(clnt_msg, clnt_num)
-
-            elif clnt_msg.startswith('교사문제요청/'):  # 주제를 받아 teachques에서 문제 및 정답 선생클라로 보내기
+            elif clnt_msg.startswith('교사문제요청/'):  # 
                 clnt_msg = clnt_msg.replace('교사문제요청/', '')
                 self.teacher_question_send(clnt_msg, clnt_num)
-
             elif clnt_msg.startswith('통계요청/'):  # 
                 clnt_msg = clnt_msg.replace('통계요청/', '')
                 self.scoredata_send(clnt_msg, clnt_num)
-
-            elif clnt_msg.startswith('Q&A작성/'):  # 
+            elif clnt_msg.startswith('Q&A작성/'):  # /이름/아이디/Q/A
                 clnt_msg = clnt_msg.replace('Q&A작성/', '')
-                self.qna_write(clnt_msg, clnt_num)
-
-            elif clnt_msg.startswith('Q&A게시글보기/'):  # 
+                self.qna_write(clnt_msg)
+            elif clnt_msg.startswith('Q&A게시글목록요청'):
+                clnt_msg = clnt_msg.replace('Q&A게시글목록요청', '')
+                self.posts_list_send()
+            elif clnt_msg.startswith('Q&A게시글보기/'):  # /게시글번호
                 clnt_msg = clnt_msg.replace('Q&A게시글보기/', '')
-                self.show_qna(clnt_msg, clnt_num)
-
+                self.show_qna(clnt_msg)
             elif clnt_msg.startswith('Q&A댓글작성/'):  
                 clnt_msg = clnt_msg.replace('Q&A댓글작성/', '')
                 self.qna_comment_update(clnt_msg, clnt_num)
@@ -161,7 +158,7 @@ class Worker(threading.Thread):
             for imfo in imfor:
                 user_data.append(imfo)  # user_data 리스트에 추가
             if user_data[4] == "student":
-                c.execute("insert into studtbl(userid, score, point) values(?,?,?) ", (user_data[0], "0", "0"))
+                c.execute("insert into studtbl(userid, point) values(?,?,?) ", (user_data[0], "0"))
 
             query = "INSERT INTO usertbl(userid, userpw, username, email, usertype) VALUES(?, ?, ?, ?, ?)"
 
@@ -223,7 +220,7 @@ class Worker(threading.Thread):
         id = clnt_imfor[clnt_num][1]
         self.clnt_sock = clnt_imfor[clnt_num][0]
 
-        c.execute( 
+        c.execute(
             "SELECT username FROM usertbl where userid=?", (id,))  # 이름
         row = c.fetchone()
         row = list(row)
@@ -405,26 +402,37 @@ class Worker(threading.Thread):
     def test_result_handle(self, clnt_msg, clnt_num):
         con, c = self.dbcon()
         print("문제를 풀었어요.",clnt_msg)
-        result = clnt_msg.split('/')
-        result[1] = int(result[1])
+        subname, score_avr, point, subtype = clnt_msg.split('/') 
+        score_avr = int(score_avr)
         lock.acquire()
-        c.execute("SELECT score_avr, score_cnt FROM apitbl where subname=?", (result[0],))
+        if subtype == "api":
+            c.execute("SELECT score_avr FROM apitbl where subname=?", (subname,))
+        elif subtype == "teachques":
+            c.execute("SELECT score_avr FROM teachques where subname=?", (subname,))
         score_list = c.fetchone()  # score_list 가 튜플로 생성되어서 밑에 += 연산자가 안먹혀서
+        c.execute("SELECT score_avr FROM studtbl where userid = ?", (clnt_imfor[clnt_num][1],) )
+        clnt_avr = c.fetchone()
         lock.release()
-        total_score = (score_list[0] * score_list[1]) + result[1]
-        score_list = list(score_list)  # 튜플을 리스트로 변경했어요
-        score_list[1] += 1
-        score_list[0] = int(total_score / score_list[1])
+
+        score_list = int(score_list)
+        clnt_avr = int(clnt_avr)
+        score_list = int((score_list + score_avr)/2) 
+        clnt_avr = int((clnt_avr + score_avr)/2) 
+
         lock.acquire()
-        c.execute("UPDATE apitbl SET score_avr=?, score_cnt=? where subname=?",
-                  (score_list[0], score_list[1], result[0],))
+        if subtype == "api":
+            c.execute("UPDATE apitbl SET score_avr=?, score_cnt=score_cnt+1 where subname=?",
+                     (score_list, subname,))
+        elif subtype == "teacques":
+            c.execute("UPDATE teachques SET score_avr=?, score_cnt=score_cnt+1 where subname=?",
+                      (score_list, subname,))
+        
         # clnt_imfor[clnt_num] = [소켓, 아이디, 유저 타입, 이름]
-        c.execute("UPDATE studtbl SET score=?, point=? where userid=?", (result[1], result[2], clnt_imfor[clnt_num][1],))
+        c.execute("UPDATE studtbl SET score_avr=? point=? score_cnt = score_cnt + 1 where userid=?", (clnt_avr, point, clnt_imfor[clnt_num][1],))
         lock.release()
-        self.clnt_sock.send(str(result[1]).encode()) # 학생의 메인메뉴에 표시할 점수를 송신한다
         con.commit()
         con.close()
-
+    
     def teacher_quetion_update(self, clnt_msg): #주제/문제명/문제내용 teachques 에 저장
         con, c = self.dbcon()
         teacher_Q=[]                            #교사가 만든 문제 리스트
@@ -457,6 +465,7 @@ class Worker(threading.Thread):
         lock.acquire()
         api_data_list = []
         teach_data_list = []
+        score_data_list = []
         c.execute("SELECT subname, score_avr from apitbl")
         api_avr_list=c.fetchall()
         for row in api_avr_list:
@@ -469,13 +478,100 @@ class Worker(threading.Thread):
             row = list(row)
             row = '/'.join(row)
             teach_data_list.append(row)
+        c.execute('SELECT  user_id ,score_avr, score_cnt from studtbl')
+        score_avr_list = c.fetchall()
+        for row in score_avr_list:
+            row = list(row)
+            row = '/'.join(row)
+            score_data_list.append(row)
+
         lock.release()
         con.close()
 
         api_data='/'.join(api_data_list)
         teach_data='/'.join(teach_data_list)
+        score_data='/'.join(score_data_list)
         self.clnt_sock.send('api/'+api_data.encode())
         self.clnt_sock.send('teachques/'+teach_data.encode())
+        self.clnt_sock.send('stud/'+score_data.encode())
+        
+    def qna_write(self, clnt_msg):
+        con, c = self.dbcon()
+        comments_list = clnt_msg.split("/")
+        print(f"comments_list:{comments_list}")
+        lock.acquire()
+        c.execute("INSERT INTO qnatbl(qnawritername, qnawriterid, Q, A) VALUES(?, ?, ?, ?)",
+                  (comments_list[0], comments_list[1], comments_list[2], comments_list[3]))
+        lock.release()
+        con.commit()
+        con.close()
+        
+    def posts_list_send(self):
+        con, c = self.dbcon()
+        post_data_list = []
+        lock.acquire()
+        c.execute("SELECT qnanum, Q FROM qnatbl")
+        posts_lists = c.fetchall()
+        lock.release()
+        for post_list in posts_lists:
+            post_list = list(post_list)
+            post_list[0] = str(post_list[0])
+            post_list = '.'.join(post_list)
+            post_data_list.append(post_list)
+            
+        post_data = '/'.join(post_data_list)
+        if post_data:  # 게시글이 있다면 게시글을 보냄
+            self.clnt_sock.send(post_data.encode())
+        else: # 게시글이 없으면 없다고 보냄
+            self.clnt_sock.send("게시글 없음".encode())
+        con.close()
+    
+    def show_qna(self, clnt_msg):
+        con, c= self.dbcon()
+        QnAnum = int(clnt_msg)
+        comment_data_list = []
+        lock.acquire()
+        c.execute("SELECT A, qnawritername, qnawriterid FROM qnatbl where qnanum = ?", (QnAnum, ))
+        post_data = c.fetchone()
+        c.execute("SELECT writername, writerid, comment FROM commenttbl where qnanum = ?", (QnAnum, ))
+        comment_data_lists = c.fetchall()
+        lock.release()
+        
+        for comment_list in comment_data_lists:
+            comment_list = list(comment_list)
+            comment_list = '!@#$'.join(comment_list)
+            comment_data_list.append(comment_list)
+        
+        post_data = list(post_data)
+        post_msg = '/'.join(post_data)
+        comment_data = '/'.join(comment_data_list)
+        data = post_msg+"<-post/comment->"+comment_data
+        # 클라이언트에서 .split("<-post/comment->") 을 사용하면 간단하게 게시글과 댓글 분리가능
+
+        # send는 연속으로 쓰지 말아주세요!
+        # 왜냐면 2번연속으로 보내면 데이터가 이어진 상태로 한번에 들어옵니다.
+        # self.clnt_sock.send('post/'+post_msg.encode())
+        # self.clnt.sock.send('comment/'+comment_data.encode())
+
+        # send 사이 recv 를 넣으면 데이터가 겹치는걸 방지할수있습니다
+        # 이런 경우에 함수안에 recv 를 쓰기는 해요
+        self.clnt_sock.send(str(len(data.encode())).encode()) # 지금 한번에 보낼려는 문자의 길이를 미리 클라이언트에게 보낸다
+        print("(show_qna 함수)클라이언트 응답:\n\t",self.clnt_sock.recv(1024).decode()) # 클라이언트의 응답을 받는다
+        self.clnt_sock.send(data.encode()) # 데이터를 보낸다
+        print("(show_qna 함수)게시글 보냄")
+        con.close()
+        
+    def qna_comment_update(self, clnt_msg):
+        con, c = self.dbcon()
+        comments_list = clnt_msg.split('/')
+        
+        lock.acquire()
+        c.execute("INSERT INTO commenttbl(qnanum, comment, writename, writeid) VALUES(?, ?, ?, ?)", 
+                  (int(comments_list[0]), comments_list[1], comments_list[2], comments_list[3]))
+        lock.release()
+        con.commit()
+        con.close()
+
 
 if __name__ == '__main__':  # 메인? 기본설정같은 칸지
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
