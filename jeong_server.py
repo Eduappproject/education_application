@@ -413,9 +413,9 @@ class Worker(threading.Thread):
         c.execute("SELECT score_avr FROM studtbl where userid = ?", (clnt_imfor[clnt_num][1],) )
         clnt_avr = c.fetchone()
         lock.release()
-
-        score_list = int(score_list)
-        clnt_avr = int(clnt_avr)
+        print(locals())
+        score_list = int(score_list[0])
+        clnt_avr = int(clnt_avr[0])
         score_list = int((score_list + score_avr)/2)
         clnt_avr = int((clnt_avr + score_avr)/2)
 
@@ -428,7 +428,7 @@ class Worker(threading.Thread):
                       (score_list, subname,))
 
         # clnt_imfor[clnt_num] = [소켓, 아이디, 유저 타입, 이름]
-        c.execute("UPDATE studtbl SET score_avr=? point=? score_cnt = score_cnt + 1 where userid=?", (clnt_avr, point, clnt_imfor[clnt_num][1],))
+        c.execute("UPDATE studtbl SET score_avr=? point=? score_cnt = score_cnt + 1 where userid=?", (clnt_avr, point, clnt_imfor[clnt_num][1]))
         lock.release()
         con.commit()
         con.close()
