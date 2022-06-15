@@ -87,10 +87,10 @@ class Worker(threading.Thread):
                 self.qna_write(clnt_msg)
             elif clnt_msg.startswith('Q&A게시글목록요청'):
                 clnt_msg = clnt_msg.replace('Q&A게시글목록요청', '')
-                self.posts_list_send(clnt_msg)
+                self.posts_list_send()
             elif clnt_msg.startswith('Q&A게시글보기/'):  # /게시글번호
                 clnt_msg = clnt_msg.replace('Q&A게시글보기/', '')
-                self.show_qna(clnt_msg, clnt_num)
+                self.show_qna(clnt_msg)
             elif clnt_msg.startswith('Q&A댓글작성/'):  
                 clnt_msg = clnt_msg.replace('Q&A댓글작성/', '')
                 self.qna_comment_update(clnt_msg, clnt_num)
@@ -485,8 +485,9 @@ class Worker(threading.Thread):
     def qna_write(self, clnt_msg):
         con, c = self.dbcon()
         comments_list = clnt_msg.split("/")
+        print(f"comments_list:{comments_list}")
         lock.acquire()
-        c.execute("INSERT INTO qnatbl(qnawritername, qnawriteid, Q, A) VALUES(?, ?, ?, ?)", 
+        c.execute("INSERT INTO qnatbl(qnawritername, qnawriterid, Q, A) VALUES(?, ?, ?, ?)",
                   (comments_list[0], comments_list[1], comments_list[2], comments_list[3]))
         lock.release()
         con.commit()
@@ -506,7 +507,10 @@ class Worker(threading.Thread):
             post_data_list.append(post_list)
             
         post_data = '/'.join(post_data_list)
-        self.clnt_sock.send(post_data.encode())
+        if post_data:  # 게시글이 있다면 게시글을 보냄
+            self.clnt_sock.send(post_data.encode())
+        else: # 게시글이 없으면 없다고 보냄
+            self.clnt_sock.send("게시글 없음".encode())
         con.close()
     
     def show_qna(self, clnt_msg):
@@ -522,14 +526,26 @@ class Worker(threading.Thread):
         
         for comment_list in comment_data_lists:
             comment_list = list(comment_list)
-            comment_list = '.'.join(comment_list)
+            comment_list = '!@#$'.join(comment_list)
             comment_data_list.append(comment_list)
         
         post_data = list(post_data)
         post_msg = '/'.join(post_data)
         comment_data = '/'.join(comment_data_list)
-        self.clnt_sock.send('post/'+post_msg.encode())
-        self.clnt.sock.send('comment/'+comment_data.encode())
+        data = post_msg+"<-post/comment->"+comment_data
+        # 클라이언트에서 .split("<-post/comment->") 을 사용하면 간단하게 게시글과 댓글 분리가능
+
+        # send는 연속으로 쓰지 말아주세요!
+        # 왜냐면 2번연속으로 보내면 데이터가 이어진 상태로 한번에 들어옵니다.
+        # self.clnt_sock.send('post/'+post_msg.encode())
+        # self.clnt.sock.send('comment/'+comment_data.encode())
+
+        # send 사이 recv 를 넣으면 데이터가 겹치는걸 방지할수있습니다
+        # 이런 경우에 함수안에 recv 를 쓰기는 해요
+        self.clnt_sock.send(str(len(data.encode())).encode()) # 지금 한번에 보낼려는 문자의 길이를 미리 클라이언트에게 보낸다
+        print("(show_qna 함수)클라이언트 응답:\n\t",self.clnt_sock.recv(1024).decode()) # 클라이언트의 응답을 받는다
+        self.clnt_sock.send(data.encode()) # 데이터를 보낸다
+        print("(show_qna 함수)게시글 보냄")
         con.close()
         
     def qna_comment_update(self, clnt_msg):
