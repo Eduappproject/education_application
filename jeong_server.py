@@ -70,7 +70,7 @@ class Worker(threading.Thread):
             elif clnt_msg.startswith('question_request/'):  # question_request/주제명 (bird, mammal)
                 clnt_msg = clnt_msg.replace('question_request/', '')
                 self.question_send(clnt_msg)
-            elif clnt_msg.startswith('quesiton_complete/'):  # quetion_complete/과목명/점수/포인트/주제종류(api, teachques)
+            elif clnt_msg.startswith('quesiton_complete/'):  # quetion_complete/과목명/정답률/포인트/주제종류(api, teachques)
                 clnt_msg = clnt_msg.replace('quesiton_complete/', '')
                 self.test_result_handle(clnt_msg, clnt_num)
             elif clnt_msg.startswith('교사문제출제/'):  # 
@@ -93,7 +93,7 @@ class Worker(threading.Thread):
                 self.show_qna(clnt_msg)
             elif clnt_msg.startswith('Q&A댓글작성/'):  
                 clnt_msg = clnt_msg.replace('Q&A댓글작성/', '')
-                self.qna_comment_update(clnt_msg, clnt_num)
+                self.qna_comment_update(clnt_msg)
             else:
                 continue
 
@@ -158,7 +158,7 @@ class Worker(threading.Thread):
             for imfo in imfor:
                 user_data.append(imfo)  # user_data 리스트에 추가
             if user_data[4] == "student":
-                c.execute("insert into studtbl(userid, score, point) values(?,?,?) ", (user_data[0], "0", "0"))
+                c.execute("insert into studtbl(userid, point) values(?,?,?) ", (user_data[0], "0"))
 
             query = "INSERT INTO usertbl(userid, userpw, username, email, usertype) VALUES(?, ?, ?, ?, ?)"
 
@@ -401,32 +401,35 @@ class Worker(threading.Thread):
 
     def test_result_handle(self, clnt_msg, clnt_num):
         con, c = self.dbcon()
-        print("문제를 풀었어요.",clnt_msg)
-        result = clnt_msg.split('/')
-        result[1] = int(result[1])
+        print("(test_result_handle 함수) 학생이 문제를 풀었어요.",clnt_msg)
+        subname, score_avr, point, subtype = clnt_msg.split('/')
+        score_avr = int(score_avr)
         lock.acquire()
-        if result[3] == "api":
-            c.execute("SELECT score_avr, score_cnt FROM apitbl where subname=?", (result[0],))
-        elif result[3] == "teachques":
-            c.execute("SELECT score_avr, score_cnt FROM apitbl where subname=?", (result[0],))
+        if subtype == "api":
+            c.execute("SELECT score_avr FROM apitbl where subname=?", (subname,))
+        elif subtype == "teachques":
+            c.execute("SELECT score_avr FROM teachques where subname=?", (subname,))
         score_list = c.fetchone()  # score_list 가 튜플로 생성되어서 밑에 += 연산자가 안먹혀서
+        c.execute("SELECT score_avr FROM studtbl where userid = ?", (clnt_imfor[clnt_num][1],) )
+        clnt_avr = c.fetchone()
         lock.release()
-        total_score = (score_list[0] * score_list[1]) + result[1]
-        score_list = list(score_list)  # 튜플을 리스트로 변경했어요
-        score_list[1] += 1
-        score_list[0] = int(total_score / score_list[1])
+
+        score_list = int(score_list)
+        clnt_avr = int(clnt_avr)
+        score_list = int((score_list + score_avr)/2)
+        clnt_avr = int((clnt_avr + score_avr)/2)
+
         lock.acquire()
-        if result[3] == "api":
-            c.execute("UPDATE apitbl SET score_avr=?, score_cnt=? where subname=?",
-                     (score_list[0], score_list[1], result[0],))
-        elif result[3] == "teacques":
-            c.execute("UPDATE teachques SET score_avr=?, score_cnt=? where subname=?",
-                      (score_list[0], score_list[1], result[0],))
-        
+        if subtype == "api":
+            c.execute("UPDATE apitbl SET score_avr=?, score_cnt=score_cnt+1 where subname=?",
+                     (score_list, subname,))
+        elif subtype == "teacques":
+            c.execute("UPDATE teachques SET score_avr=?, score_cnt=score_cnt+1 where subname=?",
+                      (score_list, subname,))
+
         # clnt_imfor[clnt_num] = [소켓, 아이디, 유저 타입, 이름]
-        c.execute("UPDATE studtbl SET score=?, point=? where userid=?", (result[1], result[2], clnt_imfor[clnt_num][1],))
+        c.execute("UPDATE studtbl SET score_avr=? point=? score_cnt = score_cnt + 1 where userid=?", (clnt_avr, point, clnt_imfor[clnt_num][1],))
         lock.release()
-        self.clnt_sock.send(str(result[1]).encode()) # 학생의 메인메뉴에 표시할 점수를 송신한다
         con.commit()
         con.close()
     
@@ -462,6 +465,7 @@ class Worker(threading.Thread):
         lock.acquire()
         api_data_list = []
         teach_data_list = []
+        score_data_list = []
         c.execute("SELECT subname, score_avr from apitbl")
         api_avr_list=c.fetchall()
         for row in api_avr_list:
@@ -474,14 +478,23 @@ class Worker(threading.Thread):
             row = list(row)
             row = '/'.join(row)
             teach_data_list.append(row)
+        c.execute('SELECT  user_id ,score_avr, score_cnt from studtbl')
+        score_avr_list = c.fetchall()
+        for row in score_avr_list:
+            row = list(row)
+            row = '/'.join(row)
+            score_data_list.append(row)
+
         lock.release()
         con.close()
 
         api_data='/'.join(api_data_list)
         teach_data='/'.join(teach_data_list)
+        score_data='/'.join(score_data_list)
         self.clnt_sock.send('api/'+api_data.encode())
         self.clnt_sock.send('teachques/'+teach_data.encode())
-        
+        self.clnt_sock.send('stud/'+score_data.encode())
+
     def qna_write(self, clnt_msg):
         con, c = self.dbcon()
         comments_list = clnt_msg.split("/")

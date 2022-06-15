@@ -75,11 +75,11 @@ class WindowClass(QMainWindow, form_class):
         self.EmailCheckPushButton.clicked.connect(self.EmailCheckPushButton_event)  # 이메일 인증요청 버튼
         self.EmailCheckNumberPushButton.clicked.connect(self.EmailCheckNumberPushButton_event)  # 이메일에 도착한 인증번호 확인 버튼
         self.backButton_2.clicked.connect(self.backButton_2_event)
-        self.idFindButton.clicked.connect(self.idFindButton_event)
-        self.pwFindButton.clicked.connect(self.pwFindButton_event)
-        self.idFindPageEmailButton.clicked.connect(self.idFindPageEmailButton_event)
-        self.pwFindPageIdButton.clicked.connect(self.pwFindPageIdButton_event)
-        self.pwFindPageEmailButton.clicked.connect(self.pwFindPageEmailButton_event)
+        self.idFindButton.clicked.connect(self.idFindButton_event)  # id 찾기 페이지로 가기
+        self.pwFindButton.clicked.connect(self.pwFindButton_event)  # pw 찾기 페이지로 가기
+        self.idFindPageEmailButton.clicked.connect(self.idFindPageEmailButton_event)  # id 찾기 이메일 전송
+        self.pwFindPageIdButton.clicked.connect(self.pwFindPageIdButton_event)  # pw 찾기 id 확인
+        self.pwFindPageEmailButton.clicked.connect(self.pwFindPageEmailButton_event)  # pw 찾기 이메일 전송
 
         self.chatLineEdit.returnPressed.connect(self.chat_msg_input)  # 상담방에서 채팅메시지 입력시
         self.chatBackButton.clicked.connect(self.chatBackButton_event)  # 상담방에서 나가기 버튼 누를시
@@ -89,7 +89,7 @@ class WindowClass(QMainWindow, form_class):
         # 메인 화면
         self.mainPageCounselButton.clicked.connect(self.mainPageCounselButton_event)  # 상담 버튼
         self.mainPageQuestionButton.clicked.connect(self.mainPageQuestionButton_event)  # 문제 풀기 버튼
-        self.mainPageQandAButton.clicked.connect(lambda :self.QandA_list_load())  # QandA 게시판 버튼
+        self.mainPageQandAButton.clicked.connect(lambda: self.QandA_list_load())  # QandA 게시판 버튼
 
         # QandA 게시판 화면
         self.QandAPageBackButton.clicked.connect(self.QandAPageBackButton_event)
@@ -97,11 +97,11 @@ class WindowClass(QMainWindow, form_class):
         self.QandAPageTableWidget.cellClicked.connect(self.QandAPageTableWidget_event)
 
         # QandA 작성 화면
-        self.QandAAddPagebackButton.clicked.connect(lambda :self.QandA_list_load()) # 뒤로가기 버튼(QandA 목록으로)
+        self.QandAAddPagebackButton.clicked.connect(lambda: self.QandA_list_load())  # 뒤로가기 버튼(QandA 목록으로)
         self.QandAAddPagePushButton.clicked.connect(self.QandAAddPagePushButton_event)
 
         # QandA 게시글 보기 화면
-        self.QandAViewPageBackButton.clicked.connect(lambda :self.QandA_list_load()) # 뒤로가기 버튼(QandA 목록으로)
+        self.QandAViewPageBackButton.clicked.connect(lambda: self.QandA_list_load())  # 뒤로가기 버튼(QandA 목록으로)
 
         # 학생 전용 기능
         # 문제 풀기 페이지
@@ -461,29 +461,34 @@ class WindowClass(QMainWindow, form_class):
         # 모든 문제를 풀었다면
         if not self.question_page():
             self.stackedWidget.setCurrentIndex(8)  # 문제 결과 보기
-            print(self.question_request)
-            print(self.question_request_dict)
-            print(self.question_request_dict[self.question_request])
-            print([i for i in self.questions_completion_list if i == True])
-            print(len([i for i in self.questions_completion_list if i == True]))
-            print(self.user_point)
-            print("427")
+
+            api_or_teachques = "api" if "API" in self.questionListWidget.currentItem().text() else "teachques"
+            total = len(self.questions_completion_list)  # 총문제
+            ok_question = len([i for i in self.questions_completion_list if i])  # 맞춘 개수
+            add_point = ok_question * 10  # 흭득 포인트
+            percent = int((ok_question / total)*100) # 이번 문제의 정답률
 
             self.questionsCompletionLabel_1.setText(
                 f"주제:{self.question_request}({self.question_request_dict[self.question_request]})")
             self.questionsCompletionLabel_1.adjustSize()
             self.questionsCompletionLabel_2.setText(
-                f"총 문제 {len(self.questions_completion_list)}개 중 {len([i for i in self.questions_completion_list if i])}개 정답")
+                f"총 문제 {total}개 중 {ok_question}개 정답\n{add_point} 포인트 흭득")
             self.questionsCompletionLabel_2.adjustSize()
-            api_or_teachques = "api" if "API" in self.questionListWidget.currentItem().text() else "teachques"
-            msg = f"quesiton_complete/{self.question_request_dict[self.question_request]}/{len([i for i in self.questions_completion_list if i])}/{self.user_point}/{api_or_teachques}"
-            self.sock.send(msg.encode())
+
+            msg = (
+                "quesiton_complete"
+                , self.question_request_dict[self.question_request]
+                , str(percent)
+                , str(self.user_point + add_point)
+                , api_or_teachques
+            )  # 서버로 보낼 데이터 튜플로 만들기
+            msg = "/".join(msg)  # 문자 사이에 "/" 끼워넣기
+            self.sock.send(msg.encode()) #quetion_complete/과목명/정답률/포인트/주제종류(api, teachques)
             print(f"문제 풀이완료 서버로 다음과 같은 메시지 전송:{msg}")  # quetion_complete/과목명/점수/포인트
             self.questionsCompletionLabel_3.setText("수고하셧습니다")
             self.questionsCompletionLabel_3.adjustSize()
-            point = self.sock.recv(1024).decode()  # 메인메뉴에 표시할 나의 포인트를 받음 를 받음
-            self.user_point = point
-            self.userPointLabel.setText(self.user_point)
+            self.user_point = self.user_point + add_point  # 메인메뉴에 표시할 나의 포인트 계산
+            self.userPointLabel.setText(str(self.user_point))
 
     # QandA 게시판에서 뒤로가기 눌렀을때
     def QandAPageBackButton_event(self):
@@ -497,7 +502,7 @@ class WindowClass(QMainWindow, form_class):
     # 게시글을 눌렀을때
     def QandAPageTableWidget_event(self):
         table_num = self.QandAPageTableWidget.currentRow()
-        table_widget_item= self.QandAPageTableWidget.item(table_num, 0)
+        table_widget_item = self.QandAPageTableWidget.item(table_num, 0)
         num = table_widget_item.text()
         num = int(num)
         print(f"{num} 번 QnA 게시글 누름")
@@ -519,8 +524,8 @@ class WindowClass(QMainWindow, form_class):
         self.QandAPageTableWidget.clearContents()
         self.stackedWidget.setCurrentWidget(self.QandAPage)  # Q&A 게시판 페이지
         self.sock.send('Q&A게시글목록요청'.encode())
-        load_data = self.sock.recv(2**14).decode()
-        print("load_data",load_data)
+        load_data = self.sock.recv(2 ** 14).decode()
+        print("load_data", load_data)
         if "게시글 없음" == load_data:
             print("QandA 게시글이 없습니다.")
         else:
@@ -528,10 +533,9 @@ class WindowClass(QMainWindow, form_class):
             load_data_list = load_data.split("/")
             self.QandAPageTableWidget.setRowCount(len(load_data_list))
             for i in range(len(load_data_list)):
-                num,name = load_data_list[i].split(".")  # 글번호 와 글제목
-                self.QandAPageTableWidget.setItem(i,0,QTableWidgetItem(num))
-                self.QandAPageTableWidget.setItem(i,1, QTableWidgetItem(name))
-
+                num, name = load_data_list[i].split(".")  # 글번호 와 글제목
+                self.QandAPageTableWidget.setItem(i, 0, QTableWidgetItem(num))
+                self.QandAPageTableWidget.setItem(i, 1, QTableWidgetItem(name))
 
     # 작성 버튼
     def QandAAddPagePushButton_event(self):
@@ -539,7 +543,7 @@ class WindowClass(QMainWindow, form_class):
         A = self.QandAAddPageeTextEdit.toPlainText()  # 내용
         id = self.user_id
         name = self.user_name
-        msg = "/".join(("Q&A작성",name,id,Q,A))
+        msg = "/".join(("Q&A작성", name, id, Q, A))
         self.sock.send(msg.encode())
         self.QandAAddPageeTextEdit.clear()
         self.QandAAddPageeLineEdit.clear()
@@ -559,8 +563,8 @@ class WindowClass(QMainWindow, form_class):
                 self.loginLabel.setText("")
                 self.user_name = user_data[1]
                 self.userNameLabel.setText(self.user_name)
-                self.user_point = user_data[2]
-                self.userPointLabel.setText(self.user_point)
+                self.user_point = int(user_data[2])
+                self.userPointLabel.setText(str(self.user_point))
                 self.stackedWidget.setCurrentIndex(4)  # 메인 화면
             if 1 == page_index:  # 회원가입 페이지
                 self.lineEdit_new_id.setEnabled(False)

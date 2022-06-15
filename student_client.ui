@@ -26,7 +26,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>11</number>
+    <number>4</number>
    </property>
    <widget class="QWidget" name="page">
     <widget class="QLabel" name="label_3">
@@ -1207,7 +1207,7 @@
       <string>뒤로가기</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_2">
+    <widget class="QPushButton" name="QandAViewPageCommentPushButton">
      <property name="geometry">
       <rect>
        <x>180</x>
@@ -1217,7 +1217,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>PushButton</string>
+      <string>댓글작성</string>
      </property>
     </widget>
     <widget class="QTextEdit" name="textEdit">
