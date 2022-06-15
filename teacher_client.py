@@ -10,8 +10,13 @@ from email.mime.text import MIMEText  # 이메일 전송을 위한 라이브러�
 import smtplib
 import re  # 정규 표현식
 from qsubwindow import qsubwindow
+#import sqlite3
+#c = conn.cursor()
+#conn = sqlite3.connect(home/user/AAA/teacher_client_folder)
 form_class = uic.loadUiType("teacher_client.ui")[0]
-print(form_class)
+#c = conn.cursor()
+#c.execute("")
+#print(form_class)
 port_num = 2090
 
 
