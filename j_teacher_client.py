@@ -98,6 +98,9 @@ class WindowClass(QMainWindow,QWidget, form_class):
         # self.StudentScore_Widget_2.QAbstractItemView.connect(self.QAbstractItemView)
         self.StudentScore_Button_1.clicked.connect(self.StudentScore_Button_1_event)
         self.student_score_Button2.clicked.connect(self.StudentScore_Talbe_1)
+        # 점수통계
+        self.studentscorestatistics_button.clicked.connect(self.studentscorestatistics_button_clicked_event)
+        self.stubackButton.clicked.connect(self.stuback_Button_clicked_event)
 
 
         # 소켓 생성
@@ -141,7 +144,7 @@ class WindowClass(QMainWindow,QWidget, form_class):
         self.sock.send("signup".encode())  # 서버에게 회원가입 하겠다고 보냄
         self.loginLineEdit.setText("")
         self.loginLineEdit_2.setText("")
-        self.stackedWidget.setCurrentIndex(1)
+        self.stackedWidget.setCurre7ntIndex(1)
 
     # 회원가입 화면
     def lineEdit_text_changed(self):  # 이름과 비밀번호를 입력할때마다 실행됨
@@ -562,6 +565,15 @@ class WindowClass(QMainWindow,QWidget, form_class):
     #def qpushbutton_clicked_event(self):
         #self.close()
 
+    def studentscorestatistics_button_clicked_event(self):
+        self.stackedWidget.setCurrentIndex(12)
+        for i in range(1):
+            # statisticsdata = self.sock.recv(2*14).decode()
+            # print(statisticsdata)
+
+
+    def stuback_Button_clicked_event(self):
+        self.stackedWidget.setCurrentIndex(4)
 
 
 

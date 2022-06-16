@@ -19,14 +19,14 @@
   <widget class="QStackedWidget" name="stackedWidget">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>20</x>
      <y>10</y>
      <width>611</width>
      <height>661</height>
     </rect>
    </property>
    <property name="currentIndex">
-    <number>4</number>
+    <number>12</number>
    </property>
    <widget class="QWidget" name="page">
     <widget class="QLabel" name="label_3">
@@ -476,7 +476,7 @@
     </widget>
    </widget>
    <widget class="QWidget" name="page_2">
-    <widget class="QPushButton" name="mainButton_1">
+    <widget class="QPushButton" name="grade_button">
      <property name="enabled">
       <bool>true</bool>
      </property>
@@ -635,7 +635,7 @@
      </property>
     </widget>
     <zorder>backButton_2</zorder>
-    <zorder>mainButton_1</zorder>
+    <zorder>grade_button</zorder>
     <zorder>mainPageQuestionButton</zorder>
     <zorder>mainPageCounselButton</zorder>
     <zorder>mainPageQandAButton</zorder>
@@ -1344,6 +1344,164 @@
        <width>481</width>
        <height>441</height>
       </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="page_8">
+    <widget class="QLabel" name="grade_label">
+     <property name="geometry">
+      <rect>
+       <x>440</x>
+       <y>410</y>
+       <width>161</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>25</pointsize>
+      </font>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;등급:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="text">
+      <string>등급:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_17">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>20</y>
+       <width>361</width>
+       <height>91</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>30</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>학생등급확인창</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton">
+     <property name="geometry">
+      <rect>
+       <x>440</x>
+       <y>490</y>
+       <width>161</width>
+       <height>171</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>25</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>나가기</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_21">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>100</y>
+       <width>181</width>
+       <height>141</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap>../../../다운로드/bronze_1.png</pixmap>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_28">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>250</y>
+       <width>181</width>
+       <height>161</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap>../../../다운로드/silver_5[1].png</pixmap>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_29">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>430</y>
+       <width>181</width>
+       <height>151</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap>../../../다운로드/gold_1[1].png</pixmap>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_30">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>110</y>
+       <width>181</width>
+       <height>151</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap>../../../다운로드/platinum_1[1].png</pixmap>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_31">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>270</y>
+       <width>181</width>
+       <height>171</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap>../../../다운로드/diamond_1[1].png</pixmap>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_32">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>450</y>
+       <width>181</width>
+       <height>191</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap>../../../다운로드/challenger_1[1].png</pixmap>
      </property>
     </widget>
    </widget>

@@ -26,7 +26,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>4</number>
+    <number>12</number>
    </property>
    <widget class="QWidget" name="page">
     <widget class="QLabel" name="label_3">
@@ -479,10 +479,10 @@
     <widget class="QPushButton" name="StudentScore_Button_1">
      <property name="geometry">
       <rect>
-       <x>210</x>
-       <y>360</y>
-       <width>141</width>
-       <height>31</height>
+       <x>230</x>
+       <y>340</y>
+       <width>201</width>
+       <height>71</height>
       </rect>
      </property>
      <property name="text">
@@ -598,6 +598,24 @@
      </property>
      <property name="text">
       <string>당신의 이름:</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="studentscorestatistics_button">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>410</y>
+       <width>200</width>
+       <height>80</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>20</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>학생통계확인버튼</string>
      </property>
     </widget>
    </widget>
@@ -1372,6 +1390,60 @@
      </property>
      <property name="text">
       <string>댓글작성</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="page_8">
+    <widget class="QLabel" name="label_8">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>40</y>
+       <width>311</width>
+       <height>101</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>30</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>학생통계확인창</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_17">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>150</y>
+       <width>261</width>
+       <height>291</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="stubackButton">
+     <property name="geometry">
+      <rect>
+       <x>290</x>
+       <y>470</y>
+       <width>211</width>
+       <height>111</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>23</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>뒤로가기</string>
      </property>
     </widget>
    </widget>

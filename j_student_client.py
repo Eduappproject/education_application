@@ -94,6 +94,7 @@ class WindowClass(QMainWindow, form_class):
         self.mainPageCounselButton.clicked.connect(self.mainPageCounselButton_event)  # 상담 버튼
         self.mainPageQuestionButton.clicked.connect(self.mainPageQuestionButton_event)  # 문제 풀기 버튼
         self.mainPageQandAButton.clicked.connect(lambda: self.QandA_list_load())  # QandA 게시판 버튼
+        self.grade_button.clicked.connect(self.gradeButton_clicked_event)
 
         # QandA 게시판 화면
         self.QandAPageBackButton.clicked.connect(self.QandAPageBackButton_event)
@@ -410,6 +411,9 @@ class WindowClass(QMainWindow, form_class):
         self.recv_data.sock = self.sock
         self.recv_data.question_recv_signal.connect(self.recv_data_pyqt_slot)
         self.recv_data.start()
+
+    def gradeButton_clicked_event(self):
+        self.stackedWidget.setCurrentIndex(7)
 
     @pyqtSlot(list)
     def recv_data_pyqt_slot(self, recv_data):
