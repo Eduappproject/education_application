@@ -625,7 +625,11 @@ if __name__ == '__main__':  # 메인? 기본설정같은 칸지
     sock.listen(5)
 
     while True:
-        clnt_sock, addr = sock.accept()
+        try:
+            clnt_sock, addr = sock.accept()
+        except KeyboardInterrupt:
+            print("sock.accept() KeyboardInterrupt 예외처리")
+            break
 
         lock.acquire()
         clnt_imfor.append([clnt_sock])
@@ -633,4 +637,5 @@ if __name__ == '__main__':  # 메인? 기본설정같은 칸지
         lock.release()
 
         t = Worker(clnt_sock)
+        t.daemon = True
         t.start()
