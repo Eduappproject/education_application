@@ -24,10 +24,6 @@ class Worker(threading.Thread):
         self.clnt_sock = sock
 
     def run(self):
-        for clnt_imfo in clnt_imfor:
-            if clnt_imfo[0] == self.clnt_sock:
-                clnt_num = clnt_imfor.index(clnt_imfo)
-                break  # 접속한 클라이언트 소켓이 리스트 몇번째에 있는지 저장
 
         while True:
             sys.stdout.flush()  # 버퍼 비워주는거
@@ -45,8 +41,10 @@ class Worker(threading.Thread):
             clnt_msg = clnt_msg.decode()  # 숫자->문자열로 바꾸는거 맞나?  데이터 보낼때 incode 로 하고
 
             sys.stdin.flush()
-
-
+            for clnt_imfo in clnt_imfor:
+                if clnt_imfo[0] == self.clnt_sock:
+                    clnt_num = clnt_imfor.index(clnt_imfo)
+                    break  # 접속한 클라이언트 소켓이 리스트 몇번째에 있는지 저장
 
             if 'signup' == clnt_msg:
                 self.sign_up()
@@ -399,19 +397,21 @@ class Worker(threading.Thread):
         lock.acquire()
         c.execute("SELECT subkey, suburl, subrange FROM apitbl where subname = ?", (subname,))
         api = c.fetchone()
+        print("api:",api)
         lock.release()
         con.commit()
         con.close()
         api = list(api)
         key = api[0]
         url = api[1]
-        api[2] = api[2].split('/')
-        range1 = int(api[2][0])
-        range2 = int(api[2][1])
+        range1, range2 = api[2].split('/')
+        range1 = int(range1)
+        range2 = int(range2)
         Qlist = []
         Question = "!Question"
         Answer = "!Answer"
         for i in range(range1, range2):  # API마다 가져올 값의 범위가 다르기 때문에 DB에 따로 저장할 예정
+            print(i)
             temp_list = []
             code = 'A00000' + str(i)  # API 접속 설정
             params = {'serviceKey': key, 'q1': code}
@@ -424,6 +424,7 @@ class Worker(threading.Thread):
                 i = re.sub('<.+?>', '', i, 0).strip()
                 temp_list.append(j)
                 temp_list.append(i)
+                print(temp_list)
                 Qlist.append(temp_list)
 
         for item in Qlist:  # 문제에 정답이 들어있을때 빈칸으로 치환
