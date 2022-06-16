@@ -489,7 +489,7 @@
       <string>학생별 점수조회</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="qnaButton">
+    <widget class="QPushButton" name="mainPageQandAButton">
      <property name="geometry">
       <rect>
        <x>290</x>
