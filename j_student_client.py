@@ -438,8 +438,10 @@ class WindowClass(QMainWindow, form_class):
         self.answer = A
         self.answerLabel.setText(A)
         self.answerLabel.adjustSize()
-
-        answers = random.sample(list(set(self.answer_list)), 5)
+        try:
+            answers = random.sample(list(set(self.answer_list)), 5)
+        except:
+            random.sample(list(set(self.answer_list)), len(self.answer_list))
         if self.answer not in answers:
             i = random.randint(0,len(answers)-1)
             answers[i] = self.answer
