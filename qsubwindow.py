@@ -14,7 +14,7 @@ class qsubwindow(QDialog, QWidget,form_second):
         self.setupUi(self)
         self.qbackbutton.clicked.connect(self.qbackbutton_clicked_event)
         self.qpushbutton2.clicked.connect(self.qpushbutton2_press_event)
-
+###
     def qbackbutton_clicked_event(self):
         self.close()
     def qpushbutton2_press_event(self):
