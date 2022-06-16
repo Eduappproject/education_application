@@ -129,7 +129,7 @@ class WindowClass(QMainWindow, form_class):
 
         # 소켓 생성
         self.sock = socket(AF_INET, SOCK_STREAM)
-        i = 1
+        i = 0
         while True:
             try:
                 self.sock.connect(('127.0.0.1', port_num + i))
