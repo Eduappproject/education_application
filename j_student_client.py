@@ -114,7 +114,8 @@ class WindowClass(QMainWindow, form_class):
         self.questionListWidget.itemDoubleClicked.connect(self.questionChoiceButton_event)
         self.questionChoiceButton.clicked.connect(self.questionChoiceButton_event)  # 문제의 주제를 선택하면 실행되는 함수
         self.QuestionPageListWidget.itemDoubleClicked.connect(self.answerLineEdit_event)  # 답 선택 버튼
-        # self.answerLineEdit.returnPressed.connect(self.answerLineEdit_event)  # 답을 입력하고 엔터를 누르면 실행되는 함수
+        self.questionbackButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
+
         # 문제 문답 결과 페이지
         self.goMainPageButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
 
@@ -143,11 +144,6 @@ class WindowClass(QMainWindow, form_class):
                 print("서버 연결에 실패했습니다.")
                 input("엔터키를 누를시 재시도 합니다")
                 i = 0
-
-        # self.user = ClientWorker()
-        # self.user.sock = self.sock
-        # self.user.client_data_emit.connect(self.sock_msg)
-        # self.user.start()
 
     # 로그인 화면
     def loginPushButton_event(self):
@@ -406,7 +402,6 @@ class WindowClass(QMainWindow, form_class):
         self.question_request = self.questionChoiceButton.text()
         self.questionChoiceButton.setText("서버에서 문제 불러오는중")
         self.questionChoiceButton.setEnabled(False)
-        self.answerLineEdit.setEnabled(False)
         self.questionListWidget.setEnabled(False)
         question_load = f"question_request/{self.question_request_dict[self.question_request]}"
         self.sock.send(question_load.encode())
@@ -422,8 +417,6 @@ class WindowClass(QMainWindow, form_class):
         self.question_data_base = recv_data
         self.answer_list = [A_data for Q_data,A_data in recv_data]
         print(f"문제 확인:{len(self.question_data_base)}개의 문제를 받음")
-        self.answerLineEdit.setEnabled(True)
-        self.answerLineEdit.setText("")
         random.shuffle(self.question_data_base)  # 문제 섞어 버리기ㅣㅣㅣㅣ
         self.questions_completion_list = []  # 정답과 오답을 기록할 리스트
         self.question_page()
@@ -436,25 +429,17 @@ class WindowClass(QMainWindow, form_class):
         self.questionTextBrowser.clear()
         self.questionTextBrowser.append(Q)
         self.answer = A
-        self.answerLabel.setText(A)
-        self.answerLabel.adjustSize()
         try:
             answers = random.sample(list(set(self.answer_list)), 5)
         except:
-            random.sample(list(set(self.answer_list)), len(self.answer_list))
+            answers = random.sample(list(set(self.answer_list)), len(self.answer_list))
         if self.answer not in answers:
             i = random.randint(0,len(answers)-1)
             answers[i] = self.answer
         for answer in answers:
             self.QuestionPageListWidget.addItem(answer)
 
-        # 화면에 표시된 문제 라벨의 세로 위치 + 높이
-        question_height = self.questionTextBrowser.height() + self.questionTextBrowser.y()
-        self.answerLabel_3.move(self.answerLabel_2.x(), question_height)  # '정답'이라 적힌 라벨
-        self.answerLabel.move(self.answerLabel.x(), question_height)  # 정답이 적히는 라벨
-        self.answerLabel_4.move(self.answerLabel_2.x(), question_height + 57)  # '답'이라 적힌 라벨
-        self.answerLineEdit.move(self.answerLineEdit.x(), question_height + 50)  # 답을 입력하는 라인에딧
-        self.questionNumLabel.setText(f"남은 문제 {self.question_num + 1}/{len(self.question_data_base)}")
+        self.questionNumLabel.setText(f"문제 {self.question_num + 1}/{len(self.question_data_base)}")
         self.questionNumLabel.adjustSize()
         self.question_num += 1
         return True
@@ -488,6 +473,12 @@ class WindowClass(QMainWindow, form_class):
         else:  # 아니면 오답
             print("오답입니다")
             self.questions_completion_list.append(False)
+
+        ok_question = len([i for i in self.questions_completion_list if i])  # 맞춘 개수
+        no_question = len(self.questions_completion_list) - ok_question  # 틀린 개수
+        self.got_label.setText(f"정답 {ok_question} 개")
+        self.wrong_label.setText(f"오답 {no_question} 개")
+
         # 모든 문제를 풀었다면
         if not self.question_page():
             self.stackedWidget.setCurrentIndex(8)  # 문제 결과 보기
