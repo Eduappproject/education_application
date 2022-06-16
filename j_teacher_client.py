@@ -9,7 +9,7 @@ from socket import *
 from email.mime.text import MIMEText  # 이메일 전송을 위한 라이브러리 import
 import smtplib
 import re  # 정규 표현식
-
+from qsubwindow import qsubwindow
 form_class = uic.loadUiType("teacher_client.ui")[0]
 port_num = 2090
 
@@ -38,12 +38,12 @@ class ClientWorker(QThread):
         print("상담 스레드 종료")
 
 
-class WindowClass(QMainWindow, form_class):
+class WindowClass(QMainWindow,QWidget, form_class):
 
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-
+        self.show()
         self.stackedWidget.setCurrentIndex(0)
 
         self.loginPushButton.clicked.connect(self.loginPushButton_event)  # 로그인 버튼
@@ -67,21 +67,20 @@ class WindowClass(QMainWindow, form_class):
         self.loginLineEdit_2.setText("ppp")
         # 메인 화면
         self.mainPageCounselButton.clicked.connect(self.mainPageCounselButton_event)  # 상담 버튼
-        # self.mainPageQuestionButton.clicked.connect(self.mainPageQuestionButton_event)  # 문제 풀기 버튼
-        # self.mainPageQandAButton.clicked.connect(lambda: self.QandA_list_load())  # QandA 게시판 버튼
-        #
-        # # QandA 게시판 화면
-        # self.QandAPageBackButton.clicked.connect(self.QandAPageBackButton_event)
-        # self.QandAPagePushButton.clicked.connect(self.QandAPagePushButton_enent)
-        # self.QandAPageTableWidget.cellClicked.connect(self.QandAPageTableWidget_event)
-        #
-        # # QandA 작성 화면
-        # self.QandAAddPagebackButton.clicked.connect(lambda: self.QandA_list_load())  # 뒤로가기 버튼(QandA 목록으로)
-        # self.QandAAddPagePushButton.clicked.connect(self.QandAAddPagePushButton_event)
-        #
-        # # QandA 게시글 보기 화면
-        # self.QandAViewPageBackButton.clicked.connect(lambda: self.QandA_list_load())  # 뒤로가기 버튼(QandA 목록으로)
-        # self.QandAViewPageCommentPushButton.clicked.connect(self.QandAViewPageCommentPushButton_event)
+        self.mainPageQandAButton.clicked.connect(lambda: self.QandA_list_load())  # QandA 게시판 버튼
+
+        # QandA 게시판 화면
+        self.QandAPageBackButton.clicked.connect(self.QandAPageBackButton_event)
+        self.QandAPagePushButton.clicked.connect(self.QandAPagePushButton_enent)
+        self.QandAPageTableWidget.cellClicked.connect(self.QandAPageTableWidget_event)
+
+        # QandA 작성 화면
+        self.QandAAddPagebackButton.clicked.connect(lambda: self.QandA_list_load())  # 뒤로가기 버튼(QandA 목록으로)
+        self.QandAAddPagePushButton.clicked.connect(self.QandAAddPagePushButton_event)
+
+        # QandA 게시글 보기 화면
+        self.QandAViewPageBackButton.clicked.connect(lambda: self.QandA_list_load())  # 뒤로가기 버튼(QandA 목록으로)
+        self.QandAViewPageCommentPushButton.clicked.connect(self.QandAViewPageCommentPushButton_event)
 
         # 회원가입화면 lineEdit
         self.lineEdit_text_changed()
@@ -93,12 +92,13 @@ class WindowClass(QMainWindow, form_class):
 
         # 점수확인
         # self.StudentScore_Widget_2.AllEditTriggers.connect(self.StudentScore_Widget_2)
-        # self.StudentScore_Widget_2.setEditTriggers(QAbstractItemView.AllEditTriggers)
-        # self.score_back_pushButton_2.clicked.connect(self.mainPageCounselButton_event)
+        #self.StudentScore_Widget_2.setEditTriggers(QAbstractItemView.AllEditTriggers)
+        self.score_back_pushButton_2.clicked.connect(self.backButton_2_event)
         # self.StudentScore_Button_1.clicked.connect(self.StudentScore_Button_1_event)
         # self.StudentScore_Widget_2.QAbstractItemView.connect(self.QAbstractItemView)
-        # self.StudentScore_Button_1.clicked.connect(self.StudentScore_Button_1_event)
-        # self.student_score_Button2.clicked.connect(self.StudentScore_Talbe_1)
+        self.StudentScore_Button_1.clicked.connect(self.StudentScore_Button_1_event)
+        self.student_score_Button2.clicked.connect(self.StudentScore_Talbe_1)
+
 
         # 소켓 생성
         self.sock = socket(AF_INET, SOCK_STREAM)
@@ -401,6 +401,7 @@ class WindowClass(QMainWindow, form_class):
         self.QandAViewPageTextBrowser.append(f"글쓴이:{p_user_name}({p_user_id})")
         self.QandAViewPageTextBrowser.append(f"{p_text}")
         comment_list = comment_list.split("/")
+        print(f"post 값:{post}")
         print(f"comment_list 값:{comment_list}")
         for comment_data in comment_list:
             if comment_data:
@@ -537,6 +538,31 @@ class WindowClass(QMainWindow, form_class):
                 self.stackedWidget.setCurrentIndex(0)
                 self.loginLabel.setText(f"비밀번호를 찾을수없습니다.")
                 self.loginLabel.adjustSize()
+
+    def moveqnapage_event(self):
+        self.stackedWidget.setCurrentIndex(8)
+
+    # def quploadbutton_event(self):
+    #     self.stackedWidget.setCurrentIndex(6)
+    #     self.qOKbutton.clicked.connect
+
+    def quploadbutton_clicked_Event(self):
+        self.hide()
+        self.second = qsubwindow()
+        self.second.exec()
+        self.show()
+
+    def qlineEdit_onChanged(self, text):
+        self.qlineEdit1.setText(text)
+        self.qlineEdit2.setText(text)
+
+    #def qbackButton_clicked_event(self):
+    #    self.close()
+
+    #def qpushbutton_clicked_event(self):
+        #self.close()
+
+
 
 
 if __name__ == "__main__":
