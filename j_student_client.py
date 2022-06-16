@@ -113,7 +113,8 @@ class WindowClass(QMainWindow, form_class):
         self.questionListWidget.itemClicked.connect(self.questionListWidget_event)  # 문제 주제 리스트를 클릭했을때 실행되는 함수
         self.questionListWidget.itemDoubleClicked.connect(self.questionChoiceButton_event)
         self.questionChoiceButton.clicked.connect(self.questionChoiceButton_event)  # 문제의 주제를 선택하면 실행되는 함수
-        self.answerLineEdit.returnPressed.connect(self.answerLineEdit_event)  # 답을 입력하고 엔터를 누르면 실행되는 함수
+        self.QuestionPageListWidget.itemDoubleClicked.connect(self.answerLineEdit_event)  # 답 선택 버튼
+        # self.answerLineEdit.returnPressed.connect(self.answerLineEdit_event)  # 답을 입력하고 엔터를 누르면 실행되는 함수
         # 문제 문답 결과 페이지
         self.goMainPageButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
 
@@ -419,11 +420,11 @@ class WindowClass(QMainWindow, form_class):
     def recv_data_pyqt_slot(self, recv_data):
         self.stackedWidget.setCurrentIndex(7)
         self.question_data_base = recv_data
+        self.answer_list = [A_data for Q_data,A_data in recv_data]
         print(f"문제 확인:{len(self.question_data_base)}개의 문제를 받음")
         self.answerLineEdit.setEnabled(True)
         self.answerLineEdit.setText("")
         random.shuffle(self.question_data_base)  # 문제 섞어 버리기ㅣㅣㅣㅣ
-        print("len self.question_data_base", len(self.question_data_base))
         self.questions_completion_list = []  # 정답과 오답을 기록할 리스트
         self.question_page()
 
@@ -434,29 +435,52 @@ class WindowClass(QMainWindow, form_class):
         Q, A = self.question_data_base[self.question_num]
         self.questionTextBrowser.clear()
         self.questionTextBrowser.append(Q)
+        self.answer = A
         self.answerLabel.setText(A)
         self.answerLabel.adjustSize()
+
+        answers = random.sample(list(set(self.answer_list)), 5)
+        if self.answer not in answers:
+            i = random.randint(0,len(answers)-1)
+            answers[i] = self.answer
+        for answer in answers:
+            self.QuestionPageListWidget.addItem(answer)
 
         # 화면에 표시된 문제 라벨의 세로 위치 + 높이
         question_height = self.questionTextBrowser.height() + self.questionTextBrowser.y()
         self.answerLabel_3.move(self.answerLabel_2.x(), question_height)  # '정답'이라 적힌 라벨
-        self.answerLabel.move(self.answerLabel.x(), question_height + 5)  # 정답이 적히는 라벨
-        self.answerLabel_4.move(self.answerLabel_2.x(), question_height + 50)  # '답'이라 적힌 라벨
+        self.answerLabel.move(self.answerLabel.x(), question_height)  # 정답이 적히는 라벨
+        self.answerLabel_4.move(self.answerLabel_2.x(), question_height + 57)  # '답'이라 적힌 라벨
         self.answerLineEdit.move(self.answerLineEdit.x(), question_height + 50)  # 답을 입력하는 라인에딧
         self.questionNumLabel.setText(f"남은 문제 {self.question_num + 1}/{len(self.question_data_base)}")
         self.questionNumLabel.adjustSize()
         self.question_num += 1
         return True
 
+
+
+    """
+    리스트 위젯 시그널,함수 모음
+    self.QuestionPageListWidget.itemDoubleClicked.connect(함수) # 더블클릭시 해당 함수 실행
+    obj = self.QuestionPageListWidget.currentItem() # 리스트위젯에서 선택한 항목을 객체로 반환
+    obj.text() # 반환된 객체에서 텍스트 가져오기
+    self.QuestionPageListWidget.addItem(문자열) # 리스트 위젯 항목 추가
+    self.QuestionPageListWidget.clear() # 리스트 위젯 클리어
+    """
+
     # 답 제출 버튼(답을 입력한 다음에 엔터입력)
     def answerLineEdit_event(self):
-        stident_result = self.answerLineEdit.text()
-        question_answer = self.answerLabel.text()
-        self.answerLineEdit.setText("")
+        obj = self.QuestionPageListWidget.currentItem()  # 리스트위젯에서 선택한 항목을 객체로 반환
+        stident_result = obj.text()  # 반환된 객체에서 텍스트 가져오기
+        self.QuestionPageListWidget.clear() # 리스트 위젯 클리어
+
+        # stident_result = self.answerLineEdit.text()
+        # question_answer = self.answerLabel.text()
+        # self.answerLineEdit.setText("")
         # 답과 정답을 비교
-        print(f"학생 답: {stident_result} == 정답: {question_answer}:{stident_result == question_answer}")
+        print(f"학생 답: {stident_result} == 정답: {self.answer}:{stident_result == self.answer}")
         # 정답이면 정답으로 저장
-        if stident_result == question_answer:
+        if stident_result == self.answer:
             print("정답입니다")
             self.questions_completion_list.append(True)
         else:  # 아니면 오답
