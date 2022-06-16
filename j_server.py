@@ -83,16 +83,14 @@ class Worker(threading.Thread):
             elif clnt_msg.startswith('교사문제요청/'):  # 
                 clnt_msg = clnt_msg.replace('교사문제요청/', '')
                 self.teacher_question_send(clnt_msg, clnt_num)
-            elif clnt_msg.startswith('통계요청/'):  # 
-                clnt_msg = clnt_msg.replace('통계요청/', '')
-                self.scoredata_send(clnt_msg, clnt_num)
-
+            elif clnt_msg == '통계요청/':
+                self.scoredata_send()
             # QnA게시글작성시 버퍼사이즈 문제로 추가한 조건문
             elif "작성할 Q&A게시글 크기:" == clnt_msg[:14]:
                 one_buf_size = int(clnt_msg[14:])
                 self.clnt_sock.send(str(one_buf_size).encode())
                 clnt_msg = self.clnt_sock.recv(one_buf_size).decode()
-                print(f"clnt_sock이 게시글 작성을 위해 보낸값:\n\t{clnt_msg}")  # 받는값 확인
+                print(f"clnt_sock이 게시글 작성을 위해 메시지:\n\t{clnt_msg}")  # 받는값 확인
                 self.qna_write(clnt_msg[6:])  # 'Q&A작성/' 문자 제외하고 함수에 넣기(문자열 슬라이싱)
 
             elif clnt_msg.startswith('Q&A게시글목록요청'):
@@ -168,7 +166,7 @@ class Worker(threading.Thread):
             for imfo in imfor:
                 user_data.append(imfo)  # user_data 리스트에 추가
             if user_data[4] == "student":
-                c.execute("insert into studtbl(userid, point) values(?,?,?) ", (user_data[0], "0"))
+                c.execute("insert into studtbl(userid, point) values(?,?) ", (user_data[0], "0"))
 
             query = "INSERT INTO usertbl(userid, userpw, username, email, usertype) VALUES(?, ?, ?, ?, ?)"
 
@@ -443,30 +441,33 @@ class Worker(threading.Thread):
         score_avr = int(score_avr)
         lock.acquire()
         if subtype == "api":
-            c.execute("SELECT score_avr FROM apitbl where subname=?", (subname,))
+            c.execute("SELECT score_avr, score_cnt FROM apitbl where subname=?", (subname,))
         elif subtype == "teachques":
-            c.execute("SELECT score_avr FROM teachques where subname=?", (subname,))
-        score_list = c.fetchone()  # score_list 가 튜플로 생성되어서 밑에 += 연산자가 안먹혀서
-        c.execute("SELECT score_avr FROM studtbl where userid = ?", (clnt_imfor[clnt_num][1],) )
-        clnt_avr = c.fetchone()
+            c.execute("SELECT score_avr, score_cnt FROM teachques where subname=?", (subname,))
+        table_list = c.fetchone()  # score_list 가 튜플로 생성되어서 밑에 += 연산자가 안먹혀서
+        c.execute("SELECT score_avr, score_cnt FROM studtbl where userid = ?", (clnt_imfor[clnt_num][1],) )
+        stud_list = c.fetchone()
+
         lock.release()
         print(locals())
-        score_list = int(score_list[0])
-        clnt_avr = int(clnt_avr[0])
-        score_list = int((score_list + score_avr)/2)
-        clnt_avr = int((clnt_avr + score_avr)/2)
+        table_avr = float(table_list[0])
+        stud_avr = float(stud_list[0])
+        table_cnt = table_list[1]
+        stud_cnt = stud_list[1]
 
+        table_avr = float((table_avr*table_cnt) + score_avr)/(table_cnt+1)
+        stud_avr = float((stud_avr*stud_cnt) + score_avr)/(stud_cnt+1)
         lock.acquire()
         if subtype == "api":
             c.execute("UPDATE apitbl SET score_avr=?, score_cnt=score_cnt+1 where subname=?",
-                     (score_list, subname,))
+                     (table_avr, subname,))
         elif subtype == "teacques":
             c.execute("UPDATE teachques SET score_avr=?, score_cnt=score_cnt+1 where subname=?",
-                      (score_list, subname,))
+                      (table_avr, subname,))
 
         # clnt_imfor[clnt_num] = [소켓, 아이디, 유저 타입, 이름]
         c.execute("UPDATE studtbl SET score_avr = ?, point = ?, score_cnt = score_cnt + 1 where userid=?",
-                  (clnt_avr, int(point), clnt_imfor[clnt_num][1]))
+                  (stud_avr, int(point), clnt_imfor[clnt_num][1]))
         lock.release()
         con.commit()
         con.close()
@@ -498,7 +499,7 @@ class Worker(threading.Thread):
         teacher_A = '/'.join(teacher_A) #앞에 '/' 붙임
         self.clnt_sock.send((teacher_Q +teacher_A).encode()) # 리스트화 시킨 문제 및 정답을 보냄
 
-    def scoredata_send(self, clnt_msg):
+    def scoredata_send(self):
         con, c=self.dbcon()
         lock.acquire()
         api_data_list = []
@@ -516,10 +517,11 @@ class Worker(threading.Thread):
             row = list(row)
             row = '/'.join(row)
             teach_data_list.append(row)
-        c.execute('SELECT  user_id ,score_avr, score_cnt from studtbl')
+        c.execute('SELECT  userid ,score_avr, score_cnt from studtbl')
         score_avr_list = c.fetchall()
         for row in score_avr_list:
             row = list(row)
+            row = [str(i) for i in row]
             row = '/'.join(row)
             score_data_list.append(row)
 
@@ -529,9 +531,13 @@ class Worker(threading.Thread):
         api_data='/'.join(api_data_list)
         teach_data='/'.join(teach_data_list)
         score_data='/'.join(score_data_list)
-        self.clnt_sock.send('api/'+api_data.encode())
-        self.clnt_sock.send('teachques/'+teach_data.encode())
-        self.clnt_sock.send('stud/'+score_data.encode())
+        maga_msg = "| score_avr |".join([api_data, teach_data, score_data])  # "| score_avr |" 으로 구분하기
+        maga_msg_en = maga_msg.encode()  # 인코드 하기
+        maga_msg_byte_size = len(maga_msg_en)   # 인코드한 메시지 크기 저장하기
+        print(f"maga_msg_byte_size: {maga_msg_byte_size}\nmaga_msg_en:{maga_msg_en}\nmaga_msg:{maga_msg}")
+        self.clnt_sock.send(str(maga_msg_byte_size).encode())
+        print(f"통계정보의 바이트 크기를 알려주자 클라이언트의 대답:\n\t{self.clnt_sock.recv(1024).decode()}")
+        self.clnt_sock.send(maga_msg_en) # 미리 인코드한 데이터 보내기
 
     def qna_write(self, clnt_msg):
         con, c = self.dbcon()

@@ -90,14 +90,14 @@ class WindowClass(QMainWindow,QWidget, form_class):
         self.lineEdit_new_pw_check.textChanged[str].connect(self.lineEdit_text_changed)
         self.lineEdit_email.textChanged[str].connect(self.lineEdit_text_changed)
 
-        # 점수확인
-        # self.StudentScore_Widget_2.AllEditTriggers.connect(self.StudentScore_Widget_2)
-        #self.StudentScore_Widget_2.setEditTriggers(QAbstractItemView.AllEditTriggers)
-        self.score_back_pushButton_2.clicked.connect(self.backButton_2_event)
-        # self.StudentScore_Button_1.clicked.connect(self.StudentScore_Button_1_event)
-        # self.StudentScore_Widget_2.QAbstractItemView.connect(self.QAbstractItemView)
-        self.StudentScore_Button_1.clicked.connect(self.StudentScore_Button_1_event)
-        self.student_score_Button2.clicked.connect(self.StudentScore_Talbe_1)
+        # 학생들 통계 조회 페이지
+        # 메인페이지에서 해당 페이지로 가는 버튼
+        self.StudentScorePageLoadButton.clicked.connect(self.StudentScorePageFadeIn)
+        # 뒤로가기 버튼
+        self.StudentScorePageBackButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
+        # 테이블 위젯(텍스트 수정 막기 설정)
+        self.StudentScorePageTableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+
 
 
         # 소켓 생성
@@ -346,9 +346,6 @@ class WindowClass(QMainWindow,QWidget, form_class):
 
         self.StudentScore_Table_Widget_1.setEnabled(True)
 
-    def StudentScore_Talbe_1(self):
-        print("StudentScore_Talbe_1(self):")
-        pass
 
     def chatBackButton_event(self):
         self.chatTextBrowser.clear()
@@ -562,7 +559,27 @@ class WindowClass(QMainWindow,QWidget, form_class):
     #def qpushbutton_clicked_event(self):
         #self.close()
 
+    # 학생들 통계 조회
+    def StudentScorePageFadeIn(self):
+        """
+        통계 확인 페이지 관련 PyQt5 오브젝트 네임
+        StudentScorePageLoadButton     해당 페이지로 가는 버튼
+        StudentScorePage               해당 페이지의 오브젝트 네임
+        StudentScorePageBackButton     뒤로가기 버튼
+        StudentScorePageTableWidget    테이블 위젯
+        .clearContents()  테이블 위젯 초기화
+        .setRowCount(행 길이)  테이블 위젯 행 설정
+        .setItem(행, 열, QTableWidgetItem(문자열))  원하는 행과 열에 문자열 작성
+        """
+        print("""# 학생들 통계 조회
+    def StudentScorePageFadeIn(self):""")
 
+        self.sock.send("통계요청/".encode())
+        buf_size = int(self.sock.recv(1024).decode())
+        self.sock.send(f"자료의 크기:{buf_size}".encode())
+        load_data = self.sock.recv(buf_size).decode()
+        print(f"print(load_data):{load_data}")
+        self.stackedWidget.setCurrentWidget(self.StudentScorePage)  # 해당 페이지로 이동
 
 
 if __name__ == "__main__":

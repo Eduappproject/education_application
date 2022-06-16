@@ -476,17 +476,22 @@
     </widget>
    </widget>
    <widget class="QWidget" name="page_2">
-    <widget class="QPushButton" name="StudentScore_Button_1">
+    <widget class="QPushButton" name="StudentScorePageLoadButton">
      <property name="geometry">
       <rect>
-       <x>210</x>
-       <y>360</y>
-       <width>141</width>
-       <height>31</height>
+       <x>240</x>
+       <y>390</y>
+       <width>191</width>
+       <height>61</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+      </font>
+     </property>
      <property name="text">
-      <string>학생점수 확인 버튼</string>
+      <string>학생별 통계 조회</string>
      </property>
     </widget>
     <widget class="QPushButton" name="mainButton_2">
@@ -731,26 +736,13 @@
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="page_17">
-    <widget class="QPushButton" name="student_score_Button2">
+   <widget class="QWidget" name="StudentScorePage">
+    <widget class="QPushButton" name="StudentScorePageBackButton">
      <property name="geometry">
       <rect>
-       <x>260</x>
-       <y>550</y>
-       <width>89</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>점수확인버튼</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="score_back_pushButton_2">
-     <property name="geometry">
-      <rect>
-       <x>380</x>
-       <y>550</y>
-       <width>89</width>
+       <x>40</x>
+       <y>540</y>
+       <width>421</width>
        <height>61</height>
       </rect>
      </property>
@@ -761,10 +753,10 @@
     <widget class="QLabel" name="label_36">
      <property name="geometry">
       <rect>
-       <x>110</x>
-       <y>80</y>
-       <width>251</width>
-       <height>51</height>
+       <x>60</x>
+       <y>20</y>
+       <width>381</width>
+       <height>71</height>
       </rect>
      </property>
      <property name="font">
@@ -773,26 +765,29 @@
       </font>
      </property>
      <property name="text">
-      <string>점수확인창</string>
+      <string>학생별 통계 조회</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QTableWidget" name="StudentScore_Table_Widget_1">
+    <widget class="QTableWidget" name="StudentScorePageTableWidget">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>180</y>
+       <y>120</y>
        <width>491</width>
-       <height>271</height>
+       <height>401</height>
       </rect>
      </property>
      <property name="mouseTracking">
       <bool>false</bool>
+     </property>
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
      </property>
      <property name="dragEnabled">
       <bool>false</bool>
