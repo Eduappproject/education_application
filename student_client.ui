@@ -476,7 +476,7 @@
     </widget>
    </widget>
    <widget class="QWidget" name="page_2">
-    <widget class="QPushButton" name="grade_button">
+    <widget class="QPushButton" name="gradebutton">
      <property name="enabled">
       <bool>true</bool>
      </property>
@@ -635,7 +635,7 @@
      </property>
     </widget>
     <zorder>backButton_2</zorder>
-    <zorder>grade_button</zorder>
+    <zorder>gradebutton</zorder>
     <zorder>mainPageQuestionButton</zorder>
     <zorder>mainPageCounselButton</zorder>
     <zorder>mainPageQandAButton</zorder>
@@ -1347,28 +1347,7 @@
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="page_8">
-    <widget class="QLabel" name="grade_label">
-     <property name="geometry">
-      <rect>
-       <x>440</x>
-       <y>410</y>
-       <width>161</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>25</pointsize>
-      </font>
-     </property>
-     <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;등급:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-     <property name="text">
-      <string>등급:</string>
-     </property>
-    </widget>
+   <widget class="QWidget" name="studentGradeWindow">
     <widget class="QLabel" name="label_17">
      <property name="geometry">
       <rect>
@@ -1408,7 +1387,10 @@
       <string>나가기</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_21">
+    <widget class="QLabel" name="bronze_label">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -1421,14 +1403,17 @@
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>../../../다운로드/bronze_1.png</pixmap>
+      <pixmap>bronze.png</pixmap>
      </property>
     </widget>
-    <widget class="QLabel" name="label_28">
+    <widget class="QLabel" name="silver_label">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>250</y>
+       <y>100</y>
        <width>181</width>
        <height>161</height>
       </rect>
@@ -1437,14 +1422,39 @@
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>../../../다운로드/silver_5[1].png</pixmap>
+      <pixmap>silver.png</pixmap>
+     </property>
+     <property name="scaledContents">
+      <bool>false</bool>
      </property>
     </widget>
-    <widget class="QLabel" name="label_29">
+    <widget class="QLabel" name="gold_label">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>181</width>
+       <height>151</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap>gold.png</pixmap>
+     </property>
+    </widget>
+    <widget class="QLabel" name="platinum_label">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>430</y>
+       <y>100</y>
        <width>181</width>
        <height>151</height>
       </rect>
@@ -1453,30 +1463,17 @@
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>../../../다운로드/gold_1[1].png</pixmap>
+      <pixmap>platinum.png</pixmap>
      </property>
     </widget>
-    <widget class="QLabel" name="label_30">
+    <widget class="QLabel" name="diamond_label">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="geometry">
       <rect>
-       <x>210</x>
-       <y>110</y>
-       <width>181</width>
-       <height>151</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="pixmap">
-      <pixmap>../../../다운로드/platinum_1[1].png</pixmap>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_31">
-     <property name="geometry">
-      <rect>
-       <x>200</x>
-       <y>270</y>
+       <x>0</x>
+       <y>100</y>
        <width>181</width>
        <height>171</height>
       </rect>
@@ -1485,14 +1482,17 @@
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>../../../다운로드/diamond_1[1].png</pixmap>
+      <pixmap>diamond.png</pixmap>
      </property>
     </widget>
-    <widget class="QLabel" name="label_32">
+    <widget class="QLabel" name="challanger_label">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="geometry">
       <rect>
-       <x>200</x>
-       <y>450</y>
+       <x>0</x>
+       <y>100</y>
        <width>181</width>
        <height>191</height>
       </rect>
@@ -1501,7 +1501,20 @@
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>../../../다운로드/challenger_1[1].png</pixmap>
+      <pixmap>challenger.png</pixmap>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="TierpushButton">
+     <property name="geometry">
+      <rect>
+       <x>440</x>
+       <y>350</y>
+       <width>161</width>
+       <height>131</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>등급확인버튼</string>
      </property>
     </widget>
    </widget>

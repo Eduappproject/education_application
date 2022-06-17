@@ -68,6 +68,20 @@ class WindowClass(QMainWindow, form_class):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+        # self.bronze_pixmap = QPixmap('bronze.png')
+        # self.silver_pixmap = QPixmap('silver.png')
+        # self.gold_pixmap = QPixmap('gold.png')
+        # self.platinum_pixmap = QPixmap('platinum.png')
+        # self.diamond_pixmap = QPixmap('diamond.png')
+        # self.challanger_pixmap = QPixmap('challenger.png')
+        self.tier_list = [
+            self.bronze_label
+            ,self.silver_label
+            ,self.gold_label
+            ,self.platinum_label
+            ,self.diamond_label
+            ,self.challanger_label]
+
 
         self.stackedWidget.setCurrentIndex(0)
 
@@ -94,7 +108,8 @@ class WindowClass(QMainWindow, form_class):
         self.mainPageCounselButton.clicked.connect(self.mainPageCounselButton_event)  # 상담 버튼
         self.mainPageQuestionButton.clicked.connect(self.mainPageQuestionButton_event)  # 문제 풀기 버튼
         self.mainPageQandAButton.clicked.connect(lambda: self.QandA_list_load())  # QandA 게시판 버튼
-        self.grade_button.clicked.connect(self.gradeButton_clicked_event)
+        self.gradebutton.clicked.connect(self.gradeButton_clicked_event)    #등급들어가는 버튼
+        self.TierpushButton.clicked.connect(self.TierpushButton_clicked_event)
 
         # QandA 게시판 화면
         self.QandAPageBackButton.clicked.connect(self.QandAPageBackButton_event)
@@ -128,8 +143,6 @@ class WindowClass(QMainWindow, form_class):
         self.lineEdit_new_pw_check.textChanged[str].connect(self.lineEdit_text_changed)
         self.lineEdit_email.textChanged[str].connect(self.lineEdit_text_changed)
 
-        #등급확인 들어가는 버튼
-        self.grade_button.clicked.connect(self.gradeButton_clicked_event)
 
 
         # 소켓 생성
@@ -261,6 +274,14 @@ class WindowClass(QMainWindow, form_class):
         msg['subject'] = 'PyQt5 에서 인증코드를 발송했습니다.'  # 보낼 이메일의 제목을 적는다
         # 앞에는 위에서 설정한 계정, 두번째에는 이메일을 보낼 계정을 입력
         ses.sendmail('uihyeon.bookstore@gmail.com', email, msg.as_string())
+        #티어라벨 안보이게 하기
+        self.bronze_label.setEnabled(False)
+        self.silver_label.setEnabled(False)
+        self.gold_label.setEnabled(False)
+        self.platinum_label.setEnabled(False)
+        self.diamond_label.setEnabled(False)
+        self.challanger_label.setEnabled(False)
+
         # 꺼야하는 버튼 끄기
         self.lineEdit_email.setEnabled(False)
         self.EmailCheckPushButton.setEnabled(False)
@@ -417,7 +438,8 @@ class WindowClass(QMainWindow, form_class):
         self.recv_data.start()
 
     def gradeButton_clicked_event(self):
-        self.stackedWidget.setCurrentIndex(7)
+        self.stackedWidget.setCurrentIndex(12)
+        self.TierpushButton_clicked_event()
 
     @pyqtSlot(list)
     def recv_data_pyqt_slot(self, recv_data):
@@ -685,8 +707,31 @@ class WindowClass(QMainWindow, form_class):
                 self.loginLabel.setText(f"비밀번호를 찾을수없습니다.")
                 self.loginLabel.adjustSize()
 
-    def grade_button_clicked_connect_event(self):
-        self.stackedWidget.setCurrentWidget(8)
+
+    def TierpushButton_clicked_event(self) : #티어버튼 눌렀을때
+        self.sock.send("점수요청하기".encode())
+        # user_point = int(self.sock.recv(1024).decode())
+        user_point = 99
+        for i in range(len(self.tier_list)):
+            print("user_point//100 == i",user_point//100 == i)
+            if user_point//100 == i:
+                self.tier_list[i].show()
+            else:
+                self.tier_list[i].hide()
+        # if user_point < 0 :
+        #     self.bronze_label.setEnabled(True)
+        # elif user_point < 100 :
+        #     self.silver_label.setEnabled(True)
+        # elif user_point < 201 :
+        #     self.gold_label.setEnabled(True)
+        # elif user_point < 301 :
+        #     self.platinum_label.setEnabled(True)
+        # elif user_point < 401 :
+        #     self.diamond_label.setEnabled(True)
+        # elif user_point < 501 :
+        #     self.challanger_label.setEnabled(True)
+        # else :
+        #     pass
 
 
 if __name__ == "__main__":
