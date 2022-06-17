@@ -1369,7 +1369,7 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton">
+    <widget class="QPushButton" name="TierBack_pushButton">
      <property name="geometry">
       <rect>
        <x>440</x>

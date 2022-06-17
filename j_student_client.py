@@ -110,6 +110,7 @@ class WindowClass(QMainWindow, form_class):
         self.mainPageQandAButton.clicked.connect(lambda: self.QandA_list_load())  # QandA 게시판 버튼
         self.gradebutton.clicked.connect(self.gradeButton_clicked_event)    #등급들어가는 버튼
         self.TierpushButton.clicked.connect(self.TierpushButton_clicked_event)
+        self.TierBack_pushButton.clicked.connect(self.TierBack_pushButton_click_event)
 
         # QandA 게시판 화면
         self.QandAPageBackButton.clicked.connect(self.QandAPageBackButton_event)
@@ -719,20 +720,8 @@ class WindowClass(QMainWindow, form_class):
                 self.tier_list[i].show()
             else:
                 self.tier_list[i].hide()
-        # if user_point < 0 :
-        #     self.bronze_label.setEnabled(True)
-        # elif user_point < 100 :
-        #     self.silver_label.setEnabled(True)
-        # elif user_point < 201 :
-        #     self.gold_label.setEnabled(True)
-        # elif user_point < 301 :
-        #     self.platinum_label.setEnabled(True)
-        # elif user_point < 401 :
-        #     self.diamond_label.setEnabled(True)
-        # elif user_point < 501 :
-        #     self.challanger_label.setEnabled(True)
-        # else :
-        #     pass
+    def TierBack_pushButton_click_event(self):
+        self.stackedWidget.setCurrentWidget(self.page_2)
 
 
 if __name__ == "__main__":
