@@ -471,7 +471,7 @@ class Worker(threading.Thread):
         con.commit()
         con.close()
 
-    def teacher_quetion_update(self, clnt_msg): #주제/문제명/문제내용 teachques 에 저장
+    def teacher_question_update(self, clnt_msg): #주제/문제명/문제내용 teachques 에 저장
         con, c = self.dbcon()
         teacher_Q=[]                            #교사가 만든 문제 리스트
         msg = clnt_msg.split('/')

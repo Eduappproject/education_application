@@ -26,7 +26,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>12</number>
+    <number>13</number>
    </property>
    <widget class="QWidget" name="page">
     <widget class="QLabel" name="label_3">
@@ -489,7 +489,7 @@
       <string>학생점수 확인 버튼</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="mainButton_2">
+    <widget class="QPushButton" name="qout_button">
      <property name="geometry">
       <rect>
        <x>230</x>
@@ -1415,20 +1415,7 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QLabel" name="label_17">
-     <property name="geometry">
-      <rect>
-       <x>80</x>
-       <y>150</y>
-       <width>261</width>
-       <height>291</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>TextLabel</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="stubackButton">
+    <widget class="QPushButton" name="stuback_Button">
      <property name="geometry">
       <rect>
        <x>290</x>
@@ -1444,6 +1431,62 @@
      </property>
      <property name="text">
       <string>뒤로가기</string>
+     </property>
+    </widget>
+    <widget class="QTableWidget" name="teacher_questionWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>130</y>
+       <width>491</width>
+       <height>321</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="page_9">
+    <widget class="QLabel" name="label_21">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>60</y>
+       <width>261</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>21</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>문제출제페이지</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="qoutback_button">
+     <property name="geometry">
+      <rect>
+       <x>380</x>
+       <y>500</y>
+       <width>131</width>
+       <height>111</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>나가기</string>
+     </property>
+    </widget>
+    <widget class="QTableWidget" name="qout_table_Widget">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>160</y>
+       <width>351</width>
+       <height>311</height>
+      </rect>
      </property>
     </widget>
    </widget>

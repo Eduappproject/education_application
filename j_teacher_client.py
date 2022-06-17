@@ -100,8 +100,10 @@ class WindowClass(QMainWindow,QWidget, form_class):
         self.student_score_Button2.clicked.connect(self.StudentScore_Talbe_1)
         # 점수통계
         self.studentscorestatistics_button.clicked.connect(self.studentscorestatistics_button_clicked_event)
-        self.stubackButton.clicked.connect(self.stuback_Button_clicked_event)
+        self.stuback_Button.clicked.connect(self.stuback_Button_clicked_event)
 
+        # 문제출제
+        self.qout_button.clicked.connect(self.qout_button_clicked_event)
 
         # 소켓 생성
         self.sock = socket(AF_INET, SOCK_STREAM)
@@ -565,15 +567,23 @@ class WindowClass(QMainWindow,QWidget, form_class):
     #def qpushbutton_clicked_event(self):
         #self.close()
 
-    def studentscorestatistics_button_clicked_event(self):
+    def studentscorestatistics_button_clicked_event(self):#학생통계버튼
         self.stackedWidget.setCurrentIndex(12)
-        for i in range(1):
-            # statisticsdata = self.sock.recv(2*14).decode()
-            # print(statisticsdata)
 
 
-    def stuback_Button_clicked_event(self):
+    def stuback_Button_clicked_event(self):#학생통계창에서 나가는버튼
         self.stackedWidget.setCurrentIndex(4)
+
+    def qout_button_clicked_event(self):#문제출제버튼
+        self.stackedWidget.setCurrentWidget(13)
+        con, c = self.dbcon()
+        Questionslist = []
+        self.sock.recv(int(self.sock.recv(1024).decode())).decode()
+        self.teacher_questionWidget.append(Questionslist)
+
+
+
+
 
 
 

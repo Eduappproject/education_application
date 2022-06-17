@@ -128,6 +128,10 @@ class WindowClass(QMainWindow, form_class):
         self.lineEdit_new_pw_check.textChanged[str].connect(self.lineEdit_text_changed)
         self.lineEdit_email.textChanged[str].connect(self.lineEdit_text_changed)
 
+        #등급확인 들어가는 버튼
+        self.grade_button.clicked.connect(self.gradeButton_clicked_event)
+
+
         # 소켓 생성
         self.sock = socket(AF_INET, SOCK_STREAM)
         i = 0
@@ -680,6 +684,9 @@ class WindowClass(QMainWindow, form_class):
                 self.stackedWidget.setCurrentIndex(0)
                 self.loginLabel.setText(f"비밀번호를 찾을수없습니다.")
                 self.loginLabel.adjustSize()
+
+    def grade_button_clicked_connect_event(self):
+        self.stackedWidget.setCurrentWidget(8)
 
 
 if __name__ == "__main__":
