@@ -711,9 +711,10 @@ class WindowClass(QMainWindow, form_class):
     def TierpushButton_clicked_event(self) : #티어버튼 눌렀을때
         self.sock.send("점수요청하기".encode())
         # user_point = int(self.sock.recv(1024).decode())
-        user_point = 99
+        user_point = self.user_point
+        if user_point//100 >= len(self.tier_list):
+            user_point = (len(self.tier_list)-1) * 100
         for i in range(len(self.tier_list)):
-            print("user_point//100 == i",user_point//100 == i)
             if user_point//100 == i:
                 self.tier_list[i].show()
             else:
