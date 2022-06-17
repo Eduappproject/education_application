@@ -1,3 +1,4 @@
+from pprint import pprint
 import sys
 import time
 import random
@@ -9,7 +10,6 @@ from socket import *
 from email.mime.text import MIMEText  # 이메일 전송을 위한 라이브러리 import
 import smtplib
 import re  # 정규 표현식
-from qsubwindow import qsubwindow
 form_class = uic.loadUiType("teacher_client.ui")[0]
 port_num = 2090
 
@@ -43,7 +43,7 @@ class WindowClass(QMainWindow,QWidget, form_class):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.show()
+
         self.stackedWidget.setCurrentIndex(0)
 
         self.loginPushButton.clicked.connect(self.loginPushButton_event)  # 로그인 버튼
@@ -96,7 +96,10 @@ class WindowClass(QMainWindow,QWidget, form_class):
         # 뒤로가기 버튼
         self.StudentScorePageBackButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
         # 테이블 위젯(텍스트 수정 막기 설정)
+        self.QandAPageTableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.StudentScorePageTableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.StudentScorePageTableWidget_2.setEditTriggers(QAbstractItemView.NoEditTriggers)
+
 
 
 
@@ -118,10 +121,6 @@ class WindowClass(QMainWindow,QWidget, form_class):
                 input("엔터키를 누를시 재시도 합니다")
                 i = 0
 
-        # self.user = ClientWorker()
-        # self.user.sock = self.sock
-        # self.user.client_data_emit.connect(self.sock_msg)
-        # self.user.start()
 
     # 로그인 화면
     def loginPushButton_event(self):
@@ -340,12 +339,6 @@ class WindowClass(QMainWindow,QWidget, form_class):
     # 학생점수 확인 버튼을 눌렀을때
     def StudentScore_Button_1_event(self):
         self.stackedWidget.setCurrentIndex(7)
-        self.StudentScore_Table_Widget_1.setEnabled(False)
-
-        # self.recv
-
-        self.StudentScore_Table_Widget_1.setEnabled(True)
-
 
     def chatBackButton_event(self):
         self.chatTextBrowser.clear()
@@ -386,20 +379,19 @@ class WindowClass(QMainWindow,QWidget, form_class):
         num = table_widget_item.text()
         post_name = self.QandAPageTableWidget.item(table_num, 1).text()
         num = int(num)
-        print(f"{num} 번 QnA 게시글 누름")
         self.sock.send(f"Q&A게시글보기/{num}".encode())
         buf_size = int(self.sock.recv(1024).decode())
+        print(f"게시글을 받기위한 버퍼사이즈 가 {buf_size} 로 설정됨")
         self.sock.send(f"게시글을 받기위한 버퍼사이즈 가 {buf_size} 로 설정됨".encode())
         data = self.sock.recv(buf_size).decode()
-        post, comment_list = data.split("<-post/comment->")
+        data = data.split("<-post/comment->")
+        post, comment_list = data
         p_text, p_user_name, p_user_id = post.split("/")
         # 게시글 정보 화면에 출력하기
         self.QandAViewPageTextBrowser.append(f"글 제목:{post_name}")
         self.QandAViewPageTextBrowser.append(f"글쓴이:{p_user_name}({p_user_id})")
         self.QandAViewPageTextBrowser.append(f"{p_text}")
         comment_list = comment_list.split("/")
-        print(f"post 값:{post}")
-        print(f"comment_list 값:{comment_list}")
         for comment_data in comment_list:
             if comment_data:
                 comment_name, comment_id, comment_text = comment_data.split("&#")
@@ -433,7 +425,6 @@ class WindowClass(QMainWindow,QWidget, form_class):
         self.stackedWidget.setCurrentWidget(self.QandAPage)  # Q&A 게시판 페이지
         self.sock.send('Q&A게시글목록요청'.encode())
         load_data = self.sock.recv(2 ** 14).decode()
-        print("load_data", load_data)
         if "게시글 없음" == load_data:
             QMessageBox.question(self, '데이터 없음', '작성된 QnA가 없습니다.', QMessageBox.Yes)
             print("QandA 게시글이 없습니다.")
@@ -539,49 +530,76 @@ class WindowClass(QMainWindow,QWidget, form_class):
     def moveqnapage_event(self):
         self.stackedWidget.setCurrentIndex(8)
 
-    # def quploadbutton_event(self):
-    #     self.stackedWidget.setCurrentIndex(6)
-    #     self.qOKbutton.clicked.connect
 
-    def quploadbutton_clicked_Event(self):
-        self.hide()
-        self.second = qsubwindow()
-        self.second.exec()
-        self.show()
+
+    # def quploadbutton_clicked_Event(self):
+    #     self.hide()
+    #     self.second = qsubwindow()
+    #     self.second.exec()
+    #     self.show()
 
     def qlineEdit_onChanged(self, text):
         self.qlineEdit1.setText(text)
         self.qlineEdit2.setText(text)
 
-    #def qbackButton_clicked_event(self):
-    #    self.close()
-
-    #def qpushbutton_clicked_event(self):
-        #self.close()
-
     # 학생들 통계 조회
     def StudentScorePageFadeIn(self):
         """
         통계 확인 페이지 관련 PyQt5 오브젝트 네임
-        StudentScorePageLoadButton     해당 페이지로 가는 버튼
-        StudentScorePage               해당 페이지의 오브젝트 네임
-        StudentScorePageBackButton     뒤로가기 버튼
-        StudentScorePageTableWidget    테이블 위젯
-        .clearContents()  테이블 위젯 초기화
-        .setRowCount(행 길이)  테이블 위젯 행 설정
+        StudentScorePageLoadButton          해당 페이지를 여는 버튼
+        StudentScorePage                    해당 페이지의 오브젝트 네임
+        StudentScorePageBackButton          뒤로가기 버튼
+        StudentScorePageTableWidget         학생 테이블 위젯
+        StudentScorePageTableWidget_2       주제별 테이블 위젯
+        .clearContents()                    테이블 위젯 초기화
+        .setRowCount(행 개수)                      테이블 위젯 행 개수 설정(표의 세로 길이)
         .setItem(행, 열, QTableWidgetItem(문자열))  원하는 행과 열에 문자열 작성
         """
-        print("""# 학생들 통계 조회
-    def StudentScorePageFadeIn(self):""")
 
         self.sock.send("통계요청/".encode())
         buf_size = int(self.sock.recv(1024).decode())
         self.sock.send(f"자료의 크기:{buf_size}".encode())
-        load_data = self.sock.recv(buf_size).decode()
-        print(f"print(load_data):{load_data}")
+        maga_msg = self.sock.recv(buf_size).decode()
+        print(f"def StudentScorePageFadeIn(self):\n\t{maga_msg}")
+
+        api_data, teach_data, score_data = maga_msg.split("/-")
+        api_data_list = api_data.split('/+')
+        teach_data_list = teach_data.split('/+')
+        score_data_list = score_data.split('/+')
+
+        print("\tapi_data_list\n\t",end="")
+        pprint(api_data_list)
+        print("\tteach_data_list\n\t",end="")
+        pprint(teach_data_list)
+        print("\tscore_data_list\n\t",end="")
+        pprint(score_data_list)
+
+        # 주제별 통계
+        self.StudentScorePageTableWidget_2.setRowCount(len(api_data_list))
+        for i in range(len(api_data_list)):
+            data = api_data_list[i].split("/")
+            for j in range(len(data)):
+                self.StudentScorePageTableWidget_2.setItem(i, j, QTableWidgetItem(data[j]))
+        # 학생별 통계
+        self.StudentScorePageTableWidget.setRowCount(len(score_data_list))
+        for i in range(len(score_data_list)):
+            data = score_data_list[i].split("/")
+            self.StudentScorePageTableWidget.setItem(i,0,QTableWidgetItem(data[0]))  # 이름
+            self.StudentScorePageTableWidget.setItem(i, 1, QTableWidgetItem(str(int(data[-1])*10)))  # 포인트 (정답 * 10)
+            self.StudentScorePageTableWidget.setItem(i, 2, QTableWidgetItem(f"{(int(data[-1])/int(data[-2]))*100:.2f}%")) # 정답률
+
         self.stackedWidget.setCurrentWidget(self.StudentScorePage)  # 해당 페이지로 이동
 
+    def SetQuestionsPageFadeIn(self):
+        """
+        문제 출제 페이지 관련 PyQt5 오브젝트 네임
+        SetQuestions                        해당 페이지를 여는 버튼
+        SetQuestionsPage                    해당페이지
+        SetQuestionsPageBaclbutton          뒤로가기 버튼
+        SetQuestionsAddButton               문제 출제 버튼
 
+        """
+        pass
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     myWindow = WindowClass()

@@ -26,7 +26,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>4</number>
+    <number>5</number>
    </property>
    <widget class="QWidget" name="page">
     <widget class="QLabel" name="label_3">
@@ -480,7 +480,7 @@
      <property name="geometry">
       <rect>
        <x>240</x>
-       <y>390</y>
+       <y>410</y>
        <width>191</width>
        <height>61</height>
       </rect>
@@ -498,7 +498,7 @@
      <property name="geometry">
       <rect>
        <x>230</x>
-       <y>180</y>
+       <y>200</y>
        <width>200</width>
        <height>80</height>
       </rect>
@@ -534,7 +534,7 @@
      <property name="geometry">
       <rect>
        <x>230</x>
-       <y>260</y>
+       <y>300</y>
        <width>200</width>
        <height>80</height>
       </rect>
@@ -649,8 +649,13 @@
        <height>51</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>20</pointsize>
+      </font>
+     </property>
      <property name="text">
-      <string>1대1상담(지금은 전체 채팅)</string>
+      <string>1대1상담</string>
      </property>
     </widget>
    </widget>
@@ -753,8 +758,8 @@
     <widget class="QLabel" name="label_36">
      <property name="geometry">
       <rect>
-       <x>60</x>
-       <y>20</y>
+       <x>50</x>
+       <y>200</y>
        <width>381</width>
        <height>71</height>
       </rect>
@@ -765,7 +770,7 @@
       </font>
      </property>
      <property name="text">
-      <string>학생별 통계 조회</string>
+      <string>학생별 통계</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -778,9 +783,9 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>120</y>
+       <y>270</y>
        <width>491</width>
-       <height>401</height>
+       <height>251</height>
       </rect>
      </property>
      <property name="mouseTracking">
@@ -797,6 +802,9 @@
      </property>
      <property name="sortingEnabled">
       <bool>false</bool>
+     </property>
+     <property name="rowCount">
+      <number>1</number>
      </property>
      <attribute name="horizontalHeaderVisible">
       <bool>false</bool>
@@ -825,26 +833,7 @@
      <attribute name="verticalHeaderStretchLastSection">
       <bool>false</bool>
      </attribute>
-     <row>
-      <property name="text">
-       <string>학생이름</string>
-      </property>
-     </row>
-     <row>
-      <property name="text">
-       <string>학생이름</string>
-      </property>
-     </row>
-     <row>
-      <property name="text">
-       <string>학생이름</string>
-      </property>
-     </row>
-     <row>
-      <property name="text">
-       <string>학생이름</string>
-      </property>
-     </row>
+     <row/>
      <column>
       <property name="text">
        <string>이 름</string>
@@ -852,17 +841,112 @@
      </column>
      <column>
       <property name="text">
-       <string>종 류</string>
+       <string>포인트</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>점 수</string>
+       <string>정답률</string>
+      </property>
+     </column>
+    </widget>
+    <widget class="QTableWidget" name="StudentScorePageTableWidget_2">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>90</y>
+       <width>491</width>
+       <height>121</height>
+      </rect>
+     </property>
+     <property name="mouseTracking">
+      <bool>false</bool>
+     </property>
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
+     <property name="dragEnabled">
+      <bool>false</bool>
+     </property>
+     <property name="showGrid">
+      <bool>true</bool>
+     </property>
+     <property name="sortingEnabled">
+      <bool>false</bool>
+     </property>
+     <property name="rowCount">
+      <number>1</number>
+     </property>
+     <attribute name="horizontalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="horizontalHeaderCascadingSectionResizes">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="horizontalHeaderHighlightSections">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="horizontalHeaderStretchLastSection">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="verticalHeaderCascadingSectionResizes">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="verticalHeaderStretchLastSection">
+      <bool>false</bool>
+     </attribute>
+     <row/>
+     <column>
+      <property name="text">
+       <string>주제명</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>평균점수</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>풀이횟수</string>
       </property>
       <property name="textAlignment">
        <set>AlignLeading|AlignVCenter</set>
       </property>
      </column>
+    </widget>
+    <widget class="QLabel" name="label_37">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>10</y>
+       <width>381</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>29</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>주제별 통계</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
     </widget>
    </widget>
    <widget class="QWidget" name="page_18">

@@ -367,7 +367,7 @@ class WindowClass(QMainWindow, form_class):
 
     def chat_msg_input(self):
         msg = self.chatLineEdit.text()
-        if msg == "/나가기" or msg == "/나가기":
+        if msg == "/나가기":
             self.chat_exet()
             return
         self.chatLineEdit.setText("")
@@ -387,6 +387,8 @@ class WindowClass(QMainWindow, form_class):
 
     def mainPageQuestionButton_event(self):
         self.stackedWidget.setCurrentIndex(6)
+        self.got_label.setText("정답 0 개")
+        self.wrong_label.setText("오답 0 개")
         self.questionChoiceButton.setText("주제를 선택해주세요.")
         self.questionChoiceButton.setEnabled(False)
         self.questionListWidget.setEnabled(True)
@@ -484,24 +486,26 @@ class WindowClass(QMainWindow, form_class):
             self.stackedWidget.setCurrentIndex(8)  # 문제 결과 보기
 
             api_or_teachques = "api" if "API" in self.questionListWidget.currentItem().text() else "teachques"
-            total = len(self.questions_completion_list)  # 총문제
+            total_question = len(self.questions_completion_list)  # 총문제
             ok_question = len([i for i in self.questions_completion_list if i])  # 맞춘 개수
             add_point = ok_question * 10  # 흭득 포인트
-            percent = int((ok_question / total) * 100)  # 이번 문제의 정답률
+            percent = int((ok_question / total_question) * 100)  # 이번 문제의 정답률
 
             self.questionsCompletionLabel_1.setText(
                 f"주제:{self.question_request}({self.question_request_dict[self.question_request]})")
             self.questionsCompletionLabel_1.adjustSize()
             self.questionsCompletionLabel_2.setText(
-                f"총 문제 {total}개 중 {ok_question}개 정답\n{add_point} 포인트 흭득")
+                f"총 문제 {total_question}개 중 {ok_question}개 정답\n{add_point} 포인트 흭득")
             self.questionsCompletionLabel_2.adjustSize()
 
             msg = (
                 "quesiton_complete"
-                , self.question_request_dict[self.question_request]
-                , str(percent)
-                , str(self.user_point + add_point)
-                , api_or_teachques
+                , self.question_request_dict[self.question_request]  # 주제
+                , str(percent)  # 이번문제의 정답률
+                , str(self.user_point + add_point)  # 내 포인트 + 문제를 풀고 얻은포인트
+                , api_or_teachques # api 또는 teachques
+                , str(ok_question)  # 정답수
+                , str(total_question)  # 문제수
             )  # 서버로 보낼 데이터 튜플로 만들기
             msg = "/".join(msg)  # 문자 사이에 "/" 끼워넣기
             self.sock.send(msg.encode())  # quetion_complete/과목명/정답률/포인트/주제종류(api, teachques)
@@ -530,12 +534,13 @@ class WindowClass(QMainWindow, form_class):
         num = table_widget_item.text()
         post_name = self.QandAPageTableWidget.item(table_num, 1).text()
         num = int(num)
-        print(f"{num} 번 QnA 게시글 누름")
         self.sock.send(f"Q&A게시글보기/{num}".encode())
         buf_size = int(self.sock.recv(1024).decode())
+        print(f"게시글을 받기위한 버퍼사이즈 가 {buf_size} 로 설정됨")
         self.sock.send(f"게시글을 받기위한 버퍼사이즈 가 {buf_size} 로 설정됨".encode())
         data = self.sock.recv(buf_size).decode()
-        post, comment_list = data.split("<-post/comment->")
+        data = data.split("<-post/comment->")
+        post, comment_list = data
         p_text, p_user_name, p_user_id = post.split("/")
         # 게시글 정보 화면에 출력하기
         self.QandAViewPageTextBrowser.append(f"글 제목:{post_name}")
@@ -576,7 +581,6 @@ class WindowClass(QMainWindow, form_class):
         self.stackedWidget.setCurrentWidget(self.QandAPage)  # Q&A 게시판 페이지
         self.sock.send('Q&A게시글목록요청'.encode())
         load_data = self.sock.recv(2 ** 14).decode()
-        print("load_data", load_data)
         if "게시글 없음" == load_data:
             QMessageBox.question(self, '데이터 없음', '작성된 QnA가 없습니다.', QMessageBox.Yes)
             print("QandA 게시글이 없습니다.")
