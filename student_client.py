@@ -38,7 +38,7 @@ class QuestionRecvWorker(QThread):
             self.question_recv_signal.emit(recv_data)
             return
         print("Q스레드: API 에서 문제를 불러오는데 실패 했습니다")
-        self.question_recv_signal.emit([("문제가 정상적으로 오지 않았습니다", "스미마세ㅇ")])
+        self.question_recv_signal.emit(["문제가 정상적으로 오지 않았습니다"])
         return
 
 
@@ -71,6 +71,14 @@ class WindowClass(QMainWindow, form_class):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+        self.tier_list = [
+            self.bronze_label
+            ,self.silver_label
+            ,self.gold_label
+            ,self.platinum_label
+            ,self.diamond_label
+            ,self.challanger_label]
+
 
         self.stackedWidget.setCurrentIndex(0)
 
@@ -90,13 +98,13 @@ class WindowClass(QMainWindow, form_class):
 
         self.chatLineEdit.returnPressed.connect(self.chat_msg_input)  # 상담방에서 채팅메시지 입력시
         self.chatBackButton.clicked.connect(self.chatBackButton_event)  # 상담방에서 나가기 버튼 누를시
-        # 아이디 비밀번호 미리 입력(디버그 용,삭제해도 상관없음)
-        self.loginLineEdit.setText("wwdS")
-        self.loginLineEdit_2.setText("ppp")
         # 메인 화면
         self.mainPageCounselButton.clicked.connect(self.mainPageCounselButton_event)  # 상담 버튼
         self.mainPageQuestionButton.clicked.connect(self.mainPageQuestionButton_event)  # 문제 풀기 버튼
         self.mainPageQandAButton.clicked.connect(lambda: self.QandA_list_load())  # QandA 게시판 버튼
+        self.gradebutton.clicked.connect(self.gradeButton_clicked_event)    #등급들어가는 버튼
+        self.TierpushButton.clicked.connect(self.TierpushButton_clicked_event)
+        self.TierBack_pushButton.clicked.connect(self.TierBack_pushButton_click_event)
 
         # QandA 게시판 화면
         self.QandAPageBackButton.clicked.connect(self.QandAPageBackButton_event)
@@ -254,7 +262,6 @@ class WindowClass(QMainWindow, form_class):
             return
 
         self.check_msg = str(random.randrange(1000, 10000))
-        print(f"인증번호:{self.check_msg}")
         ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
         ses.starttls()
         # 이메일을 보낼 gmail 계정에 접속
@@ -418,16 +425,19 @@ class WindowClass(QMainWindow, form_class):
         self.tableWidget.clearContents()
         self.sock.send("교사문제주제목록요청".encode())
         data = self.sock.recv(4096).decode()
-        data_list = data.split("/#2")
-        subname_list = [i.split("/#1") for i in data_list]
-        self.tableWidget.setRowCount(len(subname_list))
-        for i in range(len(subname_list)):
-            subname, count = subname_list[i]
-            self.tableWidget.setItem(i, 0, QTableWidgetItem(count))
-            self.tableWidget.setItem(i, 1, QTableWidgetItem(subname))
-        self.questionChoiceButton.setEnabled(False)
-        self.questionListWidget.setEnabled(True)
-        self.tableWidget.setEnabled(True)
+        if data != "없음":
+            data_list = data.split("/#2")
+            subname_list = [i.split("/#1") for i in data_list]
+            self.tableWidget.setRowCount(len(subname_list))
+            for i in range(len(subname_list)):
+                subname, count = subname_list[i]
+                self.tableWidget.setItem(i, 0, QTableWidgetItem(count))
+                self.tableWidget.setItem(i, 1, QTableWidgetItem(subname))
+            self.questionChoiceButton.setEnabled(False)
+            self.questionListWidget.setEnabled(True)
+            self.tableWidget.setEnabled(True)
+        else:
+            self.tableWidget.setRowCount(0)
 
     # 문제 주제를 선택하고 문제 푸는 페이지로 넘어가는 버튼을 눌렀을때 실행되는 함수
     def questionChoiceButton_event(self):
@@ -461,6 +471,10 @@ class WindowClass(QMainWindow, form_class):
             teacher_Q, teacher_A = msg.split("/+/")
             Q_A_list = list(zip(teacher_Q.split("/"), teacher_A.split("/")))
             self.recv_data_pyqt_slot(Q_A_list)
+
+    def gradeButton_clicked_event(self):
+        self.stackedWidget.setCurrentIndex(12)
+        self.TierpushButton_clicked_event()
 
     @pyqtSlot(list)
     def recv_data_pyqt_slot(self, recv_data):
@@ -734,6 +748,21 @@ class WindowClass(QMainWindow, form_class):
                 self.stackedWidget.setCurrentIndex(0)
                 self.loginLabel.setText(f"비밀번호를 찾을수없습니다.")
                 self.loginLabel.adjustSize()
+
+
+    def TierpushButton_clicked_event(self) : #티어버튼 눌렀을때
+        self.sock.send("점수요청하기".encode())
+        # user_point = int(self.sock.recv(1024).decode())
+        user_point = self.user_point
+        if user_point//100 >= len(self.tier_list):
+            user_point = (len(self.tier_list)-1) * 100
+        for i in range(len(self.tier_list)):
+            if user_point//100 == i:
+                self.tier_list[i].show()
+            else:
+                self.tier_list[i].hide()
+    def TierBack_pushButton_click_event(self):
+        self.stackedWidget.setCurrentWidget(self.page_2)
 
 
 if __name__ == "__main__":

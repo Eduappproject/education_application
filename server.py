@@ -523,7 +523,10 @@ class Worker(threading.Thread):
         # 클라이언트에서 다음과 같이 분류한다
         # data_list = data.split("/#2")
         # subname_list = [i.split("/#1") for i in data_list]
-        self.clnt_sock.send(data.encode())
+        if data:
+            self.clnt_sock.send(data.encode())
+        else:
+            self.clnt_sock.send("없음".encode())
         lock.release()
         con.close()
 

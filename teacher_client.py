@@ -63,9 +63,6 @@ class WindowClass(QMainWindow, QWidget, form_class):
 
         self.chatLineEdit.returnPressed.connect(self.chat_msg_input)  # 상담방에서 채팅메시지 입력시
         self.chatBackButton.clicked.connect(self.chatBackButton_event)  # 상담방에서 나가기 버튼 누를시
-        # 아이디 비밀번호 미리 입력(디버그 용,삭제해도 상관없음)
-        self.loginLineEdit.setText("wwdT")
-        self.loginLineEdit_2.setText("ppp")
         # 메인 화면
         self.mainPageCounselButton.clicked.connect(self.mainPageCounselButton_event)  # 상담 버튼
         self.mainPageQandAButton.clicked.connect(lambda: self.QandA_list_load())  # QandA 게시판 버튼
@@ -240,7 +237,6 @@ class WindowClass(QMainWindow, QWidget, form_class):
             return
 
         self.check_msg = str(random.randrange(1000, 10000))
-        print(f"인증번호:{self.check_msg}")
         ses = smtplib.SMTP('smtp.gmail.com', 587)  # smtp 세션 설정
         ses.starttls()
         # 이메일을 보낼 gmail 계정에 접속
@@ -574,18 +570,12 @@ class WindowClass(QMainWindow, QWidget, form_class):
         buf_size = int(self.sock.recv(1024).decode())
         self.sock.send(f"자료의 크기:{buf_size}".encode())
         maga_msg = self.sock.recv(buf_size).decode()
-        print(f"def StudentScorePageFadeIn(self):\n\t{maga_msg}")
 
         api_data, teach_data, score_data = maga_msg.split("/-")
         api_data_list = api_data.split('/+')
         teach_data_list = teach_data.split('/+')
         score_data_list = score_data.split('/+')
 
-        print("\tapi_data_list\n\t", end="")
-        pprint(api_data_list)
-        print("\tteach_data_list\n\t", end="")
-        pprint(teach_data_list)
-        print("\tscore_data_list\n\t", end="")
         pprint(score_data_list)
         self.StudentScorePageTableWidget_2.clearContents()
         self.StudentScorePageTableWidget.clearContents()
@@ -627,16 +617,21 @@ class WindowClass(QMainWindow, QWidget, form_class):
         self.SQPAnswerLineEdit.clear()
         self.SQPQuestionTextEdit.clear()
         subname_list = self.QuestionsTopicLoad()
-        self.SQPTopicTableWidget.setRowCount(len(subname_list))
-        for i in range(len(subname_list)):
-            subname, count = subname_list[i]
-            self.SQPTopicTableWidget.setItem(i, 0, QTableWidgetItem(count))
-            self.SQPTopicTableWidget.setItem(i, 1, QTableWidgetItem(subname))
+        if subname_list:
+            self.SQPTopicTableWidget.setRowCount(len(subname_list))
+            for i in range(len(subname_list)):
+                subname, count = subname_list[i]
+                self.SQPTopicTableWidget.setItem(i, 0, QTableWidgetItem(count))
+                self.SQPTopicTableWidget.setItem(i, 1, QTableWidgetItem(subname))
+        else:
+            self.SQPTopicTableWidget.setRowCount(0)
 
 
     def QuestionsTopicLoad(self):
         self.sock.send("교사문제주제목록요청".encode())
         data = self.sock.recv(4096).decode()
+        if data == "없음":
+            return False
         data_list = data.split("/#2")
         subname_list = [i.split("/#1") for i in data_list]
         print("def QuestionsTopicLoad(self):\n\t", subname_list)
