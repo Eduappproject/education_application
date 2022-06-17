@@ -80,9 +80,11 @@ class Worker(threading.Thread):
             elif clnt_msg.startswith('교사문제출제/'):  # 
                 clnt_msg = clnt_msg.replace('교사문제출제/', '')
                 self.teacher_quetion_update(clnt_msg)
-            elif clnt_msg.startswith('교사문제요청/'):  # 
+            elif clnt_msg.startswith('교사문제요청/'):  #
                 clnt_msg = clnt_msg.replace('교사문제요청/', '')
                 self.teacher_question_send(clnt_msg)
+            elif clnt_msg.startswith('교사문제주제목록요청'):
+                self.teacher_question_list_send()
 
             # 함수안에서 clnt_msg 를 확인하지않기 때문에 replace 할필요없음
             elif clnt_msg == '통계요청/': self.scoredata_send()
@@ -432,8 +434,8 @@ class Worker(threading.Thread):
                 item[0] = item[0].replace(item[1], "[" + "  " * len(item[1]) + "]")
             Question = Question + '//' + item[0]
             Answer = Answer + '//' + item[1]
-            print('문제: ' + item[0] + "\n")  # 얘는 문제라는것!
-            print('정답: ' + item[1] + "\n\n")  # 얘가 정답이라는것!
+            # print('문제: ' + item[0])  # 얘는 문제라는것!
+            # print('정답: ' + item[1])  # 얘가 정답이라는것!
         self.clnt_sock.send(str(Question + Answer).encode())
 
     def test_result_handle(self, clnt_msg, clnt_num):
@@ -441,6 +443,7 @@ class Worker(threading.Thread):
         print("(test_result_handle 함수) 학생이 문제를 풀었어요.",clnt_msg)
         subname, score_avr, point, subtype ,add_answer_count ,add_question_count = clnt_msg.split('/')
         score_avr = int(score_avr)
+        print("subname",subname)
         lock.acquire()
         if subtype == "api":
             c.execute("SELECT score_avr, score_cnt FROM apitbl where subname=?", (subname,))
@@ -451,6 +454,7 @@ class Worker(threading.Thread):
         stud_list = c.fetchone()
 
         lock.release()
+        print("table_list",table_list)
         table_avr = float(table_list[0])
         stud_avr = float(stud_list[0])
         table_cnt = table_list[1]
@@ -481,11 +485,10 @@ class Worker(threading.Thread):
 
     def teacher_quetion_update(self, clnt_msg): #주제/문제명/문제내용 teachques 에 저장
         con, c = self.dbcon()
-        teacher_Q=[]                            #교사가 만든 문제 리스트
-        msg = clnt_msg.split('/')
-        teacher_Q.append(msg)
+        print(f"def teacher_quetion_update(self, clnt_msg):\n\t{clnt_msg}")
+        subname, question, answer= clnt_msg.split('/')
         lock.acquire()
-        c.execute("insert into teachques(subname, question, anser) values(?,?,?) ", (teacher_Q[0],teacher_Q[1], teacher_Q[2])) #받은 내용 table에 저장
+        c.execute("insert into teachques(subname, question, answer) values(?,?,?) ", (subname, question, answer)) #받은 내용 table에 저장
         con.commit()
         con.close()
         lock.release()
@@ -500,11 +503,29 @@ class Worker(threading.Thread):
         teacher_A=c.fetchall()
         lock.release()
         con.close()
-        teacher_Q=list(teacher_Q)       #문제 리스트화
-        teacher_A=list(teacher_A)       #정답 리스트화
+        teacher_Q=[i[0] for i in teacher_Q]       #문제 리스트화
+        teacher_A=[i[0] for i in teacher_A]       #정답 리스트화
         teacher_Q = '/'.join(teacher_Q) #앞에 '/' 붙임
         teacher_A = '/'.join(teacher_A) #앞에 '/' 붙임
-        self.clnt_sock.send((teacher_Q +teacher_A).encode()) # 리스트화 시킨 문제 및 정답을 보냄
+        msg = f"{teacher_Q}/+/{teacher_A}"
+        print("msg:",msg)
+        self.clnt_sock.send(msg.encode()) # 리스트화 시킨 문제 및 정답을 보냄
+
+    def teacher_question_list_send(self):
+        print("교사 문제 주제목록(주제명,주제 개수)\n\t",end="")
+        con, c = self.dbcon()
+        lock.acquire()
+        c.execute("SELECT subname,count(*) FROM teachques GROUP BY 1")
+        subname_list = c.fetchall()
+        print(subname_list)
+        data_list = [f"{subname}/#1{str(count)}" for subname, count in subname_list]
+        data = "/#2".join(data_list)
+        # 클라이언트에서 다음과 같이 분류한다
+        # data_list = data.split("/#2")
+        # subname_list = [i.split("/#1") for i in data_list]
+        self.clnt_sock.send(data.encode())
+        lock.release()
+        con.close()
 
     def scoredata_send(self):
         con, c=self.dbcon()
@@ -519,12 +540,14 @@ class Worker(threading.Thread):
             row[2] = str(row[2])
             row = '/'.join(row)
             api_data_list.append(row)
-        c.execute("SELECT subname, score_avr from teachques")
-        teach_avr_list = c.fetchall()
-        for row in teach_avr_list:
-            row = list(row)
-            row = '/'.join(row)
-            teach_data_list.append(row)
+        # c.execute("SELECT subname, score_avr from teachques GROUP BY 1;")
+        # teach_avr_list = c.fetchall()
+        teach_avr_list = []
+        # print("teach_avr_list\n\t",teach_avr_list)
+        # for row in teach_avr_list:
+        #     row = list(row)
+        #     row = '/'.join(row)
+        #     teach_data_list.append(row)
         c.execute('SELECT  userid ,score_avr, score_cnt,question_count,answer_count from studtbl')
         score_avr_list = c.fetchall()
         for row in score_avr_list:

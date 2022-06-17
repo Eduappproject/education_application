@@ -13,7 +13,10 @@ import re  # 정규 표현식
 form_class = uic.loadUiType("student_client.ui")[0]
 port_num = 2090
 
-
+question_request_dict = {
+    "조류(API)": "bird"
+    , "포유류(API)": "mammal"
+}  # 리스트에 적힌 주제명에 따라서 서버로 보낼 메시지
 # 문제집 데이터를 받는 스레드
 class QuestionRecvWorker(QThread):
     question_recv_signal = pyqtSignal(list)
@@ -114,8 +117,12 @@ class WindowClass(QMainWindow, form_class):
         self.questionListWidget.itemDoubleClicked.connect(self.questionChoiceButton_event)
         self.questionChoiceButton.clicked.connect(self.questionChoiceButton_event)  # 문제의 주제를 선택하면 실행되는 함수
         self.QuestionPageListWidget.itemDoubleClicked.connect(self.answerLineEdit_event)  # 답 선택 버튼
+        self.tableWidget.cellClicked.connect(self.questionTableWidget_event)
+        self.tableWidget.cellDoubleClicked.connect(self.questionChoiceButton_event)
         self.questionbackButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.page_2))
 
+        # 테이블 위젯 수정 막기
+        self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         # 문제 문답 결과 페이지
         self.goMainPageButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.page_2))
 
@@ -385,33 +392,75 @@ class WindowClass(QMainWindow, form_class):
         self.questionChoiceButton.setText(text_data)
         self.questionChoiceButton.setEnabled(True)
 
+    # 문제 풀기 에서 교사 출제 주제 선택시 함수
+    def questionTableWidget_event(self):
+        row_num = self.tableWidget.currentRow()
+        num = self.tableWidget.item(row_num, 0)
+        num = int(num.text())
+        question = self.tableWidget.item(row_num, 1)
+        question = question.text()
+        if num < 10:
+            QMessageBox.question(self, '출제된 문제 부족', '10개 미만의 문제를 풀수 없습니다.',QMessageBox.Yes)
+            self.questionChoiceButton.setText(question)
+            self.questionChoiceButton.setEnabled(False)
+            return
+        else:
+            self.questionChoiceButton.setText(question)
+            self.questionChoiceButton.setEnabled(True)
+
+
+
     def mainPageQuestionButton_event(self):
         self.stackedWidget.setCurrentIndex(6)
         self.got_label.setText("정답 0 개")
         self.wrong_label.setText("오답 0 개")
         self.questionChoiceButton.setText("주제를 선택해주세요.")
+        self.tableWidget.clearContents()
+        self.sock.send("교사문제주제목록요청".encode())
+        data = self.sock.recv(4096).decode()
+        data_list = data.split("/#2")
+        subname_list = [i.split("/#1") for i in data_list]
+        self.tableWidget.setRowCount(len(subname_list))
+        for i in range(len(subname_list)):
+            subname, count = subname_list[i]
+            self.tableWidget.setItem(i, 0, QTableWidgetItem(count))
+            self.tableWidget.setItem(i, 1, QTableWidgetItem(subname))
         self.questionChoiceButton.setEnabled(False)
         self.questionListWidget.setEnabled(True)
+        self.tableWidget.setEnabled(True)
 
     # 문제 주제를 선택하고 문제 푸는 페이지로 넘어가는 버튼을 눌렀을때 실행되는 함수
     def questionChoiceButton_event(self):
         self.question_num = 0
         print(self.questionChoiceButton.text(), "주제 선택됨\n해당 주제를 서버로 보내서 문제를 받아옴")
-        self.question_request_dict = {  # 객채 변수 선언을 매번 반복해 컴퓨터 자원낭비지만 구현목적으로 여기 작성하곘습니다.
-            "조류(API)": "bird"
-            , "포유류(API)": "mammal"
-        }  # 리스트에 적힌 주제명에 따라서 서버로 보낼 메시지
+
         self.question_request = self.questionChoiceButton.text()
-        self.questionChoiceButton.setText("서버에서 문제 불러오는중")
-        self.questionChoiceButton.setEnabled(False)
-        self.questionListWidget.setEnabled(False)
-        question_load = f"question_request/{self.question_request_dict[self.question_request]}"
-        self.sock.send(question_load.encode())
-        self.recv_data = QuestionRecvWorker()
-        self.recv_data.question_load = question_load
-        self.recv_data.sock = self.sock
-        self.recv_data.question_recv_signal.connect(self.recv_data_pyqt_slot)
-        self.recv_data.start()
+        if self.question_request in question_request_dict:
+            self.question_request = question_request_dict[self.question_request]
+
+            self.questionChoiceButton.setText("서버에서 문제 불러오는중")
+            self.questionChoiceButton.setEnabled(False)
+            self.questionListWidget.setEnabled(False)
+            self.tableWidget.setEnabled(False)
+            question_load = f"question_request/{self.question_request}"
+            self.sock.send(question_load.encode())
+            self.recv_data = QuestionRecvWorker()
+            self.recv_data.question_load = question_load
+            self.recv_data.sock = self.sock
+            self.recv_data.question_recv_signal.connect(self.recv_data_pyqt_slot)
+            self.recv_data.start()
+        else:
+            row_num = self.tableWidget.currentRow()
+            num = self.tableWidget.item(row_num, 0)
+            num = int(num.text())
+            question = self.tableWidget.item(row_num, 1)
+            question = question.text()
+            self.question_request = question
+            self.sock.send(f"교사문제요청/{question}".encode())
+            msg = self.sock.recv(2**15).decode()
+            teacher_Q, teacher_A = msg.split("/+/")
+            Q_A_list = list(zip(teacher_Q.split("/"), teacher_A.split("/")))
+            self.recv_data_pyqt_slot(Q_A_list)
 
     @pyqtSlot(list)
     def recv_data_pyqt_slot(self, recv_data):
@@ -484,14 +533,17 @@ class WindowClass(QMainWindow, form_class):
         if not self.question_page():
             self.stackedWidget.setCurrentIndex(8)  # 문제 결과 보기
 
-            api_or_teachques = "api" if "API" in self.questionListWidget.currentItem().text() else "teachques"
+            if self.question_request in question_request_dict.keys():
+                api_or_teachques = "api"
+            else:
+                api_or_teachques = "teachques"
+
             total_question = len(self.questions_completion_list)  # 총문제
             ok_question = len([i for i in self.questions_completion_list if i])  # 맞춘 개수
             add_point = ok_question * 10  # 흭득 포인트
             percent = int((ok_question / total_question) * 100)  # 이번 문제의 정답률
-
             self.questionsCompletionLabel_1.setText(
-                f"주제:{self.question_request}({self.question_request_dict[self.question_request]})")
+                f"주제:{self.question_request}({self.question_request})")
             self.questionsCompletionLabel_1.adjustSize()
             self.questionsCompletionLabel_2.setText(
                 f"총 문제 {total_question}개 중 {ok_question}개 정답\n{add_point} 포인트 흭득")
@@ -499,7 +551,7 @@ class WindowClass(QMainWindow, form_class):
 
             msg = (
                 "quesiton_complete"
-                , self.question_request_dict[self.question_request]  # 주제
+                , self.question_request  # 주제
                 , str(percent)  # 이번문제의 정답률
                 , str(self.user_point + add_point)  # 내 포인트 + 문제를 풀고 얻은포인트
                 , api_or_teachques # api 또는 teachques
@@ -513,6 +565,7 @@ class WindowClass(QMainWindow, form_class):
             self.questionsCompletionLabel_3.adjustSize()
             self.user_point = self.user_point + add_point  # 메인메뉴에 표시할 나의 포인트 계산
             self.userPointLabel.setText(str(self.user_point))
+            self.userPointLabel.adjustSize()
 
     # QandA 게시판에서 뒤로가기 눌렀을때
     def QandAPageBackButton_event(self):

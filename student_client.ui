@@ -26,7 +26,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>10</number>
+    <number>6</number>
    </property>
    <widget class="QWidget" name="page">
     <widget class="QLabel" name="label_3">
@@ -702,10 +702,10 @@
     <widget class="QListWidget" name="questionListWidget">
      <property name="geometry">
       <rect>
-       <x>140</x>
+       <x>150</x>
        <y>120</y>
        <width>256</width>
-       <height>192</height>
+       <height>71</height>
       </rect>
      </property>
      <property name="font">
@@ -727,7 +727,7 @@
     <widget class="QLabel" name="label_8">
      <property name="geometry">
       <rect>
-       <x>140</x>
+       <x>150</x>
        <y>80</y>
        <width>201</width>
        <height>31</height>
@@ -741,7 +741,7 @@
      <property name="geometry">
       <rect>
        <x>150</x>
-       <y>350</y>
+       <y>470</y>
        <width>151</width>
        <height>31</height>
       </rect>
@@ -757,13 +757,69 @@
      <property name="geometry">
       <rect>
        <x>150</x>
-       <y>380</y>
-       <width>221</width>
+       <y>510</y>
+       <width>256</width>
        <height>41</height>
       </rect>
      </property>
      <property name="text">
       <string>주제를 선택하세요</string>
+     </property>
+    </widget>
+    <widget class="QTableWidget" name="tableWidget">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>250</y>
+       <width>256</width>
+       <height>192</height>
+      </rect>
+     </property>
+     <attribute name="horizontalHeaderVisible">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="horizontalHeaderCascadingSectionResizes">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="horizontalHeaderHighlightSections">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="horizontalHeaderStretchLastSection">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
+     <row>
+      <property name="text">
+       <string>새 열</string>
+      </property>
+     </row>
+     <column>
+      <property name="text">
+       <string>문제 개수</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>주제명</string>
+      </property>
+     </column>
+    </widget>
+    <widget class="QLabel" name="label_17">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>210</y>
+       <width>201</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>교사 출제 문제</string>
      </property>
     </widget>
    </widget>

@@ -26,7 +26,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>4</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="page">
     <widget class="QLabel" name="label_3">
@@ -494,7 +494,7 @@
       <string>학생별 통계 조회</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="mainButton_2">
+    <widget class="QPushButton" name="SetQuestionsButton">
      <property name="geometry">
       <rect>
        <x>230</x>
@@ -923,7 +923,7 @@
        <string>풀이횟수</string>
       </property>
       <property name="textAlignment">
-       <set>AlignLeading|AlignVCenter</set>
+       <set>AlignCenter</set>
       </property>
      </column>
     </widget>
@@ -1455,7 +1455,7 @@
     </widget>
    </widget>
    <widget class="QWidget" name="SetQuestionsPage">
-    <widget class="QTextEdit" name="textEdit">
+    <widget class="QTextEdit" name="SQPQuestionTextEdit">
      <property name="geometry">
       <rect>
        <x>60</x>
@@ -1465,7 +1465,7 @@
       </rect>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit">
+    <widget class="QLineEdit" name="SQPAnswerLineEdit">
      <property name="geometry">
       <rect>
        <x>60</x>
@@ -1475,7 +1475,7 @@
       </rect>
      </property>
     </widget>
-    <widget class="QTableWidget" name="tableWidget">
+    <widget class="QTableWidget" name="SQPTopicTableWidget">
      <property name="geometry">
       <rect>
        <x>60</x>
@@ -1493,6 +1493,14 @@
      <attribute name="horizontalHeaderStretchLastSection">
       <bool>true</bool>
      </attribute>
+     <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
+     <row>
+      <property name="text">
+       <string>새 열</string>
+      </property>
+     </row>
      <column>
       <property name="text">
        <string>문제 개수</string>
@@ -1504,7 +1512,7 @@
       </property>
      </column>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_2">
+    <widget class="QLineEdit" name="SQPTopicLineEdit">
      <property name="geometry">
       <rect>
        <x>60</x>
@@ -1566,7 +1574,7 @@
       <string>서버에 저장되어있는 주제</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton">
+    <widget class="QPushButton" name="SetQuestionsAddButton">
      <property name="geometry">
       <rect>
        <x>370</x>
@@ -1584,7 +1592,7 @@
       <string>문제 출제하기</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_2">
+    <widget class="QPushButton" name="SetQuestionsPageBaclButton">
      <property name="geometry">
       <rect>
        <x>370</x>
@@ -1596,6 +1604,99 @@
      <property name="font">
       <font>
        <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>뒤로가기</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="TeacherQuestionsPage">
+    <widget class="QTableWidget" name="TeacherQuestionsTableWidget">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>100</y>
+       <width>381</width>
+       <height>461</height>
+      </rect>
+     </property>
+     <property name="autoScroll">
+      <bool>true</bool>
+     </property>
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
+     <property name="tabKeyNavigation">
+      <bool>true</bool>
+     </property>
+     <property name="dragEnabled">
+      <bool>false</bool>
+     </property>
+     <attribute name="horizontalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="horizontalHeaderCascadingSectionResizes">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="horizontalHeaderHighlightSections">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="horizontalHeaderStretchLastSection">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
+     <row>
+      <property name="text">
+       <string>새 열</string>
+      </property>
+     </row>
+     <column>
+      <property name="text">
+       <string>정답</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>문제</string>
+      </property>
+     </column>
+    </widget>
+    <widget class="QLabel" name="label_29">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>40</y>
+       <width>231</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>주제의 교사출제 문제목록</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="TeacherQuestionsBackButton">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>580</y>
+       <width>181</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>15</pointsize>
       </font>
      </property>
      <property name="text">

@@ -10,6 +10,7 @@ from socket import *
 from email.mime.text import MIMEText  # 이메일 전송을 위한 라이브러리 import
 import smtplib
 import re  # 정규 표현식
+
 form_class = uic.loadUiType("teacher_client.ui")[0]
 port_num = 2090
 
@@ -38,7 +39,7 @@ class ClientWorker(QThread):
         print("상담 스레드 종료")
 
 
-class WindowClass(QMainWindow,QWidget, form_class):
+class WindowClass(QMainWindow, QWidget, form_class):
 
     def __init__(self):
         super().__init__()
@@ -69,15 +70,16 @@ class WindowClass(QMainWindow,QWidget, form_class):
         self.mainPageCounselButton.clicked.connect(self.mainPageCounselButton_event)  # 상담 버튼
         self.mainPageQandAButton.clicked.connect(lambda: self.QandA_list_load())  # QandA 게시판 버튼
 
+        # QandA 페이지
         # QandA 게시판 화면
         self.QandAPageBackButton.clicked.connect(self.QandAPageBackButton_event)
         self.QandAPagePushButton.clicked.connect(self.QandAPagePushButton_enent)
         self.QandAPageTableWidget.cellClicked.connect(self.QandAPageTableWidget_event)
-
+        # 테이블 위젯 수정 막기
+        self.QandAPageTableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         # QandA 작성 화면
         self.QandAAddPagebackButton.clicked.connect(lambda: self.QandA_list_load())  # 뒤로가기 버튼(QandA 목록으로)
         self.QandAAddPagePushButton.clicked.connect(self.QandAAddPagePushButton_event)
-
         # QandA 게시글 보기 화면
         self.QandAViewPageBackButton.clicked.connect(lambda: self.QandA_list_load())  # 뒤로가기 버튼(QandA 목록으로)
         self.QandAViewPageCommentPushButton.clicked.connect(self.QandAViewPageCommentPushButton_event)
@@ -91,16 +93,31 @@ class WindowClass(QMainWindow,QWidget, form_class):
         self.lineEdit_email.textChanged[str].connect(self.lineEdit_text_changed)
 
         # 학생들 통계 조회 페이지
-        # 메인페이지에서 해당 페이지로 가는 버튼
+        # 해당 페이지로 이동 버튼
         self.StudentScorePageLoadButton.clicked.connect(self.StudentScorePageFadeIn)
         # 뒤로가기 버튼
         self.StudentScorePageBackButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
         # 테이블 위젯(텍스트 수정 막기 설정)
-        self.QandAPageTableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.StudentScorePageTableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.StudentScorePageTableWidget_2.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
+        # 교사 문제 출제 페이지
+        # 해당 페이지로 이동 버튼
+        self.SetQuestionsButton.clicked.connect(self.SetQuestionsPageFadeIn)
+        # 뒤로가기 버튼
+        self.SetQuestionsPageBaclButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.page_2))
+        # 테이블 위젯 클릭
+        self.SQPTopicTableWidget.cellClicked.connect(self.TopicClicked_event)
+        # 테이블 위젯(텍스트 수정 막기 설정)
+        self.SQPTopicTableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        # 문제 출제 버튼
+        self.SetQuestionsAddButton.clicked.connect(self.SetQuestionsAddButton_event)
 
+        # 특정 주제의 교사 출제 목록 보기 페이지
+        # 해당 페이지로 이동
+        self.SQPTopicTableWidget.cellDoubleClicked.connect(self.TeacherQuestionsPageFadeIn)
+        # 뒤로가기 버튼
+        self.TeacherQuestionsBackButton.clicked.connect(self.SetQuestionsPageFadeIn)
 
 
         # 소켓 생성
@@ -120,7 +137,6 @@ class WindowClass(QMainWindow,QWidget, form_class):
                 print("서버 연결에 실패했습니다.")
                 input("엔터키를 누를시 재시도 합니다")
                 i = 0
-
 
     # 로그인 화면
     def loginPushButton_event(self):
@@ -530,8 +546,6 @@ class WindowClass(QMainWindow,QWidget, form_class):
     def moveqnapage_event(self):
         self.stackedWidget.setCurrentIndex(8)
 
-
-
     # def quploadbutton_clicked_Event(self):
     #     self.hide()
     #     self.second = qsubwindow()
@@ -567,13 +581,14 @@ class WindowClass(QMainWindow,QWidget, form_class):
         teach_data_list = teach_data.split('/+')
         score_data_list = score_data.split('/+')
 
-        print("\tapi_data_list\n\t",end="")
+        print("\tapi_data_list\n\t", end="")
         pprint(api_data_list)
-        print("\tteach_data_list\n\t",end="")
+        print("\tteach_data_list\n\t", end="")
         pprint(teach_data_list)
-        print("\tscore_data_list\n\t",end="")
+        print("\tscore_data_list\n\t", end="")
         pprint(score_data_list)
-
+        self.StudentScorePageTableWidget_2.clearContents()
+        self.StudentScorePageTableWidget.clearContents()
         # 주제별 통계
         self.StudentScorePageTableWidget_2.setRowCount(len(api_data_list))
         for i in range(len(api_data_list)):
@@ -584,9 +599,14 @@ class WindowClass(QMainWindow,QWidget, form_class):
         self.StudentScorePageTableWidget.setRowCount(len(score_data_list))
         for i in range(len(score_data_list)):
             data = score_data_list[i].split("/")
-            self.StudentScorePageTableWidget.setItem(i,0,QTableWidgetItem(data[0]))  # 이름
-            self.StudentScorePageTableWidget.setItem(i, 1, QTableWidgetItem(str(int(data[-1])*10)))  # 포인트 (정답 * 10)
-            self.StudentScorePageTableWidget.setItem(i, 2, QTableWidgetItem(f"{(int(data[-1])/int(data[-2]))*100:.2f}%")) # 정답률
+            self.StudentScorePageTableWidget.setItem(i, 0, QTableWidgetItem(data[0]))  # 이름
+            self.StudentScorePageTableWidget.setItem(i, 1, QTableWidgetItem(str(int(data[-1]) * 10)))  # 포인트 (정답 * 10)
+            try:
+                self.StudentScorePageTableWidget.setItem(i, 2, QTableWidgetItem(
+                    f"{(int(data[-1]) / int(data[-2])) * 100:.2f}%"))  # 정답률
+            except ZeroDivisionError:
+                self.StudentScorePageTableWidget.setItem(i, 2, QTableWidgetItem(
+                    f"{0}%"))  # 정답률
 
         self.stackedWidget.setCurrentWidget(self.StudentScorePage)  # 해당 페이지로 이동
 
@@ -602,6 +622,68 @@ class WindowClass(QMainWindow,QWidget, form_class):
         SetQuestionsAddButton               문제 출제 버튼
         SetQuestionsPageBaclButton          뒤로가기 버튼
         """
+        self.stackedWidget.setCurrentWidget(self.SetQuestionsPage)  # 해당 페이지로 이동
+        self.SQPTopicTableWidget.clearContents()
+        self.SQPAnswerLineEdit.clear()
+        self.SQPQuestionTextEdit.clear()
+        subname_list = self.QuestionsTopicLoad()
+        self.SQPTopicTableWidget.setRowCount(len(subname_list))
+        for i in range(len(subname_list)):
+            subname, count = subname_list[i]
+            self.SQPTopicTableWidget.setItem(i, 0, QTableWidgetItem(count))
+            self.SQPTopicTableWidget.setItem(i, 1, QTableWidgetItem(subname))
+
+
+    def QuestionsTopicLoad(self):
+        self.sock.send("교사문제주제목록요청".encode())
+        data = self.sock.recv(4096).decode()
+        data_list = data.split("/#2")
+        subname_list = [i.split("/#1") for i in data_list]
+        print("def QuestionsTopicLoad(self):\n\t", subname_list)
+        return subname_list
+
+    def TopicClicked_event(self):
+        row_num = self.SQPTopicTableWidget.currentRow()
+        topic_text = self.SQPTopicTableWidget.item(row_num,1)
+        topic_text = topic_text.text()
+        self.SQPTopicLineEdit.setText(topic_text)
+
+    def SetQuestionsAddButton_event(self):
+        teacher_Q = [
+            "교사문제출제"
+            , self.SQPTopicLineEdit.text()
+            , self.SQPQuestionTextEdit.toPlainText()
+            , self.SQPAnswerLineEdit.text()
+        ]
+        msg = "/".join(teacher_Q)
+        print(f"def SetQuestionsAddButton_event(self):\n\t{msg}")
+        self.sock.send(msg.encode())
+        self.SetQuestionsPageFadeIn()
+
+    def TeacherQuestionsPageFadeIn(self):
+        """
+        특정 주제의 교사 출제 목록 보기 페이지
+        TeacherQuestionsPage            해당 페이지
+        TeacherQuestionsTableWidget     선택한 주제의 문제 목록
+        TeacherQuestionsBackButton      뒤로가기 버튼
+        """
+        self.stackedWidget.setCurrentWidget(self.TeacherQuestionsPage)
+
+        row_num = self.SQPTopicTableWidget.currentRow()
+        topic_text = self.SQPTopicTableWidget.item(row_num,1)
+        topic_text = topic_text.text()
+
+        self.sock.send(f"교사문제요청/{topic_text}".encode())
+        msg = self.sock.recv(2**14).decode()
+        msg = msg.split("/+/")
+        teacher_Q, teacher_A = msg
+        Q_A_list = list(zip(teacher_Q.split("/"),teacher_A.split("/")))
+        self.TeacherQuestionsTableWidget.setRowCount(len(Q_A_list))
+        for i in range(len(Q_A_list)):
+            teacher_Q, teacher_A = Q_A_list[i]
+            self.TeacherQuestionsTableWidget.setItem(i, 0, QTableWidgetItem(teacher_A))
+            self.TeacherQuestionsTableWidget.setItem(i, 1, QTableWidgetItem(teacher_Q))
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
