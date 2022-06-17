@@ -114,10 +114,10 @@ class WindowClass(QMainWindow, form_class):
         self.questionListWidget.itemDoubleClicked.connect(self.questionChoiceButton_event)
         self.questionChoiceButton.clicked.connect(self.questionChoiceButton_event)  # 문제의 주제를 선택하면 실행되는 함수
         self.QuestionPageListWidget.itemDoubleClicked.connect(self.answerLineEdit_event)  # 답 선택 버튼
-        self.questionbackButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
+        self.questionbackButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.page_2))
 
         # 문제 문답 결과 페이지
-        self.goMainPageButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
+        self.goMainPageButton.clicked.connect(lambda: self.stackedWidget.setCurrentWidget(self.page_2))
 
         # 회원가입화면 lineEdit
         self.lineEdit_text_changed()
@@ -424,6 +424,7 @@ class WindowClass(QMainWindow, form_class):
         self.question_page()
 
     def question_page(self):
+        self.QuestionPageListWidget.clear() # 리스트 위젯 클리어
         if len(self.question_data_base) <= self.question_num:
             print("축하합니다 모든문제를 풀었습니다\n이제 서버로 맞춘 문제의 개수와 포인트를 전송합니다")
             return False
@@ -445,8 +446,6 @@ class WindowClass(QMainWindow, form_class):
         self.questionNumLabel.adjustSize()
         self.question_num += 1
         return True
-
-
 
     """
     리스트 위젯 시그널,함수 모음

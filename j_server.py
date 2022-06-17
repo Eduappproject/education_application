@@ -24,6 +24,10 @@ class Worker(threading.Thread):
         self.clnt_sock = sock
 
     def run(self):
+        for clnt_imfo in clnt_imfor:
+            if clnt_imfo[0] == self.clnt_sock:
+                clnt_num = clnt_imfor.index(clnt_imfo)
+                break  # 접속한 클라이언트 소켓이 리스트 몇번째에 있는지 저장
 
         while True:
             sys.stdout.flush()  # 버퍼 비워주는거
@@ -41,10 +45,6 @@ class Worker(threading.Thread):
             clnt_msg = clnt_msg.decode()  # 숫자->문자열로 바꾸는거 맞나?  데이터 보낼때 incode 로 하고
 
             sys.stdin.flush()
-            for clnt_imfo in clnt_imfor:
-                if clnt_imfo[0] == self.clnt_sock:
-                    clnt_num = clnt_imfor.index(clnt_imfo)
-                    break  # 접속한 클라이언트 소켓이 리스트 몇번째에 있는지 저장
 
             if 'signup' == clnt_msg:
                 self.sign_up()

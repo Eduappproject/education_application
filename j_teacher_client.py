@@ -593,13 +593,16 @@ class WindowClass(QMainWindow,QWidget, form_class):
     def SetQuestionsPageFadeIn(self):
         """
         문제 출제 페이지 관련 PyQt5 오브젝트 네임
-        SetQuestions                        해당 페이지를 여는 버튼
-        SetQuestionsPage                    해당페이지
-        SetQuestionsPageBaclbutton          뒤로가기 버튼
+        SetQuestionsButton                  해당 페이지를 여는 버튼
+        SetQuestionsPage                    해당 페이지
+        SQPTopicTableWidget                 작성된 주제 목록
+        SQPTopicLineEdit                    주제 입력창
+        SQPQuestionTextEdit                 문제 입력창
+        SQPAnswerLineEdit                   정답 입력창
         SetQuestionsAddButton               문제 출제 버튼
-
+        SetQuestionsPageBaclButton          뒤로가기 버튼
         """
-        pass
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     myWindow = WindowClass()
